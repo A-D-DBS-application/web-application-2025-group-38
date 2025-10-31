@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="h5">Kies een editie</h2>
+{% if editions %}
+<ul class="list-group">
+    {% for e in editions %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <strong>{{ e.Name }}</strong>
+            {% if e.Location %}<span class="text-muted"> — {{ e.Location }}</span>{% endif %}
+        </div>
+        <div class="text-muted small">
+            {% if e.Start_date %}{{ e.Start_date }}{% endif %}
+            {% if e.End_date %}– {{ e.End_date }}{% endif %}
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="text-muted">Nog geen edities.</p>
+{% endif %}
+{% endblock %}

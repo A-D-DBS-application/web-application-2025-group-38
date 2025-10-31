@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="h4">{{ poll.Question }}</h2>
+<form method="post" class="mt-3">
+    <div class="list-group">
+        {% for o in options %}
+        <label class="list-group-item d-flex gap-2">
+            <input class="form-check-input" type="radio" name="option_id" value="{{ o.id }}" required>
+            <span>{{ o.text }}{% if o.artist %} — <em>{{ o.artist.Artist_name }}</em>{% endif %}</span>
+        </label>
+        {% endfor %}
+    </div>
+    <button class="btn btn-success mt-3">Stem</button>
+    <a class="btn btn-outline-secondary mt-3" href="{{ url_for('poll_results', poll_id=poll.id) }}">Resultaten</a>
+</form>
+{% endblock %}
