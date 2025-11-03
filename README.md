@@ -12,3 +12,8 @@ def index():
 
 if __name__ == '__main__':
     app.run(debug=True) 
+
+python -m flask --app app run --debug
+
+
+mmmmmm
