@@ -12,6 +12,7 @@ app = Flask(__name__, template_folder=TEMPLATES_DIR)
 from config import Config
 app.config.from_object(Config)
 
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
