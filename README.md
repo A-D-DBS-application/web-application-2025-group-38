@@ -15,10 +15,9 @@ if __name__ == '__main__':
 
 python -m flask --app app run --debug
 
-TEst etst test 
-mmmmmm
 
 
 
 
-ddddd
+
+
