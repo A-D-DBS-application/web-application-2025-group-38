@@ -1,54 +1,111 @@
-import os
-from flask import Flask, render_template, request, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from config import Config
+from models import db, User, Artists, FestivalEdition, Poll, Polloption, VotesFor, SuggestionFeedback
 from flask_migrate import Migrate
 
-# 👉 Zorg dat Flask altijd het juiste pad gebruikt:
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
-app = Flask(__name__, template_folder=TEMPLATES_DIR)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
+    db.init_app(app)
 
-# Database-config
-from config import Config
-app.config.from_object(Config)
+    migrate = Migrate(app, db)  
+    # 1) Lokaal: maak app.db als hij nog niet bestaat
+    #    In Supabase (Postgres) bestaan de tabellen al; create_all() doet dan niets extra.
+    with app.app_context():
+        db.create_all()
 
+    # 2) "Anonieme user": we geven elke bezoeker een user_id in de sessie
+    def get_or_create_session_user():
+        uid = session.get("user_id")
+        if uid is None:
+            u = User()               # lege user aanmaken
+            db.session.add(u)
+            db.session.commit()
+            session["user_id"] = u.id
+            return u
+        return db.session.get(User, uid)
 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+    # 3) Home: toon edities met hun polls
+    @app.route("/")
+    def editions():
+        eds = FestivalEdition.query.order_by(FestivalEdition.Start_date.desc().nullslast()).all()
+        return render_template("editions.html", editions=eds)
 
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    # 4) Poll-detail: toon opties, registreer stem (1 stem per user per poll)
+    @app.route("/poll/<int:poll_id>", methods=["GET", "POST"])
+    def poll_detail(poll_id):
+        poll = db.session.get(Poll, poll_id)
+        if not poll:
+            flash("Poll niet gevonden", "warning")
+            return redirect(url_for("editions"))
+        user = get_or_create_session_user()
 
-    def __repr__(self):
-        return f'<User {self.name}>'
+        if request.method == "POST":
+            option_id = int(request.form.get("option_id", "0"))
+            option = db.session.get(Polloption, option_id)
+            # Veiligheidscheck: optie moet bij deze poll horen
+            if not option or option.poll_id != poll.id:
+                flash("Ongeldige optie", "danger")
+                return redirect(url_for("poll_detail", poll_id=poll.id))
 
-@app.route('/')
-def home():
-    return redirect(url_for('show_users'))
+            # Check of user al gestemd heeft in deze poll
+            already = (
+                db.session.query(VotesFor)
+                .join(Polloption, VotesFor.polloption_id == Polloption.id)
+                .filter(VotesFor.user_id == user.id, Polloption.poll_id == poll.id)
+                .first()
+            )
+            if already:
+                flash("Je hebt al gestemd voor deze poll.", "info")
+            else:
+                db.session.add(VotesFor(user_id=user.id, polloption_id=option.id))
+                db.session.commit()
+                flash("Stem geregistreerd!", "success")
+            return redirect(url_for("poll_results", poll_id=poll.id))
 
-@app.route('/users', methods=['GET'])
-def show_users():
-    users = User.query.all()
-    return render_template('users.html', title='Gebruikerslijst', users=users)
+        return render_template("poll_detail.html", poll=poll, options=poll.options)
 
-@app.route('/add_user', methods=['POST'])
-def add_user():
-    name = request.form.get('name')
-    if name:
-        db.session.add(User(name=name))
-        db.session.commit()
-    return redirect(url_for('show_users'))
+    # 5) Resultaten: tel stemmen per optie met GROUP BY
+    @app.route("/poll/<int:poll_id>/results")
+    def poll_results(poll_id):
+        poll = db.session.get(Poll, poll_id)
+        if not poll:
+            flash("Poll niet gevonden", "warning")
+            return redirect(url_for("editions"))
 
-# 🔍 Diagnosepagina (hiermee kunnen we checken wat Flask gebruikt)
-@app.route('/_diag')
-def diag():
-    return {
-        "current_working_dir": os.getcwd(),
-        "BASE_DIR": BASE_DIR,
-        "TEMPLATES_DIR": TEMPLATES_DIR,
-        "template_searchpath": app.jinja_loader.searchpath,
-    }
+        counts = (
+            db.session.query(Polloption.id, db.func.count(VotesFor.user_id))
+            .outerjoin(VotesFor, VotesFor.polloption_id == Polloption.id)
+            .filter(Polloption.poll_id == poll.id)
+            .group_by(Polloption.id)
+            .all()
+        )
+        count_map = {oid: c for oid, c in counts}
+        total = sum(count_map.values())
+        return render_template("poll_results.html", poll=poll, total=total, count_map=count_map)
 
-if __name__ == '__main__':
+    # 6) Suggesties: simpele form om artiestnamen binnen te sturen
+    @app.route("/suggest", methods=["GET", "POST"])
+    def suggest():
+        if request.method == "POST":
+            artist_name = request.form.get("artist_name", "").strip()
+            if not artist_name:
+                flash("Geef een artiestnaam op.", "warning")
+                return redirect(url_for("suggest"))
+            a = Artists(Artist_name=artist_name)
+            db.session.add(a)
+            db.session.commit()
+            s = SuggestionFeedback(artist_id=a.id)
+            db.session.add(s)
+            db.session.commit()
+            flash("Bedankt voor je suggestie!", "success")
+            return redirect(url_for("editions"))
+        return render_template("suggest.html")
+
+    return app
+
+# 7) Dit maakt runnen met "python app.py" mogelijk tijdens ontwikkeling
+app = create_app()
+
+if __name__ == "__main__":
     app.run(debug=True)
