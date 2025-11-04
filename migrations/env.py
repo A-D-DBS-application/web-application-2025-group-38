@@ -1,18 +1,18 @@
 import logging
 from logging.config import fileConfig
-
 from flask import current_app
-
 from alembic import context
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
-config = context.configure
+# Alembic Config object geeft toegang tot de waarden in alembic.ini
+config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# Logging configureren
 fileConfig(config.config_file_name)
 logger = logging.getLogger('alembic.env')
+
+# Gebruik de metadata van de Flask app
+target_metadata = current_app.extensions['migrate'].db.metadata
+
 
 
 def get_engine():
