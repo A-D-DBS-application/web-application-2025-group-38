@@ -1,5 +1,21 @@
 {% extends "base.html" %}
+{% block title %}Welkom bij Vicaris Village{% endblock %}
+
 {% block content %}
-<p>Welkom! De app draait.</p>
-<p>Healthcheck: <a href="/health">/health</a></p>
+<section class="hero">
+  <!-- 🔥 achtergrond eerst, zodat ze achter de tekst ligt -->
+  <div class="hero-bg"></div>
+
+  <div class="container text-center py-5">
+    <h2 class="fw-bold mb-3">
+      Welkom bij <span class="vv-text-highlight">Vicaris Village</span>
+    </h2>
+    <p class="lead mb-4">
+      Geniet van muziek, sfeer en jouw stem telt! Ontdek de artiesten of geef je suggestie.
+    </p>
+    <a href="{{ url_for('editions') }}" class="cta me-2">Stem nu</a>
+    <a href="{{ url_for('suggest') }}" class="cta alt">Artiest suggereren</a>
+  </div>
+</section>
 {% endblock %}
+

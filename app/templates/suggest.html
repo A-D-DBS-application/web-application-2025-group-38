@@ -1,8 +1,91 @@
 {% extends "base.html" %}
+{% block title %}Suggestie - Vicaris Village{% endblock %}
+
 {% block content %}
-<h2 class="h4">Stel een artiest voor</h2>
-<form method="post" class="mt-3 d-flex gap-2">
-    <input name="artist_name" class="form-control" placeholder="Artiest naam" required>
-    <button class="btn btn-primary">Verstuur</button>
-</form>
+<section class="container text-center py-5">
+  <h2 class="fw-bold mb-4">🎵 Stel een artiest voor</h2>
+  <p class="mb-4 lead">Kies jouw favoriete artiest uit de lijst hieronder en dien je suggestie in!</p>
+
+  <form method="POST" onsubmit="return validateArtistInput()">
+    <label for="artist_name" class="form-label fw-semibold">Kies artiest:</label>
+
+    <!-- 🔍 Typbare maar beperkte input -->
+    <input list="artists" name="artist_name" id="artist_name"
+           class="form-control text-center"
+           placeholder="Typ of kies een artiest..." required>
+
+    <!-- 🎶 Suggestielijst -->
+    <datalist id="artists">
+      <option value="Arctic Monkeys">
+      <option value="Coldplay">
+      <option value="Imagine Dragons">
+      <option value="Muse">
+      <option value="The Killers">
+      <option value="Foo Fighters">
+      <option value="Red Hot Chili Peppers">
+      <option value="Ed Sheeran">
+      <option value="Dua Lipa">
+      <option value="Billie Eilish">
+      <option value="Post Malone">
+      <option value="The Weeknd">
+      <option value="Bruno Mars">
+      <option value="Calvin Harris">
+      <option value="David Guetta">
+      <option value="Kygo">
+      <option value="Avicii">
+      <option value="Bastille">
+      <option value="Sam Smith">
+      <option value="Shawn Mendes">
+      <option value="Harry Styles">
+      <option value="Adele">
+      <option value="Tame Impala">
+      <option value="Oasis">
+      <option value="Florence + The Machine">
+      <option value="Stromae">
+      <option value="Lost Frequencies">
+      <option value="Angèle">
+      <option value="Netsky">
+      <option value="Selah Sue">
+      <option value="Oscar and the Wolf">
+      <option value="Metallica">
+      <option value="Linkin Park">
+      <option value="Green Day">
+      <option value="Paramore">
+      <option value="Blink-182">
+      <option value="Twenty One Pilots">
+      <option value="Avenged Sevenfold">
+      <option value="The Chainsmokers">
+      <option value="Zedd">
+      <option value="Swedish House Mafia">
+      <option value="Maroon 5">
+      <option value="The Script">
+      <option value="Kings of Leon">
+      <option value="Kanye West">
+      <option value="Drake">
+      <option value="Eminem">
+      <option value="50 Cent">
+      <option value="Black Eyed Peas">
+      <option value="Tame Impala">
+    </datalist>
+
+    <button type="submit" class="cta mt-3">Verstuur suggestie</button>
+  </form>
+</section>
+
+<!-- ✅ Validatie-script -->
+<script>
+function validateArtistInput() {
+  const input = document.getElementById("artist_name");
+  const datalist = document.getElementById("artists");
+  const validValues = Array.from(datalist.options).map(opt => opt.value.toLowerCase());
+  const inputValue = input.value.trim().toLowerCase();
+
+  if (!validValues.includes(inputValue)) {
+    alert("⚠️ Kies een artiest uit de lijst (niet zelf intypen).");
+    input.focus();
+    return false; // voorkomt verzending
+  }
+  return true; // laat verzending toe
+}
+</script>
 {% endblock %}

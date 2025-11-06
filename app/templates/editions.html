@@ -1,22 +1,31 @@
 {% extends "base.html" %}
+
 {% block content %}
-<h2 class="h5">Kies een editie</h2>
+<h2 class="text-center mb-4">Stem op je favoriete artiest 🎤</h2>
+<p class="text-center mb-5">
+  Kies hieronder een editie van <strong>Vicaris Village</strong> en ontdek welke artiesten je kan stemmen.
+</p>
+
 {% if editions %}
-<ul class="list-group">
+  <div class="row justify-content-center">
     {% for e in editions %}
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-        <div>
-            <strong>{{ e.Name }}</strong>
-            {% if e.Location %}<span class="text-muted"> — {{ e.Location }}</span>{% endif %}
+      <div class="col-md-4 mb-4">
+        <div class="card p-4 text-center">
+          <h4>{{ e.Name }}</h4>
+          <p class="text-muted">{{ e.Location }}</p>
+          <p>{{ e.Start_date }} – {{ e.End_date }}</p>
+
+          {% if e.polls %}
+            <a href="{{ url_for('poll_detail', poll_id=e.polls[0].id) }}" class="cta mt-2">Bekijk poll</a>
+          {% else %}
+            <span class="text-muted">Nog geen poll voor deze editie</span>
+          {% endif %}
         </div>
-        <div class="text-muted small">
-            {% if e.Start_date %}{{ e.Start_date }}{% endif %}
-            {% if e.End_date %}– {{ e.End_date }}{% endif %}
-        </div>
-    </li>
+      </div>
     {% endfor %}
-</ul>
+  </div>
 {% else %}
-<p class="text-muted">Nog geen edities.</p>
+  <p class="text-center text-muted">Nog geen edities toegevoegd.</p>
 {% endif %}
+
 {% endblock %}
