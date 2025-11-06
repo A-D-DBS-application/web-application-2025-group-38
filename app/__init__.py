@@ -29,12 +29,19 @@ def create_app():
         session.pop("user_id", None)
 
     # ---------- routes ----------
-    @app.get("/", endpoint="editions")
+    # ---------- routes ----------
+
+    @app.get("/", endpoint="home")
+    def home():
+        return render_template("index.html")
+
+    @app.get("/polls", endpoint="editions")
     def editions():
         eds = (FestivalEdition.query
-               .order_by(FestivalEdition.Start_date.desc().nullslast())
-               .all())
+            .order_by(FestivalEdition.Start_date.desc().nullslast())
+            .all())
         return render_template("editions.html", editions=eds)
+
 
     @app.get("/health")
     def health():

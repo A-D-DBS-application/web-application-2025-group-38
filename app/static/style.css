@@ -1,0 +1,224 @@
+/* =======================================================
+   🌟 VICARIS VILLAGE STYLESHEET
+   Opgeschoonde en geordende versie (2025)
+   ======================================================= */
+
+/* ===== Kleuren & basis ===== */
+:root {
+  --vv-blue: #132B4F;      /* Primair blauw */
+  --vv-yellow: #EFBF2E;    /* Accentkleur */
+  --vv-bg: #F9F8F6;        /* Achtergrond */
+  --vv-text: #132B4F;      /* Tekstkleur */
+}
+
+html, body {
+  background: none;
+  color: var(--vv-text);
+  margin: 0;
+  padding: 0;
+  font-family: 'Playfair Display', serif;
+}
+
+/* =======================================================
+   🧭 HEADER / NAVBAR
+   ======================================================= */
+.vv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 2rem;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, .06);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.vv-logo {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.vv-brand {
+  display: flex;
+  align-items: center;
+}
+.vv-brand h1 {
+  font-size: 1.6rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: var(--vv-blue);
+  margin: 0;
+}
+.vv-brand h1 span {
+  font-family: 'Satisfy', cursive;
+  color: var(--vv-yellow);
+  font-weight: normal;
+  margin-left: .35rem;
+}
+
+.vv-nav {
+  display: flex;
+  gap: 1.5rem;
+}
+.vv-nav a {
+  text-decoration: none;
+  color: var(--vv-blue);
+  font-weight: 600;
+  transition: color .2s ease;
+}
+.vv-nav a:hover {
+  color: var(--vv-yellow);
+}
+
+/* =======================================================
+   🏠 HERO SECTION (Home)
+   ======================================================= */
+.vv-main {
+  padding: 0;
+}
+
+.hero {
+  position: relative;
+  height: 100vh;          /* Volledige hoogte scherm */
+  width: 100vw;           /* Volledige breedte scherm */
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("/static/images/hero_vicaris.jpg");
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  z-index: -1;
+  filter: brightness(0.45);
+}
+
+.hero h2 {
+  font-size: 2.8rem;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.hero p {
+  font-size: 1.2rem;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+}
+
+.vv-text-highlight {
+  color: var(--vv-yellow);
+}
+
+/* =======================================================
+   🔘 CTA / BUTTONS
+   ======================================================= */
+.cta {
+  background-color: var(--vv-blue);
+  color: white;
+  padding: 0.7rem 1.8rem;
+  border-radius: 25px;
+  border: none;
+  font-weight: 600;
+  transition: all 0.25s ease, transform 0.25s ease;
+  text-decoration: none;
+}
+.cta:hover {
+  background-color: var(--vv-yellow);
+  color: var(--vv-blue);
+  transform: translateY(-3px);
+}
+
+.cta.alt {
+  background: transparent;
+  color: var(--vv-blue);
+  border: 2px solid var(--vv-blue);
+}
+.cta.alt:hover {
+  background: var(--vv-yellow);
+  color: #fff;
+}
+
+/* =======================================================
+   💌 FORMS (zoals Suggestiepagina)
+   ======================================================= */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+form input, form select {
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  padding: 0.8rem 1rem;
+  font-family: 'Playfair Display', serif;
+  width: 100%;
+  max-width: 400px;
+  transition: all 0.25s ease;
+}
+
+form input:focus, form select:focus {
+  border-color: var(--vv-yellow);
+  box-shadow: 0 0 6px rgba(239,191,46,0.4);
+  outline: none;
+}
+
+form button {
+  background-color: var(--vv-blue);
+  border: none;
+  border-radius: 25px;
+  padding: 0.7rem 1.8rem;
+  color: white;
+  font-weight: 600;
+  transition: all 0.25s ease;
+}
+form button:hover {
+  background-color: var(--vv-yellow);
+  color: var(--vv-blue);
+}
+
+/* =======================================================
+   🖼️ GALLERY (optioneel)
+   ======================================================= */
+.gallery img {
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.gallery img:hover {
+  transform: scale(1.04);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* =======================================================
+   📦 LAYOUT HELPERS
+   ======================================================= */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* =======================================================
+   🦶 FOOTER
+   ======================================================= */
+.vv-footer {
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  padding: 2rem 0;
+  color: #777;
+  font-size: 0.95rem;
+}
