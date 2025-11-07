@@ -29,7 +29,6 @@ def create_app():
         session.pop("user_id", None)
 
     # ---------- routes ----------
-    # ---------- routes ----------
 
     @app.get("/", endpoint="home")
     def home():
@@ -37,11 +36,12 @@ def create_app():
 
     @app.get("/polls", endpoint="editions")
     def editions():
-        eds = (FestivalEdition.query
+        eds = (
+            FestivalEdition.query
             .order_by(FestivalEdition.Start_date.desc().nullslast())
-            .all())
+            .all()
+        )
         return render_template("editions.html", editions=eds)
-
 
     @app.get("/health")
     def health():
@@ -55,12 +55,18 @@ def create_app():
             if not artist_name:
                 flash("Geef een artiestnaam op.", "warning")
                 return redirect(url_for("suggest"))
+
             a = Artists(Artist_name=artist_name)
-            db.session.add(a); db.session.commit()
+            db.session.add(a)
+            db.session.commit()
+
             s = SuggestionFeedback(artist_id=a.id)
-            db.session.add(s); db.session.commit()
+            db.session.add(s)
+            db.session.commit()
+
             flash("Bedankt voor je suggestie!", "success")
             return redirect(url_for("editions"))
+
         return render_template("suggest.html")
 
     # --- eenvoudige registratie: maakt 1 rij in User en bewaart id in sessie ---
@@ -75,7 +81,8 @@ def create_app():
             user = User.query.filter_by(email=email).first() if email else None
             if not user:
                 user = User(email=email or None)
-                db.session.add(user); db.session.commit()
+                db.session.add(user)
+                db.session.commit()
             login_user(user)
             flash(f"Aangemeld als user #{user.id}", "success")
             return redirect(url_for("editions"))
@@ -90,7 +97,6 @@ def create_app():
         return redirect(url_for("editions"))
 
     # --- seed: maak één editie 2026 (tijdelijk simpel) ---
-    # Wil je toch een mini-beveiliging? Voeg ?token=jouwcode toe en check die hier.
     @app.get("/admin/seed-edition-2026")
     def seed_edition_2026():
         existing = FestivalEdition.query.filter_by(Name="2026").first()
@@ -99,11 +105,20 @@ def create_app():
             return redirect(url_for("editions"))
 
         ed = FestivalEdition(
-            Name="2026", Location="Dendermonde",
-            Start_date=date(2026, 8, 21), End_date=date(2026, 8, 24)
+            Name="2026",
+            Location="Dendermonde",
+            Start_date=date(2026, 8, 21),
+            End_date=date(2026, 8, 24)
         )
-        db.session.add(ed); db.session.commit()
+        db.session.add(ed)
+        db.session.commit()
+
         flash("Editie 2026 aangemaakt!", "success")
         return redirect(url_for("editions"))
+
+    # --- Poll detail pagina ---
+    @app.get("/poll_detail", endpoint="poll_detail")
+    def poll_detail():
+        return render_template("poll_detail.html")
 
     return app
