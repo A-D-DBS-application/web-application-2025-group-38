@@ -1,17 +1,12 @@
 {% extends "base.html" %}
-
-{% block title %}Stem op je favoriete artiest{% endblock %}
-
 {% block content %}
-<section class="text-center mt-5">
-  <h2 class="fw-bold">Stem op je favoriete artiest 🎤</h2>
-  <p class="lead">Kies hieronder uit de drie meest gesuggereerde artiesten van Vicaris Village.</p>
+<div class="container text-center mt-5">
+  <h2 class="mb-4">Stem op jouw favoriete artiest 🎶</h2>
+  <div id="pollContainer" class="mb-4"></div>
+  <button class="btn btn-success" onclick="submitVote()">Stem</button>
+</div>
 
-<div id="pollContainer" class="mt-4"></div>
-
-<button onclick="submitVote()" class="btn btn-success mt-3">Stem!</button>
-
-<script type="module" src="{{ url_for('static', filename='js/polls.js') }}"></script>
+<script src="{{ url_for('static', filename='js/polls.js') }}"></script>
 {% endblock %}
 
 

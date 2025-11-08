@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5 text-center">
+  <h2 class="mb-4">🎵 Resultaten van de Poll</h2>
+
+  {% if results %}
+  <table class="table table-striped w-75 mx-auto">
+    <thead>
+      <tr>
+        <th>Artiest</th>
+        <th>Percentage</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in results %}
+      <tr>
+        <td>{{ r.artist }}</td>
+        <td>{{ r.percentage }}%</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Er zijn nog geen stemmen uitgebracht.</p>
+  {% endif %}
+</div>
+{% endblock %}
+

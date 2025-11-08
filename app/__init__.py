@@ -2,7 +2,7 @@ from datetime import date
 
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_migrate import Migrate
-from sqlalchemy import text
+from sqlalchemy import text, func, desc
 
 from config import Config
 from models import (
@@ -17,7 +17,7 @@ def create_app():
     db.init_app(app)
     Migrate(app, db)
 
-    # ---------- sessie helpers (schema-vriendelijk) ----------
+    # ---------- sessie helpers ----------
     def get_session_user():
         uid = session.get("user_id")
         return db.session.get(User, uid) if uid else None
@@ -28,8 +28,7 @@ def create_app():
     def logout_user():
         session.pop("user_id", None)
 
-    # ---------- routes ----------
-
+    # ---------- basisroutes ----------
     @app.get("/", endpoint="home")
     def home():
         return render_template("index.html")
@@ -69,7 +68,6 @@ def create_app():
 
         return render_template("suggest.html")
 
-    # --- eenvoudige registratie: maakt 1 rij in User en bewaart id in sessie ---
     @app.route("/register", methods=["GET", "POST"])
     def register():
         if get_session_user():
@@ -96,7 +94,7 @@ def create_app():
             flash("Je bent afgemeld.", "info")
         return redirect(url_for("editions"))
 
-    # --- seed: maak één editie 2026 (tijdelijk simpel) ---
+    # ---------- Seed editie 2026 ----------
     @app.get("/admin/seed-edition-2026")
     def seed_edition_2026():
         existing = FestivalEdition.query.filter_by(Name="2026").first()
@@ -116,9 +114,98 @@ def create_app():
         flash("Editie 2026 aangemaakt!", "success")
         return redirect(url_for("editions"))
 
-    # --- Poll detail pagina ---
+    # ======================================================
+    # 🎵 POLL SYSTEEM
+    # ======================================================
+
+    # Helperfunctie: bereken top 3 artiesten uit suggesties en link aan Polloption
+    def _top3_polloptions():
+        top = (
+            db.session.query(
+                Artists.id.label("artist_id"),
+                Artists.Artist_name.label("name"),
+                func.count(SuggestionFeedback.id).label("cnt"),
+            )
+            .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
+            .group_by(Artists.id, Artists.Artist_name)
+            .order_by(desc("cnt"))
+            .limit(3)
+            .all()
+        )
+
+        options = []
+        for row in top:
+            po = Polloption.query.filter_by(text=row.name).first()
+            if not po:
+                po = Polloption(text=row.name)
+                db.session.add(po)
+                db.session.commit()
+            options.append({"id": po.id, "name": row.name})
+        return options
+
+    # --- Pollpagina ---
     @app.get("/poll_detail", endpoint="poll_detail")
     def poll_detail():
         return render_template("poll_detail.html")
+
+    # --- API: alleen top-3 artiesten ---
+    @app.get("/api/artists")
+    def api_artists():
+        top3 = _top3_polloptions()
+        return [{"id": x["id"], "Artist_name": x["name"]} for x in top3]
+
+    # --- Stem opslaan ---
+    @app.post("/vote")
+    def vote():
+        polloption_id = request.form.get("artist_id", type=int)
+        if not polloption_id:
+            flash("Kies eerst een artiest om te stemmen.", "warning")
+            return redirect(url_for("poll_detail"))
+
+        allowed_ids = {x["id"] for x in _top3_polloptions()}
+        if polloption_id not in allowed_ids:
+            flash("Deze optie hoort niet bij de huidige poll.", "danger")
+            return redirect(url_for("poll_detail"))
+
+        v = VotesFor(polloption_id=polloption_id, user_id=None)
+        db.session.add(v)
+        db.session.commit()
+
+        flash("Je stem is opgeslagen! 🎉", "success")
+        return redirect(url_for("results"))
+
+    # --- Resultatenpagina ---
+    @app.get("/results", endpoint="results")
+    def results():
+        top3 = _top3_polloptions()
+        ids = [x["id"] for x in top3]
+        name_map = {x["id"]: x["name"] for x in top3}
+
+        if not ids:
+            return render_template("results.html", results=[])
+
+        counts_rows = (
+            db.session.query(VotesFor.polloption_id, func.count(VotesFor.polloption_id))
+            .filter(VotesFor.polloption_id.in_(ids))
+            .group_by(VotesFor.polloption_id)
+            .all()
+        )
+
+        counts = {pid: cnt for pid, cnt in counts_rows}
+        total = sum(counts.values()) or 1
+
+        results_data = []
+        for pid in ids:
+            c = counts.get(pid, 0)
+            results_data.append({
+                "artist": name_map.get(pid, "Onbekend"),
+                "votes": c,
+                "percentage": round((c / total) * 100, 1),
+            })
+
+        results_data.sort(key=lambda r: r["votes"], reverse=True)
+        return render_template("results.html", results=results_data)
+
+    # ======================================================
 
     return app
