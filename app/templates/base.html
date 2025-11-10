@@ -27,10 +27,17 @@
 
     <!-- Navigatie rechts -->
     <nav class="vv-nav">
-      <a href="{{ url_for('home') }}">Home</a>
-      <a href="{{ url_for('suggest') }}">Suggestie</a>
+      <nav class="vv-nav">
+      <a href="{{ url_for('suggest') }}">Suggestion</a>
       <a href="{{ url_for('editions') }}">Polls</a>
-    </nav>
+
+      {% if session.get('user_id') %}
+        <a href="{{ url_for('logout') }}">Log out</a>
+      {% else %}
+        <a href="{{ url_for('register') }}">Log in</a>
+      {% endif %}
+</nav>
+
   </header>
 
   <!-- FLASH-MELDINGEN -->
