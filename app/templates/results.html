@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-5 text-center">
-  <h2 class="mb-4">🎵 Resultaten van de Poll</h2>
+<div class="container text-center mt-5">
+  <h2 class="mb-4">🎵 Pollresultaten</h2>
 
   {% if results %}
   <table class="table table-striped w-75 mx-auto">
-    <thead>
+    <thead class="table-success">
       <tr>
         <th>Artiest</th>
         <th>Percentage</th>
@@ -14,8 +14,15 @@
     <tbody>
       {% for r in results %}
       <tr>
-        <td>{{ r.artist }}</td>
-        <td>{{ r.percentage }}%</td>
+        <td class="fw-bold">{{ r.artist }}</td>
+        <td style="width:70%;">
+          <div class="progress" style="height: 25px; background-color: #e9ecef;">
+            <div class="progress-bar" role="progressbar"
+                 style="width: {{ r.percentage }}%; background-color: #0a6847; color: #fff; font-weight: 600;">
+              {{ r.percentage }}%
+            </div>
+          </div>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -25,4 +32,5 @@
   {% endif %}
 </div>
 {% endblock %}
+
 
