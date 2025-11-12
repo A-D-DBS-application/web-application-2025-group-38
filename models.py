@@ -59,5 +59,7 @@ class VotesFor(db.Model):
 class SuggestionFeedback(db.Model):
     __tablename__ = "Suggestion_feedback"
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     artist_id = db.Column(db.Integer, db.ForeignKey("Artists.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=True)  
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+

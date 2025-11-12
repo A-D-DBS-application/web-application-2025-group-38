@@ -29,7 +29,7 @@
     <nav class="vv-nav">
       <nav class="vv-nav">
       <a href="{{ url_for('suggest') }}">Suggestion</a>
-      <a href="{{ url_for('editions') }}">Polls</a>
+      <a href="{{ url_for('poll_detail') }}">Polls</a>
 
       {% if session.get('user_id') %}
         <a href="{{ url_for('logout') }}">Log out</a>

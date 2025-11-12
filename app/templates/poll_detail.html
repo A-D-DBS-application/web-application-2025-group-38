@@ -2,11 +2,26 @@
 {% block content %}
 <div class="container text-center mt-5">
   <h2 class="mb-4">Stem op jouw favoriete artiest 🎶</h2>
-  <div id="pollContainer" class="mb-4"></div>
-  <button class="btn btn-success" onclick="submitVote()">Stem</button>
-</div>
 
-<script src="{{ url_for('static', filename='js/polls.js') }}"></script>
+  {% if options %}
+  <form method="POST" action="{{ url_for('vote') }}">
+    {% for o in options %}
+    <div class="form-check d-block mb-3 text-start mx-auto" style="max-width: 400px;">
+      <input class="form-check-input" type="radio" name="artist_id" value="{{ o.id }}" id="artist{{ o.id }}" required>
+      <label class="form-check-label ms-2" for="artist{{ o.id }}">
+        {{ o.text }}
+      </label>
+    </div>
+    {% endfor %}
+    <div class="mt-4">
+      <button type="submit" class="btn btn-success px-4">Stem</button>
+    </div>
+  </form>
+  {% else %}
+  <p>Er zijn nog geen artiesten beschikbaar om op te stemmen.</p>
+  {% endif %}
+</div>
 {% endblock %}
+
 
 

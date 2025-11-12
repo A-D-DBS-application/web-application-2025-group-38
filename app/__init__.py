@@ -1,5 +1,4 @@
 from datetime import date
-
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_migrate import Migrate
 from sqlalchemy import text, func, desc
@@ -10,6 +9,7 @@ from models import (
     FestivalEdition, Poll, Polloption, VotesFor
 )
 
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -17,7 +17,9 @@ def create_app():
     db.init_app(app)
     Migrate(app, db)
 
-    # ---------- sessie helpers ----------
+    # ======================================================
+    # Sessie helpers
+
     def get_session_user():
         uid = session.get("user_id")
         return db.session.get(User, uid) if uid else None
@@ -28,73 +30,108 @@ def create_app():
     def logout_user():
         session.pop("user_id", None)
 
-    # ---------- basisroutes ----------
-    @app.get("/", endpoint="home")
+    # ======================================================
+    # Basisroutes
+
+    @app.get("/")
     def home():
         return render_template("index.html")
-
-    @app.get("/polls", endpoint="editions")
-    def editions():
-        eds = (
-            FestivalEdition.query
-            .order_by(FestivalEdition.Start_date.desc().nullslast())
-            .all()
-        )
-        return render_template("editions.html", editions=eds)
 
     @app.get("/health")
     def health():
         db.session.execute(text("select 1"))
         return {"status": "ok"}, 200
 
+    # ======================================================
+    # Suggesties
+
+
     @app.route("/suggest", methods=["GET", "POST"])
     def suggest():
+        user = get_session_user()
+
+        # 1. Alleen ingelogde gebruikers mogen suggesties doen
+        if not user:
+            flash("Je moet ingelogd zijn om een suggestie te doen.", "warning")
+            # Stuur NIET meteen door, toon gewoon de suggestiepagina (met lege velden)
+            return render_template("suggest.html", user=None)
+
+        # 2. Controleer of gebruiker al iets gesuggereerd heeft
+        existing_suggestion = (
+            db.session.query(SuggestionFeedback)
+            .filter(SuggestionFeedback.user_id == user.id)
+            .first()
+        )
+        if existing_suggestion:
+            flash("Je hebt al een suggestie ingediend.", "info")
+            return redirect(url_for("poll_detail"))
+
+        # 3. Verwerk de POST (nieuwe suggestie)
         if request.method == "POST":
             artist_name = (request.form.get("artist_name") or "").strip()
             if not artist_name:
                 flash("Geef een artiestnaam op.", "warning")
                 return redirect(url_for("suggest"))
 
+            # Nieuwe artiest aanmaken
             a = Artists(Artist_name=artist_name)
             db.session.add(a)
             db.session.commit()
 
-            s = SuggestionFeedback(artist_id=a.id)
+            # Suggestie koppelen aan gebruiker
+            s = SuggestionFeedback(artist_id=a.id, user_id=user.id)
             db.session.add(s)
             db.session.commit()
 
-            flash("Bedankt voor je suggestie!", "success")
-            return redirect(url_for("editions"))
+            flash("Bedankt voor je suggestie! 🎵 Je kunt nu stemmen op de poll.", "success")
+            return redirect(url_for("poll_detail"))
 
-        return render_template("suggest.html")
+        return render_template("suggest.html", user=user)
+
+
+
+    # ======================================================
+    # Login & Logout
 
     @app.route("/register", methods=["GET", "POST"])
     def register():
+        
         if get_session_user():
-            flash("Je bent al aangemeld.", "info")
-            return redirect(url_for("editions"))
+            session.pop('_flashes', None)  # oude meldingen wissen
+            flash("Je bent al ingelogd.", "info")
+            return render_template("register.html")
 
         if request.method == "POST":
             email = (request.form.get("email") or "").strip()
             user = User.query.filter_by(email=email).first() if email else None
+
             if not user:
                 user = User(email=email or None)
                 db.session.add(user)
                 db.session.commit()
+
             login_user(user)
-            flash(f"Aangemeld als user #{user.id}", "success")
-            return redirect(url_for("editions"))
+
+            # verwijder oude meldingen, toon enkel deze
+            session.pop('_flashes', None)
+            flash("Succesvol ingelogd!", "info")
+
+            # blijf gewoon op loginpagina
+            return render_template("register.html")
 
         return render_template("register.html")
+
 
     @app.get("/logout")
     def logout():
         if get_session_user():
             logout_user()
             flash("Je bent afgemeld.", "info")
-        return redirect(url_for("editions"))
+        return redirect(url_for("home"))
 
-    # ---------- Seed editie 2026 ----------
+    # ======================================================
+    # Seed: voorbeeld-editie
+
     @app.get("/admin/seed-edition-2026")
     def seed_edition_2026():
         existing = FestivalEdition.query.filter_by(Name="2026").first()
@@ -106,7 +143,7 @@ def create_app():
             Name="2026",
             Location="Dendermonde",
             Start_date=date(2026, 8, 21),
-            End_date=date(2026, 8, 24)
+            End_date=date(2026, 8, 24),
         )
         db.session.add(ed)
         db.session.commit()
@@ -115,97 +152,132 @@ def create_app():
         return redirect(url_for("editions"))
 
     # ======================================================
-    # 🎵 POLL SYSTEEM
-    # ======================================================
+    # POLL SYSTEEM
 
-    # Helperfunctie: bereken top 3 artiesten uit suggesties en link aan Polloption
     def _top3_polloptions():
+        """
+        Bereken de top-3 artiesten uit suggesties en bewaar ze in Polloption.
+        Deze functie wordt enkel uitgevoerd wanneer de pollpagina geopend wordt.
+        """
         top = (
             db.session.query(
-                Artists.id.label("artist_id"),
                 Artists.Artist_name.label("name"),
                 func.count(SuggestionFeedback.id).label("cnt"),
             )
             .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
-            .group_by(Artists.id, Artists.Artist_name)
+            .group_by(Artists.Artist_name)
             .order_by(desc("cnt"))
             .limit(3)
             .all()
         )
 
-        options = []
+        # Oude pollopties wissen en top-3 toevoegen
+        db.session.query(Polloption).delete()
+        db.session.commit()
+
         for row in top:
-            po = Polloption.query.filter_by(text=row.name).first()
-            if not po:
-                po = Polloption(text=row.name)
-                db.session.add(po)
-                db.session.commit()
-            options.append({"id": po.id, "name": row.name})
-        return options
+            po = Polloption(text=row.name)
+            db.session.add(po)
+        db.session.commit()
 
-    # --- Pollpagina ---
-    @app.get("/poll_detail", endpoint="poll_detail")
+    # ---------- Pollpagina ----------
+    @app.get("/poll_detail")
     def poll_detail():
-        return render_template("poll_detail.html")
+        """
+        Toon de poll met top-3 artiesten.
+        Genereer pollopties enkel als ze nog niet bestaan.
+        """
+        if Polloption.query.count() == 0:
+            _top3_polloptions()
 
-    # --- API: alleen top-3 artiesten ---
-    @app.get("/api/artists")
-    def api_artists():
-        top3 = _top3_polloptions()
-        return [{"id": x["id"], "Artist_name": x["name"]} for x in top3]
+        options = Polloption.query.all()
+        return render_template("poll_detail.html", options=options)
 
-    # --- Stem opslaan ---
+    # ---------- Stem opslaan ----------
     @app.post("/vote")
     def vote():
         polloption_id = request.form.get("artist_id", type=int)
+        user = get_session_user()
+
+        # 1. Als niet ingelogd → niet stemmen
+        if not user:
+            flash("Je moet ingelogd zijn om te stemmen.", "warning")
+            return redirect(url_for("poll_detail"))
+
+
+        # 2. Geen artiest gekozen
         if not polloption_id:
             flash("Kies eerst een artiest om te stemmen.", "warning")
             return redirect(url_for("poll_detail"))
 
-        allowed_ids = {x["id"] for x in _top3_polloptions()}
-        if polloption_id not in allowed_ids:
-            flash("Deze optie hoort niet bij de huidige poll.", "danger")
+        # 3. Controleer of de artiest geldig is
+        option = Polloption.query.get(polloption_id)
+        if not option:
+            flash("Ongeldige stemoptie.", "danger")
             return redirect(url_for("poll_detail"))
 
-        v = VotesFor(polloption_id=polloption_id, user_id=None)
-        db.session.add(v)
-        db.session.commit()
+        #  4. Controleer of user al gestemd heeft
+        existing_vote = VotesFor.query.filter_by(user_id=user.id).first()
+        if existing_vote:
+            flash("Je hebt al gestemd.", "info")
+            return redirect(url_for("results"))
 
-        flash("Je stem is opgeslagen! 🎉", "success")
-        return redirect(url_for("results"))
+        # 5. Nieuwe stem opslaan
+        try:
+            v = VotesFor(polloption_id=polloption_id, user_id=user.id)
+            db.session.add(v)
+            db.session.commit()
+            flash("Je stem is opgeslagen! 🎉", "success")
+            return redirect(url_for("results"))
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Er ging iets mis bij het opslaan van je stem: {e}", "danger")
+            return redirect(url_for("poll_detail"))
 
-    # --- Resultatenpagina ---
-    @app.get("/results", endpoint="results")
+
+
+    # ---------- Resultaten ----------
+    @app.get("/results")
     def results():
-        top3 = _top3_polloptions()
-        ids = [x["id"] for x in top3]
-        name_map = {x["id"]: x["name"] for x in top3}
-
-        if not ids:
+        """
+        Toon resultaten van de huidige poll (alleen de drie artiesten uit de poll).
+        """
+        # Haal enkel de 3 huidige pollopties op
+        options = Polloption.query.limit(3).all()
+        if not options:
             return render_template("results.html", results=[])
 
+        option_ids = [o.id for o in options]
+
+        # Tel enkel stemmen voor deze 3 pollopties
         counts_rows = (
-            db.session.query(VotesFor.polloption_id, func.count(VotesFor.polloption_id))
-            .filter(VotesFor.polloption_id.in_(ids))
+            db.session.query(VotesFor.polloption_id, func.count())
+            .filter(VotesFor.polloption_id.in_(option_ids))
             .group_by(VotesFor.polloption_id)
             .all()
         )
 
-        counts = {pid: cnt for pid, cnt in counts_rows}
-        total = sum(counts.values()) or 1
+        # Maak mapping polloption_id → aantal stemmen
+        total_votes = sum(c for _, c in counts_rows) or 1
+        counts_map = {pid: c for pid, c in counts_rows}
 
+        # Bouw resultaatlijst met artiestnaam en percentage
         results_data = []
-        for pid in ids:
-            c = counts.get(pid, 0)
+        for o in options:
+            count = counts_map.get(o.id, 0)
+            percentage = round((count / total_votes) * 100, 1)
             results_data.append({
-                "artist": name_map.get(pid, "Onbekend"),
-                "votes": c,
-                "percentage": round((c / total) * 100, 1),
+                "artist": o.text,
+                "percentage": percentage
             })
 
-        results_data.sort(key=lambda r: r["votes"], reverse=True)
+        # Sorteer op hoogste percentage
+        results_data.sort(key=lambda x: x["percentage"], reverse=True)
+
         return render_template("results.html", results=results_data)
 
     # ======================================================
-
     return app
+
+
+
