@@ -116,9 +116,159 @@ def create_app():
         flash("Editie 2026 aangemaakt!", "success")
         return redirect(url_for("editions"))
 
+<<<<<<< Updated upstream
     # --- Poll detail pagina ---
     @app.get("/poll_detail", endpoint="poll_detail")
+=======
+    # ======================================================
+    # POLL SYSTEEM
+
+    def _top3_polloptions():
+        """
+        Bereken de top-3 artiesten uit suggesties en bewaar ze in Polloption.
+        Deze functie wordt enkel uitgevoerd wanneer de pollpagina geopend wordt.
+        """
+        top = (
+            db.session.query(
+                Artists.id.label("artist_id"),
+                Artists.Artist_name.label("name"),
+                func.count(SuggestionFeedback.id).label("cnt"),
+            )
+            .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
+            .group_by(Artists.id, Artists.Artist_name)  # 👈 BELANGRIJK: beide in group_by
+            .order_by(desc("cnt"))
+            .limit(3)
+            .all()
+        )
+
+        # Oude pollopties wissen en top-3 toevoegen
+        db.session.query(Polloption).delete()
+        db.session.commit()
+
+        for row in top:
+            po = Polloption(text=row.name, artist_id=row.artist_id)
+            db.session.add(po)
+        db.session.commit()
+
+
+    # ---------- Pollpagina ----------
+    @app.get("/poll_detail")
+>>>>>>> Stashed changes
     def poll_detail():
         return render_template("poll_detail.html")
 
+<<<<<<< Updated upstream
+=======
+        options = Polloption.query.all()
+        return render_template("poll_detail.html", options=options)
+
+    # ---------- Stem opslaan ----------
+    @app.post("/vote")
+    def vote():
+        polloption_id = request.form.get("artist_id", type=int)
+        user = get_session_user()
+
+        # 1. Als niet ingelogd → niet stemmen
+        if not user:
+            flash("Je moet ingelogd zijn om te stemmen.", "warning")
+            return redirect(url_for("poll_detail"))
+
+
+        # 2. Geen artiest gekozen
+        if not polloption_id:
+            flash("Kies eerst een artiest om te stemmen.", "warning")
+            return redirect(url_for("poll_detail"))
+
+        # 3. Controleer of de artiest geldig is
+        option = Polloption.query.get(polloption_id)
+        if not option:
+            flash("Ongeldige stemoptie.", "danger")
+            return redirect(url_for("poll_detail"))
+
+        #  4. Controleer of user al gestemd heeft
+        existing_vote = VotesFor.query.filter_by(user_id=user.id).first()
+        if existing_vote:
+            flash("Je hebt al gestemd.", "info")
+            return redirect(url_for("results"))
+
+        # 5. Nieuwe stem opslaan
+        try:
+            v = VotesFor(polloption_id=polloption_id, user_id=user.id)
+            db.session.add(v)
+            db.session.commit()
+
+            # Zoek de artiest en zijn genre
+            artist = option.artist or Artists.query.get(option.artist_id)
+
+            if artist and artist.genre:
+                flash("Je stem is opgeslagen! 🎉 Je krijgt nu een extra poll met artiesten van hetzelfde genre.", "success")
+                return redirect(url_for("genre_poll", genre=artist.genre))
+            else:
+                flash("Je stem is opgeslagen, maar er is geen genre gevonden voor deze artiest.", "warning")
+                return redirect(url_for("results"))
+
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Er ging iets mis bij het opslaan van je stem: {e}", "danger")
+            return redirect(url_for("poll_detail"))
+    # ---------- Genre-specifieke poll ----------
+    @app.get("/genre_poll/<genre>")
+    def genre_poll(genre):
+        """
+        Toon een tweede poll met artiesten van hetzelfde genre.
+     """
+        # Alle artiesten met dit genre ophalen
+        artists = Artists.query.filter_by(genre=genre).all()
+
+        if not artists:
+            flash(f"Er zijn geen artiesten gevonden voor genre: {genre}", "warning")
+            return redirect(url_for("results"))
+
+        return render_template("genre_poll.html", genre=genre, artists=artists)
+
+
+
+
+    # ---------- Resultaten ----------
+    @app.get("/results")
+    def results():
+        """
+        Toon resultaten van de huidige poll (alleen de drie artiesten uit de poll).
+        """
+        # Haal enkel de 3 huidige pollopties op
+        options = Polloption.query.limit(3).all()
+        if not options:
+            return render_template("results.html", results=[])
+
+        option_ids = [o.id for o in options]
+
+        # Tel enkel stemmen voor deze 3 pollopties
+        counts_rows = (
+            db.session.query(VotesFor.polloption_id, func.count())
+            .filter(VotesFor.polloption_id.in_(option_ids))
+            .group_by(VotesFor.polloption_id)
+            .all()
+        )
+
+        # Maak mapping polloption_id → aantal stemmen
+        total_votes = sum(c for _, c in counts_rows) or 1
+        counts_map = {pid: c for pid, c in counts_rows}
+
+        # Bouw resultaatlijst met artiestnaam en percentage
+        results_data = []
+        for o in options:
+            count = counts_map.get(o.id, 0)
+            percentage = round((count / total_votes) * 100, 1)
+            results_data.append({
+                "artist": o.text,
+                "percentage": percentage
+            })
+
+        # Sorteer op hoogste percentage
+        results_data.sort(key=lambda x: x["percentage"], reverse=True)
+
+        return render_template("results.html", results=results_data)
+
+    # ======================================================
+>>>>>>> Stashed changes
     return app
