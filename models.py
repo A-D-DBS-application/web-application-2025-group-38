@@ -15,6 +15,7 @@ class Artists(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     Artist_name = db.Column(db.Text, nullable=False)
+    genre = db.Column(db.String, nullable=True)
 
 class FestivalEdition(db.Model):
     __tablename__ = "FestivalEdition"

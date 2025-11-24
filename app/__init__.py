@@ -161,6 +161,7 @@ def create_app():
         """
         top = (
             db.session.query(
+                Artists.id.label("artist_id"),
                 Artists.Artist_name.label("name"),
                 func.count(SuggestionFeedback.id).label("cnt"),
             )
@@ -176,7 +177,7 @@ def create_app():
         db.session.commit()
 
         for row in top:
-            po = Polloption(text=row.name)
+            po = Polloption(text=row.name, artist_id=row.artist_id)
             db.session.add(po)
         db.session.commit()
 
