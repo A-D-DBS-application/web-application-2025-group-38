@@ -1,27 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container text-center mt-5">
-  <h2 class="mb-4">Stem op jouw favoriete artiest 🎶</h2>
 
-  {% if options %}
-  <form method="POST" action="{{ url_for('vote') }}">
-    {% for o in options %}
-    <div class="form-check d-block mb-3 text-start mx-auto" style="max-width: 400px;">
-      <input class="form-check-input" type="radio" name="artist_id" value="{{ o.id }}" id="artist{{ o.id }}" required>
-      <label class="form-check-label ms-2" for="artist{{ o.id }}">
-        {{ o.text }}
-      </label>
-    </div>
-    {% endfor %}
-    <div class="mt-4">
-      <button type="submit" class="btn btn-success px-4">Stem</button>
-    </div>
-  </form>
-  {% else %}
-  <p>Er zijn nog geen artiesten beschikbaar om op te stemmen.</p>
-  {% endif %}
+<div class="vv-poll-wrapper">
+
+    <h2 class="vv-poll-title">Stem op jouw favoriete artiest 🎶</h2>
+
+    {% if options %}
+    <form method="POST" action="{{ url_for('vote') }}" class="artist-grid">
+
+        {% for o in options %}
+        <label class="artist-card">
+
+            <!-- Radios -->
+            <input type="radio" name="artist_id" value="{{ o.id }}" required>
+
+            <!-- FOTO -->
+            <img src="{{ url_for('static', filename=o.image_url) }}"
+                 class="artist-photo"
+                 alt="{{ o.text }}">
+
+            <!-- NAAM -->
+            <div class="artist-name">{{ o.text }}</div>
+
+        </label>
+        {% endfor %}
+
+        <button class="vv-poll-btn" type="submit">Stem</button>
+    </form>
+
+    {% else %}
+        <p>Er zijn nog geen artiesten beschikbaar om op te stemmen.</p>
+    {% endif %}
+
 </div>
+
 {% endblock %}
-
-
-

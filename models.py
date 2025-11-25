@@ -10,12 +10,14 @@ class User(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     email = db.Column(db.Text)
 
+
 class Artists(db.Model):
     __tablename__ = "Artists"
     id = db.Column(db.Integer, primary_key=True)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     Artist_name = db.Column(db.Text, nullable=False)
     genre = db.Column(db.String, nullable=True)
+
 
 class FestivalEdition(db.Model):
     __tablename__ = "FestivalEdition"
@@ -26,6 +28,7 @@ class FestivalEdition(db.Model):
     Name = db.Column(db.Text)
     Location = db.Column(db.Text)
 
+
 class Poll(db.Model):
     __tablename__ = "poll"
     id = db.Column(db.Integer, primary_key=True)
@@ -34,6 +37,7 @@ class Poll(db.Model):
     festival_id = db.Column(db.Integer, db.ForeignKey("FestivalEdition.id"))
 
     festival = db.relationship(FestivalEdition, backref="polls")
+
 
 class Polloption(db.Model):
     __tablename__ = "Polloption"
@@ -47,9 +51,15 @@ class Polloption(db.Model):
     artist = db.relationship(Artists)
     poll = db.relationship(Poll, backref="options")
 
+    @property
+    def image_url(self):
+        filename = self.text.lower().replace(" ", "_") + ".jpg"
+        return f"images/artist_images/{filename}"
+
+
 class VotesFor(db.Model):
     __tablename__ = "Votes_for"
-    # samengestelde sleutel (user_id + polloption_id) in Supabase → hier als pk-combinatie
+
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     user_id = db.Column(db.Integer, db.ForeignKey("User.id"), primary_key=True)
     polloption_id = db.Column(db.Integer, db.ForeignKey("Polloption.id"), primary_key=True)
@@ -57,10 +67,10 @@ class VotesFor(db.Model):
     user = db.relationship(User)
     option = db.relationship(Polloption)
 
+
 class SuggestionFeedback(db.Model):
     __tablename__ = "Suggestion_feedback"
     id = db.Column(db.Integer, primary_key=True)
     artist_id = db.Column(db.Integer, db.ForeignKey("Artists.id"))
     user_id = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=True)  
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
-

@@ -222,3 +222,152 @@ form button:hover {
   color: #777;
   font-size: 0.95rem;
 }
+
+/* =======================================================
+   🎤 POLL PAGE — Vicaris Village Style
+   ======================================================= */
+
+.vv-poll-wrapper {
+    max-width: 550px;
+    margin: 90px auto;
+    background: #fff;
+    padding: 40px 50px;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.vv-poll-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--vv-blue);
+    margin-bottom: 2rem;
+}
+
+.vv-poll-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.vv-poll-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 1.25rem;
+    color: var(--vv-blue);
+    cursor: pointer;
+    padding: 12px 15px;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+}
+
+.vv-poll-option:hover {
+    background: #f4f7fb;  /* lichtblauw */
+}
+
+.vv-poll-option input[type="radio"] {
+    display: none;
+}
+
+.vv-radio {
+    width: 22px;
+    height: 22px;
+    border: 3px solid var(--vv-blue);
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.25s ease;
+}
+
+.vv-poll-option input[type="radio"]:checked + .vv-radio {
+    border-color: var(--vv-yellow);
+}
+
+.vv-poll-option input[type="radio"]:checked + .vv-radio::after {
+    content: "";
+    width: 12px;
+    height: 12px;
+    background: var(--vv-yellow);
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+}
+
+.vv-poll-btn {
+    margin-top: 25px;
+    background: var(--vv-blue);
+    color: #fff;
+    padding: 0.75rem 2.2rem;
+    font-size: 1.2rem;
+    border-radius: 30px;
+    border: none;
+    transition: all .25s ease;
+}
+
+.vv-poll-btn:hover {
+    background: var(--vv-yellow);
+    color: var(--vv-blue);
+    transform: translateY(-2px);
+}
+/* --- Poll Artist Grid --- */
+/* --- Poll Artist Grid --- */
+.artist-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 40px;
+}
+
+/* Kaart container */
+.artist-card {
+  background: #fff;
+  padding: 18px;
+  border-radius: 20px;
+  width: 180px;
+  text-align: center;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all .25s ease;
+}
+
+.artist-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* Verberg radio */
+.artist-card input[type="radio"] {
+  display: none;
+}
+
+/* Foto */
+.artist-photo {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  transition: transform .25s, border-color .25s;
+}
+
+/* Hover foto */
+.artist-card:hover .artist-photo {
+  transform: scale(1.07);
+  border-color: var(--vv-yellow);
+}
+
+/* GESELECTEERDE kaart — fix: gebruik ~ in plaats van + */
+.artist-card input[type="radio"]:checked ~ .artist-photo {
+  border-color: var(--vv-blue);
+  transform: scale(1.12);
+}
+
+/* Naam */
+.artist-name {
+  margin-top: 10px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--vv-blue);
+}
