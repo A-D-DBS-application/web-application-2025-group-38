@@ -1,6 +1,4 @@
 {% extends "base.html" %}
-{% block title %}Suggestie - Vicaris Village{% endblock %}
-
 {% block content %}
 <section class="container text-center py-5">
   <h2 class="fw-bold mb-4">🎵 Stel een artiest voor</h2>
@@ -9,12 +7,10 @@
   <form method="POST" onsubmit="return validateArtistInput()">
     <label for="artist_name" class="form-label fw-semibold">Kies artiest:</label>
 
-    <!-- 🔍 Typbare maar beperkte input -->
     <input list="artists" name="artist_name" id="artist_name"
            class="form-control text-center"
            placeholder="Typ of kies een artiest..." required>
 
-    <!-- 🎶 Suggestielijst -->
     <datalist id="artists">
       <option value="Arctic Monkeys">
       <option value="Coldplay">
@@ -72,7 +68,6 @@
   </form>
 </section>
 
-<!-- ✅ Validatie-script -->
 <script>
 function validateArtistInput() {
   const input = document.getElementById("artist_name");
@@ -83,9 +78,10 @@ function validateArtistInput() {
   if (!validValues.includes(inputValue)) {
     alert("⚠️ Kies een artiest uit de lijst (niet zelf intypen).");
     input.focus();
-    return false; // voorkomt verzending
+    return false;
   }
-  return true; // laat verzending toe
+  return true;
 }
 </script>
 {% endblock %}
+
