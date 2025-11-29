@@ -12,6 +12,7 @@
             Kies jouw favoriete artiest uit de lijst hieronder en dien je suggestie in!
         </p>
 
+        <!-- FORMULIER -->
         <form method="POST" onsubmit="return validateArtistInput()">
             
             <label for="artistInput" class="form-label fw-semibold mb-2">Kies artiest:</label>
@@ -96,7 +97,7 @@ document.addEventListener("click", (e) => {
     }
 });
 
-// Validatie
+// Validatie → blijft backend-compatibel
 function validateArtistInput() {
     const inputValue = input.value.trim().toLowerCase();
     const validValues = ARTISTS.map(a => a.toLowerCase());
@@ -111,4 +112,3 @@ function validateArtistInput() {
 </script>
 
 {% endblock %}
-

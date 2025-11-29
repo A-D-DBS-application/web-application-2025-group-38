@@ -10,13 +10,48 @@ class User(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     email = db.Column(db.Text)
 
+class Genres(db.Model):
+    __tablename__ = "Genres"
+
+    id = db.Column(db.BigInteger, primary_key=True)
+    name = db.Column(db.String, unique=True, nullable=False)
+
+    artists = db.relationship(
+        "Artists",
+        secondary="ArtistGenres",
+        back_populates="genres"
+    )
+
+
+class ArtistGenres(db.Model):
+    __tablename__ = "ArtistGenres"
+
+    artist_id = db.Column(
+        db.BigInteger,
+        db.ForeignKey("Artists.id", ondelete="CASCADE"),
+        primary_key=True
+    )
+    genre_id = db.Column(
+        db.BigInteger,
+        db.ForeignKey("Genres.id", ondelete="CASCADE"),
+        primary_key=True
+    )
+
 
 class Artists(db.Model):
     __tablename__ = "Artists"
-    id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    Artist_name = db.Column(db.Text, nullable=False)
-    genre = db.Column(db.String, nullable=True)
+
+    id = db.Column(db.BigInteger, primary_key=True)
+    created_at = db.Column(db.DateTime)
+    Artist_name = db.Column(db.String, unique=True)
+    genre = db.Column(db.String)  # OPTIONAL legacy
+
+    # Many-to-Many
+    genres = db.relationship(
+        "Genres",
+        secondary="ArtistGenres",
+        back_populates="artists"
+    )
 
 
 
