@@ -140,14 +140,16 @@ html, body {
   transform: translateY(-3px);
 }
 
+/* SECONDARY CTA KNOP — zelfde stijl als primaire */
 .cta.alt {
-  background: transparent;
-  color: var(--vv-blue);
-  border: 2px solid var(--vv-blue);
+  background-color: var(--vv-blue);
+  color: white;
+  border: none;
 }
+
 .cta.alt:hover {
-  background: var(--vv-yellow);
-  color: #fff;
+  background-color: var(--vv-yellow);
+  color: var(--vv-blue);
 }
 
 /* =======================================================
@@ -370,4 +372,187 @@ form button:hover {
   font-size: 1.05rem;
   font-weight: 600;
   color: var(--vv-blue);
+}
+/* =======================================================
+   🔐 LOGIN / REGISTER PAGE — Vicaris Village Style
+   ======================================================= */
+
+.vv-login-wrapper {
+    max-width: 480px;
+    margin: 120px auto;
+    background: #fff;
+    padding: 40px 50px;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.vv-login-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--vv-blue);
+    margin-bottom: 1rem;
+}
+
+.vv-login-subtitle {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.vv-login-form input {
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    width: 100%;
+    transition: .25s;
+    font-family: 'Playfair Display', serif;
+}
+
+.vv-login-form input:focus {
+    border-color: var(--vv-yellow);
+    box-shadow: 0 0 6px rgba(239,191,46,0.4);
+    outline: none;
+}
+
+.vv-login-btn {
+    width: 100%;
+    background: var(--vv-blue);
+    color: #fff;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: .25s;
+    font-weight: 600;
+}
+
+.vv-login-btn:hover {
+    background: var(--vv-yellow);
+    color: var(--vv-blue);
+    transform: translateY(-2px);
+}
+.vv-login-page-bg {
+    min-height: 100vh;
+    width: 100%;
+    background-image: url("/static/images/hero_vicaris.jpg");
+    background-size: cover;
+    background-position: center;
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 0;
+}
+
+/* Suggestie Page achtergrond */
+.vv-suggest-page-bg {
+    min-height: 85vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+}
+
+/* Suggestie card */
+.vv-suggest-wrapper {
+    max-width: 600px;
+    background: #fff;
+    padding: 40px 50px;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+/* Titel */
+.vv-suggest-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--vv-blue);
+    margin-bottom: 1rem;
+}
+
+/* Subtitle */
+.vv-suggest-subtitle {
+    font-size: 1.15rem;
+    color: #444;
+    margin-bottom: 2rem;
+}
+
+/* Custom dropdown wrapper */
+.vv-dropdown-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+/* Input */
+.vv-dropdown-input {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+    transition: .25s ease;
+    font-family: 'Playfair Display', serif;
+    text-align: center;
+}
+
+.vv-dropdown-input:focus {
+    border-color: var(--vv-yellow);
+    box-shadow: 0 0 6px rgba(239,191,46,0.4);
+    outline: none;
+}
+
+/* Dropdown lijst */
+.vv-dropdown-list {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-height: 250px;
+    overflow-y: auto;
+    display: none;
+    z-index: 20;
+}
+
+/* Dropdown item */
+.vv-dropdown-item {
+    padding: 12px 15px;
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--vv-blue);
+    transition: 0.2s;
+    text-align: left;
+}
+
+.vv-dropdown-item:hover {
+    background: var(--vv-yellow);
+    color: white;
+}
+
+/* Button */
+.vv-suggest-btn {
+    background: var(--vv-blue);
+    color: #fff;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: 0.25s ease;
+    width: 100%;
+    font-weight: 600;
+}
+
+.vv-suggest-btn:hover {
+    background: var(--vv-yellow);
+    color: var(--vv-blue);
+    transform: translateY(-2px);
 }

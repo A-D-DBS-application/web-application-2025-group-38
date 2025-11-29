@@ -2,90 +2,113 @@
 {% block title %}Suggestie - Vicaris Village{% endblock %}
 
 {% block content %}
-<section class="container text-center py-5">
-  <h2 class="fw-bold mb-4">🎵 Stel een artiest voor</h2>
-  <p class="mb-4 lead">Kies jouw favoriete artiest uit de lijst hieronder en dien je suggestie in!</p>
 
-  <form method="POST" onsubmit="return validateArtistInput()">
-    <label for="artist_name" class="form-label fw-semibold">Kies artiest:</label>
+<div class="vv-suggest-page-bg">
 
-    <!-- 🔍 Typbare maar beperkte input -->
-    <input list="artists" name="artist_name" id="artist_name"
-           class="form-control text-center"
-           placeholder="Typ of kies een artiest..." required>
+    <div class="vv-suggest-wrapper">
 
-    <!-- 🎶 Suggestielijst -->
-    <datalist id="artists">
-      <option value="Arctic Monkeys">
-      <option value="Coldplay">
-      <option value="Imagine Dragons">
-      <option value="Muse">
-      <option value="The Killers">
-      <option value="Foo Fighters">
-      <option value="Red Hot Chili Peppers">
-      <option value="Ed Sheeran">
-      <option value="Dua Lipa">
-      <option value="Billie Eilish">
-      <option value="Post Malone">
-      <option value="The Weeknd">
-      <option value="Bruno Mars">
-      <option value="Calvin Harris">
-      <option value="David Guetta">
-      <option value="Kygo">
-      <option value="Avicii">
-      <option value="Bastille">
-      <option value="Sam Smith">
-      <option value="Shawn Mendes">
-      <option value="Harry Styles">
-      <option value="Adele">
-      <option value="Tame Impala">
-      <option value="Oasis">
-      <option value="Florence + The Machine">
-      <option value="Stromae">
-      <option value="Lost Frequencies">
-      <option value="Angèle">
-      <option value="Netsky">
-      <option value="Selah Sue">
-      <option value="Oscar and the Wolf">
-      <option value="Metallica">
-      <option value="Linkin Park">
-      <option value="Green Day">
-      <option value="Paramore">
-      <option value="Blink-182">
-      <option value="Twenty One Pilots">
-      <option value="Avenged Sevenfold">
-      <option value="The Chainsmokers">
-      <option value="Zedd">
-      <option value="Swedish House Mafia">
-      <option value="Maroon 5">
-      <option value="The Script">
-      <option value="Kings of Leon">
-      <option value="Kanye West">
-      <option value="Drake">
-      <option value="Eminem">
-      <option value="50 Cent">
-      <option value="Black Eyed Peas">
-      <option value="Tame Impala">
-    </datalist>
+        <h2 class="vv-suggest-title">🎵 Stel een artiest voor</h2>
+        <p class="vv-suggest-subtitle">
+            Kies jouw favoriete artiest uit de lijst hieronder en dien je suggestie in!
+        </p>
 
-    <button type="submit" class="cta mt-3">Verstuur suggestie</button>
-  </form>
-</section>
+        <form method="POST" onsubmit="return validateArtistInput()">
+            
+            <label for="artistInput" class="form-label fw-semibold mb-2">Kies artiest:</label>
 
-<!-- ✅ Validatie-script -->
+            <!-- Custom dropdown -->
+            <div class="vv-dropdown-wrapper">
+                <input 
+                    type="text" 
+                    id="artistInput" 
+                    name="artist_name"
+                    class="vv-dropdown-input"
+                    placeholder="Typ of kies een artiest..."
+                    autocomplete="off"
+                    required
+                >
+                <div id="artistDropdown" class="vv-dropdown-list"></div>
+            </div>
+
+            <button type="submit" class="vv-suggest-btn mt-4">Verstuur suggestie</button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- ARTIESTEN-LIJST (JS) -->
 <script>
-function validateArtistInput() {
-  const input = document.getElementById("artist_name");
-  const datalist = document.getElementById("artists");
-  const validValues = Array.from(datalist.options).map(opt => opt.value.toLowerCase());
-  const inputValue = input.value.trim().toLowerCase();
+const ARTISTS = [
+    "Arctic Monkeys","Coldplay","Imagine Dragons","Muse","The Killers",
+    "Foo Fighters","Red Hot Chili Peppers","Ed Sheeran","Dua Lipa",
+    "Billie Eilish","Post Malone","The Weeknd","Bruno Mars",
+    "Calvin Harris","David Guetta","Kygo","Avicii","Bastille",
+    "Sam Smith","Shawn Mendes","Harry Styles","Adele","Tame Impala",
+    "Oasis","Florence + The Machine","Stromae","Lost Frequencies",
+    "Angèle","Netsky","Selah Sue","Oscar and the Wolf","Metallica",
+    "Linkin Park","Green Day","Paramore","Blink-182","Twenty One Pilots",
+    "Avenged Sevenfold","The Chainsmokers","Zedd","Swedish House Mafia",
+    "Maroon 5","The Script","Kings of Leon","Kanye West","Drake",
+    "Eminem","50 Cent","Black Eyed Peas"
+];
 
-  if (!validValues.includes(inputValue)) {
-    alert("⚠️ Kies een artiest uit de lijst (niet zelf intypen).");
-    input.focus();
-    return false; // voorkomt verzending
-  }
-  return true; // laat verzending toe
+// Elements
+const input = document.getElementById("artistInput");
+const dropdown = document.getElementById("artistDropdown");
+
+// Live search
+input.addEventListener("input", () => {
+    const q = input.value.toLowerCase().trim();
+    dropdown.innerHTML = "";
+
+    if (q.length === 0) {
+        dropdown.style.display = "none";
+        return;
+    }
+
+    const results = ARTISTS.filter(a => a.toLowerCase().includes(q));
+
+    if (results.length === 0) {
+        dropdown.style.display = "none";
+        return;
+    }
+
+    results.forEach(artist => {
+        const item = document.createElement("div");
+        item.classList.add("vv-dropdown-item");
+        item.textContent = artist;
+        item.onclick = () => {
+            input.value = artist;
+            dropdown.style.display = "none";
+        };
+        dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = "block";
+});
+
+// Klik buiten dropdown → sluit
+document.addEventListener("click", (e) => {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = "none";
+    }
+});
+
+// Validatie
+function validateArtistInput() {
+    const inputValue = input.value.trim().toLowerCase();
+    const validValues = ARTISTS.map(a => a.toLowerCase());
+
+    if (!validValues.includes(inputValue)) {
+        alert("⚠️ Kies een artiest uit de lijst (niet zelf intypen).");
+        input.focus();
+        return false;
+    }
+    return true;
 }
 </script>
+
 {% endblock %}
+

@@ -19,6 +19,7 @@ class Artists(db.Model):
     genre = db.Column(db.String, nullable=True)
 
 
+
 class FestivalEdition(db.Model):
     __tablename__ = "FestivalEdition"
     id = db.Column(db.Integer, primary_key=True)
