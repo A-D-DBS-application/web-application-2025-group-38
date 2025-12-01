@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="fw-bold mb-4">Admin – Globale resultaten</h2>
+
+    <!-- GLOBALE ARTIESTEN -->
+    <h3 class="fw-bold mt-3 mb-3">Meest gesuggereerde artiesten (globaal)</h3>
+
+    <ul class="list-group mb-5">
+        {% for row in global_suggestions %}
+        <li class="list-group-item d-flex justify-content-between">
+            <span>{{ row.artist }}</span>
+            <span class="fw-bold">{{ row.count }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- GLOBALE GENRES 🎵 -->
+    <h3 class="fw-bold mt-4 mb-3">Meest gesuggereerde genres (globaal)</h3>
+
+    <ul class="list-group">
+        {% for row in global_genres %}
+        <li class="list-group-item d-flex justify-content-between">
+            <span>{{ row.genre }}</span>
+            <span class="fw-bold">{{ row.count }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+
+</div>
+{% endblock %}

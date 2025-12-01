@@ -6,31 +6,17 @@
     <h2 class="fw-bold mb-4">Jouw Muziekprofiel</h2>
 
     {% if user_profile %}
-        <ul class="list-group mb-5">
-            {% for genre, count in user_profile.items() %}
-                <li class="list-group-item d-flex justify-content-between">
-                    <span>{{ genre }}</span>
-                    <span class="fw-bold">{{ count }}</span>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>Je hebt nog geen suggesties gedaan. Je profiel is nog leeg.</p>
-    {% endif %}
-
-    <h3 class="fw-bold mt-5 mb-3">Meest gesuggereerde artiesten (globaal)</h3>
-
-    <ul class="list-group">
-        {% for row in global_suggestions %}
-            <li class="list-group-item d-flex justify-content-between">
-                <span>{{ row.artist }}</span>
-                <span class="fw-bold">{{ row.count }}</span>
-            </li>
+    <ul class="list-group mb-5">
+        {% for genre, count in user_profile.items() %}
+        <li class="list-group-item d-flex justify-content-between">
+            <span>{{ genre }}</span>
+            <span class="fw-bold">{{ count }}</span>
+        </li>
         {% endfor %}
     </ul>
+    {% else %}
+    <p>Je hebt nog geen suggesties gedaan. Je profiel is nog leeg.</p>
+    {% endif %}
 
 </div>
 {% endblock %}
-
-
-

@@ -12,11 +12,11 @@ from models import (
     Genres, ArtistGenres  
 )
 
+ADMIN_EMAILS = {"louis@ugent.be" , "judith@ugent.be"}
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-
     db.init_app(app)
     Migrate(app, db)
 
@@ -32,6 +32,11 @@ def create_app():
 
     def logout_user():
         session.pop("user_id", None)
+    
+    @app.context_processor
+    def inject_current_user():
+        return {"current_user": get_session_user()}
+
 
     # ======================================================
     # Basisroutes
@@ -150,20 +155,30 @@ def create_app():
             user = User.query.filter_by(email=email).first() if email else None
 
             if not user:
+                # nieuwe gebruiker
                 user = User(email=email or None)
+                # admin of gewone user?
+                user.is_admin = email in ADMIN_EMAILS
                 db.session.add(user)
                 db.session.commit()
+            else:
+                # bestaande user → eventueel admin maken als e-mail nu in de lijst staat
+                if email in ADMIN_EMAILS and not user.is_admin:
+                    user.is_admin = True
+                    db.session.commit()
 
+            print("LOGIN:", email, "is_admin =", user.is_admin)
             login_user(user)
 
-            # verwijder oude meldingen, toon enkel deze
+            
+
             session.pop('_flashes', None)
             flash("Succesvol ingelogd!", "info")
 
-            # blijf gewoon op loginpagina
             return render_template("register.html")
 
         return render_template("register.html")
+
 
     @app.get("/logout")
     def logout():
@@ -308,20 +323,25 @@ def create_app():
             flash("Je moet ingelogd zijn.", "warning")
             return redirect(url_for("register"))
 
-        # ----------- 1. JOUW GENRE PROFIEL ------------
-        genre_rows = (
-            db.session.query(Genres.name, func.count())
-            .join(ArtistGenres, ArtistGenres.genre_id == Genres.id)
-            .join(Artists, Artists.id == ArtistGenres.artist_id)
-            .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
-            .filter(SuggestionFeedback.user_id == user.id)
-            .group_by(Genres.name)
-            .all()
+        # Alleen persoonlijk profiel
+        user_profile = get_user_genre_profile(user.id)
+
+        return render_template(
+            "results.html",
+            user_profile=user_profile,
         )
 
-        user_profile = {genre: count for genre, count in genre_rows}
+        # ---------- Admin: globale resultaten ----------
 
-        # ----------- 2. GLOBAL SUGGESTIES (top 10) ------------
+    @app.get("/admin/results")
+    def admin_results():
+        user = get_session_user()
+
+        if not user or not getattr(user, "is_admin", False):
+            flash("Je hebt geen toegang tot deze pagina.", "danger")
+            return redirect(url_for("home"))
+
+    # Globale top artiesten
         global_rows = (
             db.session.query(Artists.Artist_name, func.count())
             .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
@@ -330,14 +350,27 @@ def create_app():
             .limit(10)
             .all()
         )
-
         global_suggestions = [{"artist": a, "count": c} for a, c in global_rows]
 
-        return render_template(
-            "results.html",
-            user_profile=user_profile,
-            global_suggestions=global_suggestions
+    # ⭐ Nieuwe tabel: genres globaal
+        global_genres = (
+            db.session.query(Genres.name, func.count())
+            .join(ArtistGenres, ArtistGenres.genre_id == Genres.id)
+            .join(Artists, Artists.id == ArtistGenres.artist_id)
+            .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
+            .group_by(Genres.name)
+            .order_by(func.count().desc())
+            .all()
         )
+        global_genres = [{"genre": g, "count": c} for g, c in global_genres]
+
+        return render_template(
+            "admin_results.html",
+            global_suggestions=global_suggestions,
+            global_genres=global_genres
+    )
+
+
 
     # ======================================================
     return app
