@@ -7,7 +7,7 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">Poll-instellingen</h5>
-            <form action="{{ url_for('update_poll_settings') }}" method="post" class="row g-3 align-items-center">
+            <form action="{{ url_for('admin.update_poll_settings') }}" method="post" class="row g-3 align-items-center">
                 <div class="col-md-6">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="is_visible" name="is_visible" {% if poll and poll.is_visible %}checked{% endif %}>

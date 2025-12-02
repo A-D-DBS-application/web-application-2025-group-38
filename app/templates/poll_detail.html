@@ -6,7 +6,7 @@
     <h2 class="vv-poll-title">Stem op jouw favoriete artiest 🎶</h2>
 
     {% if options %}
-    <form method="POST" action="{{ url_for('vote') }}" class="artist-grid">
+    <form method="POST" action="{{ url_for('poll.vote') }}" class="artist-grid">
 
         {% for o in options %}
         <label class="artist-card">

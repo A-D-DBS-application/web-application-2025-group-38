@@ -23,34 +23,34 @@
   <header class="vv-header d-flex justify-content-between align-items-center px-4 py-2">
 
     <!-- Logo links (klikbaar) -->
-    <a href="{{ url_for('home') }}" class="d-flex align-items-center gap-2 text-decoration-none vv-brand">
+    <a href="{{ url_for('core.home') }}" class="d-flex align-items-center gap-2 text-decoration-none vv-brand">
       <img src="{{ url_for('static', filename='vicaris_logo.png') }}" alt="Vicaris logo" class="vv-logo">
     </a>
 
     <!-- Navigatie rechts -->
     <nav class="vv-nav">
-      <a href="{{ url_for('suggest') }}">Suggestion</a>
+      <a href="{{ url_for('suggestions.suggest') }}">Suggestion</a>
       {% if poll_visibility %}
-      <a href="{{ url_for('poll_detail') }}">Polls</a>
+      <a href="{{ url_for('poll.poll_detail') }}">Polls</a>
       {% else %}
       <span class="text-muted">Polls (verborgen)</span>
       {% endif %}
 
       {% if results_visibility %}
-      <a href="{{ url_for('results') }}">Results</a>
+      <a href="{{ url_for('poll.results') }}">Results</a>
       {% else %}
       <span class="text-muted">Results (verborgen)</span>
       {% endif %}
       
       {# Alleen tonen als ingelogde user admin is #}
       {% if current_user and current_user.is_admin %}
-      <a href="{{ url_for('admin_results') }}">Admin results</a>
+      <a href="{{ url_for('admin.admin_results') }}">Admin results</a>
       {% endif %}
 
       {% if session.get('user_id') %}
-      <a href="{{ url_for('logout') }}">Log out</a>
+      <a href="{{ url_for('auth.logout') }}">Log out</a>
       {% else %}
-      <a href="{{ url_for('register') }}">Log in</a>
+      <a href="{{ url_for('auth.register') }}">Log in</a>
       {% endif %}
     </nav>
 
