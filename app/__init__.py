@@ -32,10 +32,30 @@ def create_app():
 
     def logout_user():
         session.pop("user_id", None)
+
+    def get_or_create_active_poll():
+        poll = Poll.query.order_by(Poll.id).first()
+        if not poll:
+            poll = Poll(
+                Question="Festival poll",
+                is_visible=True,
+                show_results=True,
+            )
+            db.session.add(poll)
+            db.session.commit()
+        return poll
     
     @app.context_processor
     def inject_current_user():
         return {"current_user": get_session_user()}
+    
+    @app.context_processor
+    def inject_poll_visibility():
+        poll = Poll.query.order_by(Poll.id).first()
+        return {
+            "poll_visibility": poll.is_visible if poll else True,
+            "results_visibility": poll.show_results if poll else True,
+        }
 
 
     # ======================================================
@@ -243,35 +263,41 @@ def create_app():
     @app.get("/poll_detail")
     def poll_detail():
         user = get_session_user()
+        poll = get_or_create_active_poll()
+
+        if not poll.is_visible:
+            flash("De poll is momenteel niet zichtbaar. Kom later terug!", "info")
+            return redirect(url_for("home"))
+
 
         if not user:
             flash("Je moet ingelogd zijn om een stem uit te brengen.", "warning")
             return redirect(url_for("register"))
 
-        # 1️⃣ Slim profiel & gepersonaliseerde artiestenselectie
+        # Slim profiel & gepersonaliseerde artiestenselectie
         profile = get_user_genre_profile(user.id)
         print("User genre profile:", profile)
 
         poll_artists = generate_poll_for_user(user.id, num_options=5)
         print("Generated poll:", [a.Artist_name for a in poll_artists])
 
-        # 2️⃣ Oude pollopties verwijderen
+        # Oude pollopties verwijderen
         db.session.query(Polloption).delete()
         db.session.commit()
 
-        # 3️⃣ Nieuwe pollopties invoegen
+        # Nieuwe pollopties invoegen
         for artist in poll_artists:
             option = Polloption(
                 text=artist.Artist_name,
                 artist_id=artist.id,
                 Count=0,
-                poll_id=None       # je gebruikt geen Poll entity
+                poll_id=poll.id 
             )
             db.session.add(option)
 
         db.session.commit()
 
-        # 4️⃣ Pollopties ophalen & renderen
+        # Pollopties ophalen & renderen
         options = Polloption.query.all()
         return render_template("poll_detail.html", options=options)
 
@@ -322,6 +348,11 @@ def create_app():
         if not user:
             flash("Je moet ingelogd zijn.", "warning")
             return redirect(url_for("register"))
+        
+        poll = get_or_create_active_poll()
+        if not poll.show_results:
+            flash("Resultaten zijn momenteel verborgen door de beheerder.", "info")
+            return redirect(url_for("home"))
 
         # Alleen persoonlijk profiel
         user_profile = get_user_genre_profile(user.id)
@@ -331,7 +362,7 @@ def create_app():
             user_profile=user_profile,
         )
 
-        # ---------- Admin: globale resultaten ----------
+    # ---------- Admin: globale resultaten ----------
 
     @app.get("/admin/results")
     def admin_results():
@@ -341,7 +372,9 @@ def create_app():
             flash("Je hebt geen toegang tot deze pagina.", "danger")
             return redirect(url_for("home"))
 
-    # Globale top artiesten
+        poll = get_or_create_active_poll()
+
+        # Globale top artiesten
         global_rows = (
             db.session.query(Artists.Artist_name, func.count())
             .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
@@ -352,7 +385,7 @@ def create_app():
         )
         global_suggestions = [{"artist": a, "count": c} for a, c in global_rows]
 
-    # ⭐ Nieuwe tabel: genres globaal
+        # Nieuwe tabel: genres globaal
         global_genres = (
             db.session.query(Genres.name, func.count())
             .join(ArtistGenres, ArtistGenres.genre_id == Genres.id)
@@ -367,9 +400,24 @@ def create_app():
         return render_template(
             "admin_results.html",
             global_suggestions=global_suggestions,
-            global_genres=global_genres
-    )
+            global_genres=global_genres,
+            poll=poll,
+        )
 
+    @app.post("/admin/poll-settings")
+    def update_poll_settings():
+        user = get_session_user()
+        if not user or not getattr(user, "is_admin", False):
+            flash("Je hebt geen toegang tot deze pagina.", "danger")
+            return redirect(url_for("home"))
+
+        poll = get_or_create_active_poll()
+        poll.is_visible = bool(request.form.get("is_visible"))
+        poll.show_results = bool(request.form.get("show_results"))
+        db.session.commit()
+
+        flash("Poll-instellingen opgeslagen.", "success")
+        return redirect(url_for("admin_results"))
 
 
     # ======================================================

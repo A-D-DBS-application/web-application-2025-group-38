@@ -46,7 +46,9 @@ class Artists(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     created_at = db.Column(db.DateTime)
     Artist_name = db.Column(db.String, unique=True)
-    genre = db.Column(db.String)  # OPTIONAL legacy
+    genre = db.Column(db.String) 
+    
+
 
     # Many-to-Many
     genres = db.relationship(
@@ -73,6 +75,8 @@ class Poll(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     Question = db.Column(db.Text)
     festival_id = db.Column(db.Integer, db.ForeignKey("FestivalEdition.id"))
+    is_visible = db.Column(db.Boolean, nullable=False, server_default="true")
+    show_results = db.Column(db.Boolean, nullable=False, server_default="true")
 
     festival = db.relationship(FestivalEdition, backref="polls")
 

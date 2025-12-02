@@ -30,8 +30,18 @@
     <!-- Navigatie rechts -->
     <nav class="vv-nav">
       <a href="{{ url_for('suggest') }}">Suggestion</a>
+      {% if poll_visibility %}
       <a href="{{ url_for('poll_detail') }}">Polls</a>
+      {% else %}
+      <span class="text-muted">Polls (verborgen)</span>
+      {% endif %}
 
+      {% if results_visibility %}
+      <a href="{{ url_for('results') }}">Results</a>
+      {% else %}
+      <span class="text-muted">Results (verborgen)</span>
+      {% endif %}
+      
       {# Alleen tonen als ingelogde user admin is #}
       {% if current_user and current_user.is_admin %}
       <a href="{{ url_for('admin_results') }}">Admin results</a>
