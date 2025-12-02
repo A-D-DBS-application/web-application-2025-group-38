@@ -355,11 +355,18 @@ def create_app():
             return redirect(url_for("home"))
 
         # Alleen persoonlijk profiel
-        user_profile = get_user_genre_profile(user.id)
+        genre_counts = get_user_genre_profile(user.id)
+        total_genres = sum(genre_counts.values())
+        genre_percentages = (
+            {genre: round((count / total_genres) * 100, 1) for genre, count in genre_counts.items()}
+            if total_genres
+            else {}
+        )
 
         return render_template(
             "results.html",
-            user_profile=user_profile,
+            genre_counts=genre_counts,
+            genre_percentages=genre_percentages,
         )
 
     # ---------- Admin: globale resultaten ----------
