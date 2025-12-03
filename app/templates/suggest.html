@@ -1,3 +1,5 @@
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 {% extends "base.html" %}
 {% block title %}Suggestie - Vicaris Village{% endblock %}
 
@@ -39,21 +41,33 @@
 
 </div>
 
-<!-- ARTIESTEN-LIJST (JS) -->
 <script>
-const ARTISTS = [
-    "Arctic Monkeys","Coldplay","Imagine Dragons","Muse","The Killers",
-    "Foo Fighters","Red Hot Chili Peppers","Ed Sheeran","Dua Lipa",
-    "Billie Eilish","Post Malone","The Weeknd","Bruno Mars",
-    "Calvin Harris","David Guetta","Kygo","Avicii","Bastille",
-    "Sam Smith","Shawn Mendes","Harry Styles","Adele","Tame Impala",
-    "Oasis","Florence + The Machine","Stromae","Lost Frequencies",
-    "Angèle","Netsky","Selah Sue","Oscar and the Wolf","Metallica",
-    "Linkin Park","Green Day","Paramore","Blink-182","Twenty One Pilots",
-    "Avenged Sevenfold","The Chainsmokers","Zedd","Swedish House Mafia",
-    "Maroon 5","The Script","Kings of Leon","Kanye West","Drake",
-    "Eminem","50 Cent","Black Eyed Peas"
-];
+const SUPABASE_URL = "https://pwvyxvgwntypsbyuhkwa.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_-u8vMUTUlFFQQTiQy6MtrA_SuLvLBdl";
+
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let ARTISTS = [];
+
+// Load artists from Supabase
+async function loadArtists() {
+    const { data, error } = await supabase
+        .from("artists")           // <-- jouw tabelnaam
+        .select("name")
+        .order("name", { ascending: true });
+
+    if (error) {
+        console.error("Supabase error:", error);
+        return;
+    }
+
+    ARTISTS = data.map(a => a.name);
+    console.log("Artiesten geladen:", ARTISTS);
+}
+
+loadArtists();
+</script>
+
 
 // Elements
 const input = document.getElementById("artistInput");
