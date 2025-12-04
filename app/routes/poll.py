@@ -90,11 +90,26 @@ def results():
 
     genre_counts = get_user_genre_profile(user.id)
     total_genres = sum(genre_counts.values())
-    genre_percentages = (
-        {genre: round((count / total_genres) * 100, 1) for genre, count in genre_counts.items()}
-        if total_genres
-        else {}
-    )
+
+    if total_genres:
+        # percentages berekenen
+        genre_percentages = {
+            genre: round((count / total_genres) * 100, 1)
+            for genre, count in genre_counts.items()
+        }
+
+        # genres sorteren op percentage (hoog → laag)
+        sorted_genres = sorted(
+            genre_counts.keys(),
+            key=lambda g: genre_percentages[g],
+            reverse=True,
+        )
+
+        # nieuwe (geordende) dicts opbouwen in die volgorde
+        genre_counts = {g: genre_counts[g] for g in sorted_genres}
+        genre_percentages = {g: genre_percentages[g] for g in sorted_genres}
+    else:
+        genre_percentages = {}
 
     return render_template(
         "results.html",

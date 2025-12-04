@@ -5,13 +5,18 @@
 
 /* ===== Kleuren & basis ===== */
 :root {
-  --vv-blue: #132B4F;      /* Primair blauw */
-  --vv-yellow: #EFBF2E;    /* Accentkleur */
-  --vv-bg: #F9F8F6;        /* Achtergrond */
-  --vv-text: #132B4F;      /* Tekstkleur */
+  --vv-blue: #132B4F;
+  /* Primair blauw */
+  --vv-yellow: #EFBF2E;
+  /* Accentkleur */
+  --vv-bg: #F9F8F6;
+  /* Achtergrond */
+  --vv-text: #132B4F;
+  /* Tekstkleur */
 }
 
-html, body {
+html,
+body {
   background: none;
   color: var(--vv-text);
   margin: 0;
@@ -44,6 +49,7 @@ html, body {
   display: flex;
   align-items: center;
 }
+
 .vv-brand h1 {
   font-size: 1.6rem;
   font-weight: bold;
@@ -51,6 +57,7 @@ html, body {
   color: var(--vv-blue);
   margin: 0;
 }
+
 .vv-brand h1 span {
   font-family: 'Satisfy', cursive;
   color: var(--vv-yellow);
@@ -62,12 +69,14 @@ html, body {
   display: flex;
   gap: 1.5rem;
 }
+
 .vv-nav a {
   text-decoration: none;
   color: var(--vv-blue);
   font-weight: 600;
   transition: color .2s ease;
 }
+
 .vv-nav a:hover {
   color: var(--vv-yellow);
 }
@@ -81,8 +90,10 @@ html, body {
 
 .hero {
   position: relative;
-  height: 100vh;          /* Volledige hoogte scherm */
-  width: 100vw;           /* Volledige breedte scherm */
+  height: 100vh;
+  /* Volledige hoogte scherm */
+  width: 100vw;
+  /* Volledige breedte scherm */
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -134,6 +145,7 @@ html, body {
   transition: all 0.25s ease, transform 0.25s ease;
   text-decoration: none;
 }
+
 .cta:hover {
   background-color: var(--vv-yellow);
   color: var(--vv-blue);
@@ -162,7 +174,8 @@ form {
   gap: 1rem;
 }
 
-form input, form select {
+form input,
+form select {
   border-radius: 10px;
   border: 1px solid #ccc;
   padding: 0.8rem 1rem;
@@ -172,9 +185,10 @@ form input, form select {
   transition: all 0.25s ease;
 }
 
-form input:focus, form select:focus {
+form input:focus,
+form select:focus {
   border-color: var(--vv-yellow);
-  box-shadow: 0 0 6px rgba(239,191,46,0.4);
+  box-shadow: 0 0 6px rgba(239, 191, 46, 0.4);
   outline: none;
 }
 
@@ -187,6 +201,7 @@ form button {
   font-weight: 600;
   transition: all 0.25s ease;
 }
+
 form button:hover {
   background-color: var(--vv-yellow);
   color: var(--vv-blue);
@@ -199,9 +214,10 @@ form button:hover {
   border-radius: 12px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+
 .gallery img:hover {
   transform: scale(1.04);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* =======================================================
@@ -230,88 +246,90 @@ form button:hover {
    ======================================================= */
 
 .vv-poll-wrapper {
-    max-width: 550px;
-    margin: 90px auto;
-    background: #fff;
-    padding: 40px 50px;
-    border-radius: 18px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-    text-align: center;
+  max-width: 550px;
+  margin: 90px auto;
+  background: #fff;
+  padding: 40px 50px;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  text-align: center;
 }
 
 .vv-poll-title {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--vv-blue);
-    margin-bottom: 2rem;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--vv-blue);
+  margin-bottom: 2rem;
 }
 
 .vv-poll-form {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
 }
 
 .vv-poll-option {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-size: 1.25rem;
-    color: var(--vv-blue);
-    cursor: pointer;
-    padding: 12px 15px;
-    border-radius: 12px;
-    transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 1.25rem;
+  color: var(--vv-blue);
+  cursor: pointer;
+  padding: 12px 15px;
+  border-radius: 12px;
+  transition: all 0.25s ease;
 }
 
 .vv-poll-option:hover {
-    background: #f4f7fb;  /* lichtblauw */
+  background: #f4f7fb;
+  /* lichtblauw */
 }
 
 .vv-poll-option input[type="radio"] {
-    display: none;
+  display: none;
 }
 
 .vv-radio {
-    width: 22px;
-    height: 22px;
-    border: 3px solid var(--vv-blue);
-    border-radius: 50%;
-    position: relative;
-    transition: all 0.25s ease;
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--vv-blue);
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.25s ease;
 }
 
-.vv-poll-option input[type="radio"]:checked + .vv-radio {
-    border-color: var(--vv-yellow);
+.vv-poll-option input[type="radio"]:checked+.vv-radio {
+  border-color: var(--vv-yellow);
 }
 
-.vv-poll-option input[type="radio"]:checked + .vv-radio::after {
-    content: "";
-    width: 12px;
-    height: 12px;
-    background: var(--vv-yellow);
-    border-radius: 50%;
-    position: absolute;
-    top: 3px;
-    left: 3px;
+.vv-poll-option input[type="radio"]:checked+.vv-radio::after {
+  content: "";
+  width: 12px;
+  height: 12px;
+  background: var(--vv-yellow);
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  left: 3px;
 }
 
 .vv-poll-btn {
-    margin-top: 25px;
-    background: var(--vv-blue);
-    color: #fff;
-    padding: 0.75rem 2.2rem;
-    font-size: 1.2rem;
-    border-radius: 30px;
-    border: none;
-    transition: all .25s ease;
+  margin-top: 25px;
+  background: var(--vv-blue);
+  color: #fff;
+  padding: 0.75rem 2.2rem;
+  font-size: 1.2rem;
+  border-radius: 30px;
+  border: none;
+  transition: all .25s ease;
 }
 
 .vv-poll-btn:hover {
-    background: var(--vv-yellow);
-    color: var(--vv-blue);
-    transform: translateY(-2px);
+  background: var(--vv-yellow);
+  color: var(--vv-blue);
+  transform: translateY(-2px);
 }
+
 /* --- Poll Artist Grid --- */
 /* --- Poll Artist Grid --- */
 .artist-grid {
@@ -336,7 +354,7 @@ form button:hover {
 
 .artist-card:hover {
   transform: translateY(-6px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 /* Verberg radio */
@@ -361,7 +379,7 @@ form button:hover {
 }
 
 /* GESELECTEERDE kaart — fix: gebruik ~ in plaats van + */
-.artist-card input[type="radio"]:checked ~ .artist-photo {
+.artist-card input[type="radio"]:checked~.artist-photo {
   border-color: var(--vv-blue);
   transform: scale(1.12);
 }
@@ -373,186 +391,291 @@ form button:hover {
   font-weight: 600;
   color: var(--vv-blue);
 }
+
 /* =======================================================
    🔐 LOGIN / REGISTER PAGE — Vicaris Village Style
    ======================================================= */
 
 .vv-login-wrapper {
-    max-width: 480px;
-    margin: 120px auto;
-    background: #fff;
-    padding: 40px 50px;
-    border-radius: 18px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-    text-align: center;
+  max-width: 480px;
+  margin: 120px auto;
+  background: #fff;
+  padding: 40px 50px;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  text-align: center;
 }
 
 .vv-login-title {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--vv-blue);
-    margin-bottom: 1rem;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--vv-blue);
+  margin-bottom: 1rem;
 }
 
 .vv-login-subtitle {
-    font-size: 1rem;
-    color: #666;
-    margin-bottom: 2rem;
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 2rem;
 }
 
 .vv-login-form input {
-    border-radius: 12px;
-    border: 1px solid #ccc;
-    padding: 0.9rem 1rem;
-    font-size: 1rem;
-    width: 100%;
-    transition: .25s;
-    font-family: 'Playfair Display', serif;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  width: 100%;
+  transition: .25s;
+  font-family: 'Playfair Display', serif;
 }
 
 .vv-login-form input:focus {
-    border-color: var(--vv-yellow);
-    box-shadow: 0 0 6px rgba(239,191,46,0.4);
-    outline: none;
+  border-color: var(--vv-yellow);
+  box-shadow: 0 0 6px rgba(239, 191, 46, 0.4);
+  outline: none;
 }
 
 .vv-login-btn {
-    width: 100%;
-    background: var(--vv-blue);
-    color: #fff;
-    padding: 0.75rem;
-    font-size: 1.1rem;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: .25s;
-    font-weight: 600;
+  width: 100%;
+  background: var(--vv-blue);
+  color: #fff;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: .25s;
+  font-weight: 600;
 }
 
 .vv-login-btn:hover {
-    background: var(--vv-yellow);
-    color: var(--vv-blue);
-    transform: translateY(-2px);
+  background: var(--vv-yellow);
+  color: var(--vv-blue);
+  transform: translateY(-2px);
 }
+
 .vv-login-page-bg {
-    min-height: 100vh;
-    width: 100%;
-    background-image: url("/static/images/hero_vicaris.jpg");
-    background-size: cover;
-    background-position: center;
-    backdrop-filter: blur(4px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 60px 0;
+  min-height: 100vh;
+  width: 100%;
+  background-image: url("/static/images/hero_vicaris.jpg");
+  background-size: cover;
+  background-position: center;
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 0;
 }
 
 /* Suggestie Page achtergrond */
 .vv-suggest-page-bg {
-    min-height: 85vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 60px 20px;
+  min-height: 85vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
 }
 
 /* Suggestie card */
 .vv-suggest-wrapper {
-    max-width: 600px;
-    background: #fff;
-    padding: 40px 50px;
-    border-radius: 18px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-    text-align: center;
+  max-width: 600px;
+  background: #fff;
+  padding: 40px 50px;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  text-align: center;
 }
 
 /* Titel */
 .vv-suggest-title {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--vv-blue);
-    margin-bottom: 1rem;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--vv-blue);
+  margin-bottom: 1rem;
 }
 
 /* Subtitle */
 .vv-suggest-subtitle {
-    font-size: 1.15rem;
-    color: #444;
-    margin-bottom: 2rem;
+  font-size: 1.15rem;
+  color: #444;
+  margin-bottom: 2rem;
 }
 
 /* Custom dropdown wrapper */
 .vv-dropdown-wrapper {
-    position: relative;
-    width: 100%;
-    max-width: 420px;
-    margin: 0 auto;
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
 }
 
 /* Input */
 .vv-dropdown-input {
-    width: 100%;
-    padding: 0.9rem 1rem;
-    font-size: 1rem;
-    border-radius: 12px;
-    border: 1px solid #ccc;
-    transition: .25s ease;
-    font-family: 'Playfair Display', serif;
-    text-align: center;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  transition: .25s ease;
+  font-family: 'Playfair Display', serif;
+  text-align: center;
 }
 
 .vv-dropdown-input:focus {
-    border-color: var(--vv-yellow);
-    box-shadow: 0 0 6px rgba(239,191,46,0.4);
-    outline: none;
+  border-color: var(--vv-yellow);
+  box-shadow: 0 0 6px rgba(239, 191, 46, 0.4);
+  outline: none;
 }
 
 /* Dropdown lijst */
 .vv-dropdown-list {
-    position: absolute;
-    top: 110%;
-    left: 0;
-    width: 100%;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    max-height: 250px;
-    overflow-y: auto;
-    display: none;
-    z-index: 20;
+  position: absolute;
+  top: 110%;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-height: 250px;
+  overflow-y: auto;
+  display: none;
+  z-index: 20;
 }
 
 /* Dropdown item */
 .vv-dropdown-item {
-    padding: 12px 15px;
-    font-size: 1rem;
-    cursor: pointer;
-    color: var(--vv-blue);
-    transition: 0.2s;
-    text-align: left;
+  padding: 12px 15px;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--vv-blue);
+  transition: 0.2s;
+  text-align: left;
 }
 
 .vv-dropdown-item:hover {
-    background: var(--vv-yellow);
-    color: white;
+  background: var(--vv-yellow);
+  color: white;
 }
 
 /* Button */
 .vv-suggest-btn {
-    background: var(--vv-blue);
-    color: #fff;
-    padding: 0.75rem;
-    font-size: 1.1rem;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    transition: 0.25s ease;
-    width: 100%;
-    font-weight: 600;
+  background: var(--vv-blue);
+  color: #fff;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  width: 100%;
+  font-weight: 600;
 }
 
 .vv-suggest-btn:hover {
-    background: var(--vv-yellow);
-    color: var(--vv-blue);
-    transform: translateY(-2px);
+  background: var(--vv-yellow);
+  color: var(--vv-blue);
+  transform: translateY(-2px);
+}
+
+
+/* =======================================================
+   🔔 FLASH / TOAST OVERLAY
+   ======================================================= */
+
+.vv-flash-container {
+  position: fixed;
+  top: 80px;
+  /* net onder de navbar */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  /* boven de rest van de pagina */
+  width: min(600px, 90vw);
+  /* mooie max-breedte */
+  pointer-events: none;
+  /* laat klikken erachter toe */
+}
+
+.vv-flash-alert {
+  pointer-events: auto;
+  /* alert zelf blijft klikbaar */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+
+/* =======================================================
+   🛠 ADMIN DROPDOWN IN NAVBAR
+   ======================================================= */
+
+.vv-nav {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.vv-nav a,
+.vv-nav span {
+  text-decoration: none;
+  color: var(--vv-blue);
+  font-weight: 600;
+  transition: color .2s ease;
+}
+
+.vv-nav a:hover {
+  color: var(--vv-yellow);
+}
+
+/* Container van label + menu */
+.vv-nav-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Het label (button) dat je ziet in de navbar */
+.vv-nav-admin-label {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--vv-blue);
+  cursor: pointer;
+}
+
+/* Menu dat uitklapt */
+.vv-nav-dropdown-menu {
+  position: absolute;
+  top: 130%;
+  right: 0;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  padding: 0.5rem 0;
+  min-width: 180px;
+  display: none;
+  z-index: 1500;
+}
+
+/* Links in dropdown */
+.vv-nav-dropdown-menu a {
+  display: block;
+  padding: 0.4rem 1rem;
+  white-space: nowrap;
+  text-decoration: none;
+  color: var(--vv-blue);
+  font-weight: 500;
+}
+
+.vv-nav-dropdown-menu a:hover {
+  background: var(--vv-yellow);
+  color: #fff;
+}
+
+/* Toon menu als je met de muis binnen de hele container zit
+   (dus zowel over het label als over het menu zelf) */
+.vv-nav-dropdown:hover .vv-nav-dropdown-menu,
+.vv-nav-dropdown:focus-within .vv-nav-dropdown-menu {
+  display: block;
 }

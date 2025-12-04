@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="fw-bold mb-4">Admin – Gebruikersbeheer</h2>
+
+    <!-- Formulier: nieuwe admin toevoegen via e-mail -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Maak een gebruiker admin</h5>
+            <p class="text-muted">
+                Geef het e-mailadres in van een bestaande gebruiker.
+                Als er nog geen account bestaat met dat adres, krijg je een foutmelding.
+            </p>
+
+            <form method="post" action="{{ url_for('admin.make_admin') }}" class="row g-3 align-items-center">
+                <div class="col-md-8">
+                    <input type="email" class="form-control" name="email" placeholder="voorbeeld@domein.com" required>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Maak admin
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lijst van huidige admins -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Huidige admins</h5>
+
+            {% if admins %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">E-mail</th>
+                            <th scope="col" class="text-end">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for u in admins %}
+                        <tr>
+                            <td>{{ u.id }}</td>
+                            <td>{{ u.email or "Geen e-mail" }}</td>
+                            <td class="text-end">
+                                {% if current_user and current_user.id != u.id %}
+                                <!-- Admin verwijderen (niet op jezelf) -->
+                                <form method="post" action="{{ url_for('admin.remove_admin', user_id=u.id) }}"
+                                    class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Verwijder admin
+                                    </button>
+                                </form>
+                                {% else %}
+                                <small class="text-muted">Dit ben jij</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">Er zijn nog geen admins ingesteld.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

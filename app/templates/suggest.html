@@ -1,5 +1,3 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 {% extends "base.html" %}
 {% block title %}Suggestie - Vicaris Village{% endblock %}
 
@@ -16,20 +14,13 @@
 
         <!-- FORMULIER -->
         <form method="POST" onsubmit="return validateArtistInput()">
-            
+
             <label for="artistInput" class="form-label fw-semibold mb-2">Kies artiest:</label>
 
             <!-- Custom dropdown -->
             <div class="vv-dropdown-wrapper">
-                <input 
-                    type="text" 
-                    id="artistInput" 
-                    name="artist_name"
-                    class="vv-dropdown-input"
-                    placeholder="Typ of kies een artiest..."
-                    autocomplete="off"
-                    required
-                >
+                <input type="text" id="artistInput" name="artist_name" class="vv-dropdown-input"
+                    placeholder="Typ of kies een artiest..." autocomplete="off" required>
                 <div id="artistDropdown" class="vv-dropdown-list"></div>
             </div>
 
@@ -37,92 +28,81 @@
 
         </form>
 
+        {% if suggestions %}
+        <div class="mt-4">
+            <h5>Jouw voorgestelde artiesten:</h5>
+            <ul>
+                {% for s in suggestions %}
+                <li>{{ s }}</li>
+                {% endfor %}
+            </ul>
+            <p>Nog {{ remaining }} suggestie(s) over.</p>
+        </div>
+        {% endif %}
+
     </div>
 
 </div>
 
+<!-- JS onderaan, zodat de HTML al bestaat -->
 <script>
-const SUPABASE_URL = "https://pwvyxvgwntypsbyuhkwa.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_-u8vMUTUlFFQQTiQy6MtrA_SuLvLBdl";
+    // 🔹 Lijst met artiesten vanuit Flask → JSON
+    const ARTISTS = {{ artists | map(attribute = 'Artist_name') | list | tojson }};
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const input = document.getElementById("artistInput");
+    const dropdown = document.getElementById("artistDropdown");
 
-let ARTISTS = [];
+    // Live search
+    input.addEventListener("input", () => {
+        const q = input.value.toLowerCase().trim();
+        dropdown.innerHTML = "";
 
-// Load artists from Supabase
-async function loadArtists() {
-    const { data, error } = await supabase
-        .from("artists")           // <-- jouw tabelnaam
-        .select("name")
-        .order("name", { ascending: true });
-
-    if (error) {
-        console.error("Supabase error:", error);
-        return;
-    }
-
-    ARTISTS = data.map(a => a.name);
-    console.log("Artiesten geladen:", ARTISTS);
-}
-
-loadArtists();
-</script>
-
-
-// Elements
-const input = document.getElementById("artistInput");
-const dropdown = document.getElementById("artistDropdown");
-
-// Live search
-input.addEventListener("input", () => {
-    const q = input.value.toLowerCase().trim();
-    dropdown.innerHTML = "";
-
-    if (q.length === 0) {
-        dropdown.style.display = "none";
-        return;
-    }
-
-    const results = ARTISTS.filter(a => a.toLowerCase().includes(q));
-
-    if (results.length === 0) {
-        dropdown.style.display = "none";
-        return;
-    }
-
-    results.forEach(artist => {
-        const item = document.createElement("div");
-        item.classList.add("vv-dropdown-item");
-        item.textContent = artist;
-        item.onclick = () => {
-            input.value = artist;
+        if (q.length === 0) {
             dropdown.style.display = "none";
-        };
-        dropdown.appendChild(item);
+            return;
+        }
+
+        // Filter artiesten obv wat je typt
+        const results = ARTISTS.filter(a => a.toLowerCase().includes(q));
+
+        if (results.length === 0) {
+            dropdown.style.display = "none";
+            return;
+        }
+
+        results.forEach(artist => {
+            const item = document.createElement("div");
+            item.classList.add("vv-dropdown-item");
+            item.textContent = artist;
+            item.onclick = () => {
+                input.value = artist;
+                dropdown.style.display = "none";
+            };
+            dropdown.appendChild(item);
+        });
+
+        dropdown.style.display = "block";
     });
 
-    dropdown.style.display = "block";
-});
+    // Klik buiten dropdown → sluit
+    document.addEventListener("click", (e) => {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = "none";
+        }
+    });
 
-// Klik buiten dropdown → sluit
-document.addEventListener("click", (e) => {
-    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.style.display = "none";
+    // Validatie vóór submit
+    function validateArtistInput() {
+        const inputValue = input.value.trim().toLowerCase();
+        const validValues = ARTISTS.map(a => a.toLowerCase());
+
+        if (!validValues.includes(inputValue)) {
+            alert("⚠️ Kies een artiest uit de lijst (je kan geen nieuwe artiest intypen).");
+            input.focus();
+            return false; // blokkeert het versturen
+        }
+        return true;
     }
-});
-
-// Validatie → blijft backend-compatibel
-function validateArtistInput() {
-    const inputValue = input.value.trim().toLowerCase();
-    const validValues = ARTISTS.map(a => a.toLowerCase());
-
-    if (!validValues.includes(inputValue)) {
-        alert("⚠️ Kies een artiest uit de lijst (niet zelf intypen).");
-        input.focus();
-        return false;
-    }
-    return true;
-}
 </script>
 
 {% endblock %}

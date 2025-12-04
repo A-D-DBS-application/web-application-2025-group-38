@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="fw-bold mb-4">Admin – Artiestenbeheer</h2>
+
+    <!-- Artiest toevoegen -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Nieuwe artiest toevoegen</h5>
+            <form method="post" action="{{ url_for('admin.admin_add_artist') }}" class="row g-3 align-items-center">
+                <div class="col-md-8">
+                    <input type="text" class="form-control" name="artist_name" placeholder="Naam van de artiest"
+                        required>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Toevoegen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lijst van artiesten -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Alle artiesten</h5>
+
+            {% if artists %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Naam</th>
+                            <th scope="col" class="text-end">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in artists %}
+                        <tr>
+                            <td>{{ a.id }}</td>
+                            <td>{{ a.Artist_name }}</td>
+                            <td class="text-end">
+                                <form method="post" action="{{ url_for('admin.admin_delete_artist', artist_id=a.id) }}"
+                                    class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Verwijder
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">Nog geen artiesten in de database.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

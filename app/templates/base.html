@@ -30,6 +30,7 @@
     <!-- Navigatie rechts -->
     <nav class="vv-nav">
       <a href="{{ url_for('suggestions.suggest') }}">Suggestion</a>
+
       {% if poll_visibility %}
       <a href="{{ url_for('poll.poll_detail') }}">Polls</a>
       {% else %}
@@ -41,10 +42,18 @@
       {% else %}
       <span class="text-muted">Results (verborgen)</span>
       {% endif %}
-      
-      {# Alleen tonen als ingelogde user admin is #}
+
       {% if current_user and current_user.is_admin %}
-      <a href="{{ url_for('admin.admin_results') }}">Admin results</a>
+      <div class="vv-nav-dropdown">
+        <button class="vv-nav-admin-label" type="button">
+          Admin ▾
+        </button>
+        <div class="vv-nav-dropdown-menu">
+          <a href="{{ url_for('admin.admin_results') }}">Admin results</a>
+          <a href="{{ url_for('admin.admin_artists') }}">Artists</a>
+          <a href="{{ url_for('admin.admin_users') }}">Users</a>
+        </div>
+      </div>
       {% endif %}
 
       {% if session.get('user_id') %}
@@ -55,21 +64,24 @@
     </nav>
 
 
+
+
   </header>
 
-  <!-- FLASH-MELDINGEN -->
-  <div class="container mt-3">
+  <!-- FLASH-MELDINGEN ALS OVERLAY -->
+  <div class="vv-flash-container">
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     {% for cat, msg in messages %}
-    <div class="alert alert-{{ cat }} alert-dismissible fade show" role="alert">
+    <div class="alert alert-{{ cat }} alert-dismissible fade show vv-flash-alert" role="alert">
       {{ msg }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     {% endfor %}
     {% endif %}
     {% endwith %}
   </div>
+
 
   <!-- PAGINA-INHOUD -->
   <main class="vv-main">

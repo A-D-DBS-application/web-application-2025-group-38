@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="fw-bold mb-4">Admin – Poll-opties voor "{{ poll.Question }}"</h2>
+
+    <!-- Formulier: artiest als poll-optie toevoegen -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Artiest toevoegen aan poll</h5>
+            <form method="post" action="{{ url_for('admin.admin_add_poll_option') }}"
+                class="row g-3 align-items-center">
+                <div class="col-md-8">
+                    <select name="artist_id" class="form-select" required>
+                        <option value="">-- Kies een artiest --</option>
+                        {% for a in artists %}
+                        {% if a.id not in used_artist_ids %}
+                        <option value="{{ a.id }}">{{ a.Artist_name }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Voeg toe
+                    </button>
+                </div>
+            </form>
+            <p class="text-muted mt-2 mb-0">
+                Alleen artiesten die nog niet in de poll staan, worden in de lijst getoond.
+            </p>
+        </div>
+    </div>
+
+    <!-- Overzicht huidige poll-opties -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Huidige poll-opties</h5>
+
+            {% if options %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Artiest</th>
+                            <th scope="col">Tekst</th>
+                            <th scope="col">Aantal stemmen</th>
+                            <th scope="col" class="text-end">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for opt, artist in options %}
+                        <tr>
+                            <td>{{ opt.id }}</td>
+                            <td>{{ artist.Artist_name if artist else "Onbekend" }}</td>
+                            <td>{{ opt.text }}</td>
+                            <td>{{ opt.Count or 0 }}</td>
+                            <td class="text-end">
+                                <form method="post"
+                                    action="{{ url_for('admin.admin_delete_poll_option', option_id=opt.id) }}"
+                                    class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        Verwijder optie
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p class="text-muted mb-0">Er zijn nog geen poll-opties voor deze poll.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
