@@ -41,7 +41,13 @@
                             <td>{{ a.id }}</td>
                             <td>{{ a.Artist_name }}</td>
                             <td class="text-end">
-                                <form method="post" action="{{ url_for('admin.admin_delete_artist', artist_id=a.id) }}"
+
+                                <a href="{{ url_for('admin.admin_artist_detail', artist_id=a.id) }}"
+                                class="btn btn-sm btn-outline-secondary me-2">
+                                    Details
+                                </a>
+                                <form method="post"
+                                    action="{{ url_for('admin.admin_delete_artist', artist_id=a.id) }}"
                                     class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                         Verwijder

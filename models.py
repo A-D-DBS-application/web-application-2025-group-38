@@ -1,6 +1,7 @@
 # models.py
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -44,9 +45,8 @@ class Artists(db.Model):
     __tablename__ = "Artists"
 
     id = db.Column(db.BigInteger, primary_key=True)
-    created_at = db.Column(db.DateTime)
-    Artist_name = db.Column(db.String, unique=True)
-    genre = db.Column(db.String) 
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    Artist_name = db.Column(db.String, nullable=False)
     
 
 

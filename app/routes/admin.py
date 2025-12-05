@@ -241,3 +241,48 @@ def admin_delete_artist(artist_id):
     db.session.commit()
     flash("Artiest verwijderd.", "success")
     return redirect(url_for("admin.admin_artists"))
+
+@bp.get("/admin/artists/<int:artist_id>")
+@require_admin
+def admin_artist_detail(artist_id):
+    artist = Artists.query.get_or_404(artist_id)
+
+    genres = Genres.query.order_by(Genres.name).all()
+
+    linked_genres = (
+        db.session.query(Genres)
+        .join(ArtistGenres, ArtistGenres.genre_id == Genres.id)
+        .filter(ArtistGenres.artist_id == artist_id)
+        .all()
+    )
+
+    return render_template(
+        "admin_artist_detail.html",
+        artist=artist,
+        genres=genres,
+        linked_genres=linked_genres,
+    )
+
+@bp.post("/admin/artists/<int:artist_id>/genres/add")
+@require_admin
+def admin_add_genre(artist_id):
+    genre_id = int(request.form.get("genre_id"))
+
+    existing = ArtistGenres.query.filter_by(
+        artist_id=artist_id,
+        genre_id=genre_id,
+    ).first()
+
+    if not existing:
+        db.session.add(ArtistGenres(
+            artist_id=artist_id,
+            genre_id=genre_id
+        ))
+        db.session.commit()
+        flash("Genre gekoppeld!", "success")
+    else:
+        flash("Genre was al gekoppeld.", "info")
+
+    return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
+
+

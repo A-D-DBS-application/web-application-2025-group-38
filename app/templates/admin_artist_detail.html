@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+
+    <h2 class="fw-bold mb-4">Artiest: {{ artist.Artist_name }}</h2>
+
+    <h5>Gekoppelde genres</h5>
+    <ul>
+        {% for g in linked_genres %}
+            <li>{{ g.name }}</li>
+        {% else %}
+            <li class="text-muted">Geen genres gekoppeld</li>
+        {% endfor %}
+    </ul>
+
+    <hr>
+
+    <h5>Genre toevoegen</h5>
+
+    <form method="post"
+          action="{{ url_for('admin.admin_add_genre', artist_id=artist.id) }}"
+          class="row g-3">
+
+        <div class="col-md-8">
+            <select name="genre_id" class="form-select">
+                {% for genre in genres %}
+                    <option value="{{ genre.id }}">{{ genre.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100">
+                Koppel genre
+            </button>
+        </div>
+
+    </form>
+
+    <hr>
+
+    <a href="{{ url_for('admin.admin_artists') }}" class="btn btn-secondary mt-3">
+        Terug
+    </a>
+
+</div>
+{% endblock %}
