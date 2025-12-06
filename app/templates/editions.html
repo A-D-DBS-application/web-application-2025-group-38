@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Beheer edities - Vicaris Village{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+    <h1 class="mb-4">Festivaledities</h1>
+
+    <p class="text-muted mb-4">
+        Hier kan je festivaledities toevoegen en aanduiden welke editie momenteel actief is.
+        De actieve editie wordt gebruikt voor de poll en nieuwe stemmen.
+    </p>
+
+    <!-- FORMULIER: nieuwe editie toevoegen -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="h5 mb-3">Nieuwe editie toevoegen</h2>
+
+            <form method="post" class="row g-3">
+                <div class="col-md-4">
+                    <label for="name" class="form-label">Naam *</label>
+                    <input type="text" id="name" name="name" class="form-control" required
+                           placeholder="Vicaris Village 2025">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="start_date" class="form-label">Startdatum</label>
+                    <input type="date" id="start_date" name="start_date" class="form-control">
+                </div>
+
+                <div class="col-md-3">
+                    <label for="end_date" class="form-label">Einddatum</label>
+                    <input type="date" id="end_date" name="end_date" class="form-control">
+                </div>
+
+                <div class="col-md-4">
+                    <label for="location" class="form-label">Locatie</label>
+                    <input type="text" id="location" name="location" class="form-control"
+                           placeholder="Vicaris Village / Zaal X">
+                </div>
+
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active">
+                        <label class="form-check-label" for="is_active">
+                            Maak deze editie onmiddellijk actief
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        Nieuwe editie opslaan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TABEL: bestaande edities -->
+    {% if editions %}
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Jaar</th>
+                    <th>Naam</th>
+                    <th>Locatie</th>
+                    <th>Start</th>
+                    <th>Einde</th>
+                    <th>Actief</th>
+                    <th>Actie</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in editions %}
+                <tr>
+                    <td>
+                        {% if e.Start_date %}
+                            {{ e.Start_date.year }}
+                        {% else %}
+                            –
+                        {% endif %}
+                    </td>
+                    <td>{{ e.Name }}</td>
+                    <td>{{ e.Location }}</td>
+                    <td>{{ e.Start_date or "–" }}</td>
+                    <td>{{ e.End_date or "–" }}</td>
+                    <td>
+                        {% if e.is_active %}
+                            <span class="badge bg-success">Actief</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactief</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            {% if not e.is_active %}
+                            <form method="post"
+                                  action="{{ url_for('admin.set_active_edition', edition_id=e.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                    Maak actief
+                                </button>
+                            </form>
+                            {% else %}
+                                <span class="text-muted me-2">Huidige editie</span>
+                            {% endif %}
+
+                            <!-- Verwijder-knop -->
+                            <form method="post"
+                                  action="{{ url_for('admin.delete_edition', edition_id=e.id) }}"
+                                  onsubmit="return confirm('Ben je zeker dat je deze editie wilt verwijderen?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    Verwijder
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="text-muted">Er zijn nog geen edities aangemaakt.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

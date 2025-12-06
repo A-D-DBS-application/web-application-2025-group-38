@@ -28,17 +28,30 @@
 
         </form>
 
+
         {% if suggestions %}
-        <div class="mt-4">
-            <h5>Jouw voorgestelde artiesten:</h5>
-            <ul>
+        <div class="vv-suggest-list mt-5">
+            <h3 class="fw-bold mb-3">Jouw voorgestelde artiesten:</h3>
+            <ul class="list-group">
                 {% for s in suggestions %}
-                <li>{{ s }}</li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ s.Artist_name }}</span>
+
+                    <form method="post"
+                          action="{{ url_for('suggestions.hide_suggestion', artist_id=s.id) }}"
+                          style="display:inline;">
+                        <button type="submit" class="btn btn-link btn-sm text-muted">
+                            Verberg
+                        </button>
+                    </form>
+                </li>
                 {% endfor %}
             </ul>
-            <p>Nog {{ remaining }} suggestie(s) over.</p>
+
+            <p class="mt-3">Nog {{ remaining }} suggestie(s) over.</p>
         </div>
         {% endif %}
+
 
     </div>
 
@@ -47,7 +60,7 @@
 <!-- JS onderaan, zodat de HTML al bestaat -->
 <script>
     // 🔹 Lijst met artiesten vanuit Flask → JSON
-    const ARTISTS = {{ artists | map(attribute = 'Artist_name') | list | tojson }};
+    const ARTISTS = {{ artists | map(attribute='Artist_name') | list | tojson }};
 
     const input = document.getElementById("artistInput");
     const dropdown = document.getElementById("artistDropdown");

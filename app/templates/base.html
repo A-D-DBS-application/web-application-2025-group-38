@@ -42,19 +42,24 @@
       {% else %}
       <span class="text-muted">Results (verborgen)</span>
       {% endif %}
-
       {% if current_user and current_user.is_admin %}
-      <div class="vv-nav-dropdown">
-        <button class="vv-nav-admin-label" type="button">
-          Admin ▾
-        </button>
-        <div class="vv-nav-dropdown-menu">
-          <a href="{{ url_for('admin.admin_results') }}">Admin results</a>
-          <a href="{{ url_for('admin.admin_artists') }}">Artists</a>
-          <a href="{{ url_for('admin.admin_users') }}">Users</a>
-        </div>
+    <div class="vv-nav-dropdown">
+      <button class="vv-nav-admin-label" type="button">
+        Admin ▾
+      </button>
+      <div class="vv-nav-dropdown-menu">
+        <a href="{{ url_for('admin.admin_results') }}">Admin results</a>
+        <a href="{{ url_for('admin.admin_artists') }}">Artists</a>
+        <a href="{{ url_for('admin.admin_users') }}">Users</a>
+        <!-- ➕ Nieuw menu-item voor edities -->
+        <a href="{{ url_for('admin.editions') }}">Editions</a>
       </div>
-      {% endif %}
+    </div>
+    {% endif %}
+
+
+
+
 
       {% if session.get('user_id') %}
       <a href="{{ url_for('auth.logout') }}">Log out</a>

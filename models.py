@@ -67,6 +67,8 @@ class FestivalEdition(db.Model):
     End_date = db.Column(db.Date)
     Name = db.Column(db.Text)
     Location = db.Column(db.Text)
+    is_active = db.Column(db.Boolean, nullable=False, server_default="true")
+    # ❌ GEEN polls-relatie meer hier
 
 
 class Poll(db.Model):
@@ -78,7 +80,10 @@ class Poll(db.Model):
     is_visible = db.Column(db.Boolean, nullable=False, server_default="true")
     show_results = db.Column(db.Boolean, nullable=False, server_default="true")
 
+    # ✅ deze relatie houden we
     festival = db.relationship(FestivalEdition, backref="polls")
+
+
 
 
 class Polloption(db.Model):
@@ -116,3 +121,5 @@ class SuggestionFeedback(db.Model):
     artist_id = db.Column(db.Integer, db.ForeignKey("Artists.id"))
     user_id = db.Column(db.Integer, db.ForeignKey("User.id"), nullable=True)  
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    is_hidden = db.Column(db.Boolean, nullable=False, server_default="false")
+

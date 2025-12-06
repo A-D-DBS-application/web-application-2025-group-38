@@ -26,9 +26,13 @@ def suggest():
     # Hoeveel suggesties heeft deze user al gedaan?
     existing_count = (
         db.session.query(func.count(SuggestionFeedback.id))
-        .filter(SuggestionFeedback.user_id == user.id)
+        .filter(
+            SuggestionFeedback.user_id == user.id,
+            SuggestionFeedback.is_hidden == False,
+        )
         .scalar()
     )
+
 
     # ✅ Als limiet bereikt is → meteen naar de poll-pagina (zoals vroeger)
     if existing_count >= MAX_SUGGESTIONS:
@@ -91,17 +95,45 @@ def suggest():
     # GET: gebruiker heeft nog niet de limiet
     artists = Artists.query.order_by(Artists.Artist_name).all()
 
+    # Haal de NIET-verborgen suggesties van deze user op, met id + naam
     user_suggestions = (
-        db.session.query(Artists.Artist_name)
+        db.session.query(Artists.id, Artists.Artist_name)
         .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
-        .filter(SuggestionFeedback.user_id == user.id)
+        .filter(
+            SuggestionFeedback.user_id == user.id,
+            SuggestionFeedback.is_hidden == False,
+        )
         .all()
     )
 
     return render_template(
         "suggest.html",
         user=user,
-        suggestions=[row.Artist_name for row in user_suggestions],
+        suggestions=user_suggestions,  # geen list comprehension meer!
         remaining=MAX_SUGGESTIONS - existing_count,
         artists=artists,
     )
+@bp.post("/suggest/hide/<int:artist_id>")
+def hide_suggestion(artist_id):
+    user = get_session_user()
+    if not user:
+        flash("Je moet ingelogd zijn om een suggestie te verbergen.", "warning")
+        return redirect(url_for("auth.register"))
+
+    # Zoek de laatste SuggestionFeedback voor deze artiest & user die nog niet verborgen is
+    feedback = (
+        SuggestionFeedback.query
+        .filter_by(user_id=user.id, artist_id=artist_id, is_hidden=False)
+        .order_by(SuggestionFeedback.created_at.desc())
+        .first()
+    )
+
+    if not feedback:
+        flash("Suggestie niet gevonden.", "danger")
+        return redirect(url_for("suggestions.suggest"))
+
+    feedback.is_hidden = True
+    db.session.commit()
+
+    flash("Je suggestie is verborgen.", "info")
+    return redirect(url_for("suggestions.suggest"))

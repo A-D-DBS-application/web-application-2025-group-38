@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Beheer edities - Vicaris Village{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+    <h1 class="mb-4">Festivaledities</h1>
+
+    <p class="text-muted mb-3">
+        Hier kan je zien welke edities bestaan en welke editie momenteel actief is.
+        De actieve editie wordt gebruikt voor de poll en nieuwe stemmen.
+    </p>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Jaar</th>
+                    <th>Naam</th>
+                    <th>Locatie</th>
+                    <th>Actief</th>
+                    <th>Actie</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in editions %}
+                <tr>
+                    <td>
+                        {% if e.Start_date %}
+                            {{ e.Start_date.year }}
+                        {% else %}
+                            –
+                        {% endif %}
+                    </td>
+                    <td>{{ e.Name }}</td>
+                    <td>{{ e.Location }}</td>
+                    <td>
+                        {% if e.is_active %}
+                            <span class="badge bg-success">Actief</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Inactief</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not e.is_active %}
+                        <form method="post"
+                              action="{{ url_for('admin_editions.set_active_edition', edition_id=e.id) }}">
+                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                Maak actief
+                            </button>
+                        </form>
+                        {% else %}
+                            <span class="text-muted">Huidige editie</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

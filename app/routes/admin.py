@@ -13,13 +13,18 @@ from models import (
     FestivalEdition,
     User,
     Polloption,
+    Poll,
 )
 from app.services.poll import get_or_create_active_poll
 from app.utils.session import get_session_user
 
-bp = Blueprint("admin", __name__)
+
+bp = Blueprint("admin", __name__)  # blueprint-naam = "admin"
 
 
+# -------------------------------------------------------------------
+# Decorator: enkel admins toelaten
+# -------------------------------------------------------------------
 def require_admin(view_func):
     """Decorator om te checken of de huidige gebruiker admin is."""
     @wraps(view_func)
@@ -35,9 +40,11 @@ def require_admin(view_func):
 # -------------------------------------------------------------------
 # Festival edities
 # -------------------------------------------------------------------
+
 @bp.get("/admin/seed-edition-2026")
 @require_admin
 def seed_edition_2026():
+    """Kleine helper om snel een voorbeeld-editie te maken (optioneel)."""
     existing = FestivalEdition.query.filter_by(Name="2026").first()
     if existing:
         flash("Editie 2026 bestond al.", "info")
@@ -56,11 +63,90 @@ def seed_edition_2026():
     return redirect(url_for("admin.editions"))
 
 
-@bp.get("/editions")
+@bp.route("/admin/editions", methods=["GET", "POST"])
 @require_admin
 def editions():
-    editions = FestivalEdition.query.order_by(FestivalEdition.Start_date.desc()).all()
+    """Overzicht van alle edities + formulier om nieuwe toe te voegen."""
+    # ➤ POST: nieuwe editie opslaan
+    if request.method == "POST":
+        name = (request.form.get("name") or "").strip()
+        location = (request.form.get("location") or "").strip()
+        start_raw = request.form.get("start_date")
+        end_raw = request.form.get("end_date")
+        make_active = bool(request.form.get("is_active"))
+
+        # eenvoudige validatie
+        if not name:
+            flash("Geef minstens een naam voor de editie.", "warning")
+            return redirect(url_for("admin.editions"))
+
+        # datums parsen (optioneel)
+        start_date = date.fromisoformat(start_raw) if start_raw else None
+        end_date = date.fromisoformat(end_raw) if end_raw else None
+
+        # als deze nieuwe editie actief moet zijn → eerst alle andere deactiveren
+        if make_active:
+            FestivalEdition.query.update({FestivalEdition.is_active: False})
+
+        # nieuwe editie aanmaken
+        edition = FestivalEdition(
+            Name=name,
+            Location=location,
+            Start_date=start_date,
+            End_date=end_date,
+            is_active=make_active,
+        )
+        db.session.add(edition)
+        db.session.commit()
+
+        flash("Nieuwe festivaleditie toegevoegd.", "success")
+        return redirect(url_for("admin.editions"))
+
+    # ➤ GET: lijst tonen
+    editions = (
+        FestivalEdition.query
+        .order_by(FestivalEdition.Start_date.desc().nullslast())
+        .all()
+    )
     return render_template("editions.html", editions=editions)
+
+
+@bp.post("/admin/editions/<int:edition_id>/set-active")
+@require_admin
+def set_active_edition(edition_id):
+    """Maak een bestaande editie actief (alle andere worden inactief)."""
+    # Alle edities eerst inactief
+    FestivalEdition.query.update({FestivalEdition.is_active: False})
+
+    # Gekozen editie actief maken
+    edition = FestivalEdition.query.get_or_404(edition_id)
+    edition.is_active = True
+
+    db.session.commit()
+    flash(f"Actieve editie gewijzigd naar: {edition.Name}", "success")
+    return redirect(url_for("admin.editions"))
+
+
+@bp.post("/admin/editions/<int:edition_id>/delete")
+@require_admin
+def delete_edition(edition_id):
+    """Editie verwijderen, tenzij er nog polls aan gekoppeld zijn."""
+    edition = FestivalEdition.query.get_or_404(edition_id)
+
+    # Kijk of er polls aan deze editie hangen
+    poll_count = Poll.query.filter_by(festival_id=edition.id).count()
+    if poll_count > 0:
+        flash(
+            "Je kunt deze editie niet verwijderen omdat er nog polls aan gekoppeld zijn.",
+            "warning",
+        )
+        return redirect(url_for("admin.editions"))
+
+    # Alles oké → editie verwijderen
+    db.session.delete(edition)
+    db.session.commit()
+    flash("De editie is verwijderd.", "success")
+    return redirect(url_for("admin.editions"))
 
 
 # -------------------------------------------------------------------
@@ -198,7 +284,6 @@ def admin_artists():
     )
 
 
-
 @bp.post("/admin/artists/add")
 @require_admin
 def admin_add_artist():
@@ -221,7 +306,7 @@ def admin_add_artist():
             "admin_artists.html",
             artists=artists,
             genres=genres,
-            new_artist_name=name,   # <- hier
+            new_artist_name=name,   # <- ingevulde naam onthouden
         )
 
     # Bestaat artiest al?
@@ -278,6 +363,7 @@ def admin_delete_artist(artist_id):
     flash("Artiest verwijderd.", "success")
     return redirect(url_for("admin.admin_artists"))
 
+
 @bp.get("/admin/artists/<int:artist_id>")
 @require_admin
 def admin_artist_detail(artist_id):
@@ -298,6 +384,7 @@ def admin_artist_detail(artist_id):
         genres=genres,
         linked_genres=linked_genres,
     )
+
 
 @bp.post("/admin/artists/<int:artist_id>/genres/add")
 @require_admin
@@ -320,6 +407,7 @@ def admin_add_genre(artist_id):
         flash("Genre was al gekoppeld.", "info")
 
     return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
+
 
 @bp.post("/admin/artists/<int:artist_id>/genres/<int:genre_id>/remove")
 @require_admin

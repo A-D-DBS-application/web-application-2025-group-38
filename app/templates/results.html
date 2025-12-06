@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block title %}Jouw Muziekprofiel - Vicaris Village{% endblock %}
 
 {% block content %}
 <div class="container py-5">
@@ -26,6 +27,7 @@
             </ul>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const genreLabels = {{ genre_percentages.keys()|list|tojson }};
@@ -60,7 +62,40 @@
         }
     </script>
     {% else %}
-    <p>Je hebt nog geen suggesties gedaan. Je profiel is nog leeg.</p>
+    <p>Je hebt nog geen stemmen uitgebracht. Je muziekprofiel is nog leeg.</p>
+    {% endif %}
+
+    {% if user_votes %}
+    <hr class="my-5">
+
+    <h2 class="mb-3">Jouw stemmen per editie</h2>
+
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Jaar</th>
+                    <th>Editie</th>
+                    <th>Artiest</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vote, option, poll, edition, artist in user_votes %}
+                <tr>
+                    <td>
+                        {% if edition.Start_date %}
+                            {{ edition.Start_date.year }}
+                        {% else %}
+                            –
+                        {% endif %}
+                    </td>
+                    <td>{{ edition.Name }}</td>
+                    <td>{{ artist.Artist_name }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% endif %}
 
 </div>

@@ -1,9 +1,21 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
+from sqlalchemy import func
 
-from models import db, Polloption, VotesFor
+from models import (
+    db,
+    Poll,
+    Polloption,
+    VotesFor,
+    FestivalEdition,
+    Artists,
+    Genres,
+    ArtistGenres,
+    SuggestionFeedback,
+)
 from app.services.genre_profile import get_user_genre_profile, generate_poll_for_user
 from app.services.poll import get_or_create_active_poll
 from app.utils.session import get_session_user
+
 
 bp = Blueprint("poll", __name__)
 
@@ -24,6 +36,7 @@ def poll_detail():
     profile = get_user_genre_profile(user.id)
     poll_artists = generate_poll_for_user(user.id, num_options=5)
 
+    # Oude opties wissen en nieuwe vullen
     db.session.query(Polloption).delete()
     db.session.commit()
 
@@ -79,40 +92,44 @@ def vote():
 @bp.get("/results")
 def results():
     user = get_session_user()
-    if not user:
-        flash("Je moet ingelogd zijn.", "warning")
-        return redirect(url_for("auth.register"))
 
-    poll = get_or_create_active_poll()
-    if not poll.show_results:
-        flash("Resultaten zijn momenteel verborgen door de beheerder.", "info")
-        return redirect(url_for("core.home"))
+    # --- Muziekprofiel (genres) ---
+    genre_counts = {}
+    genre_percentages = {}
 
-    genre_counts = get_user_genre_profile(user.id)
-    total_genres = sum(genre_counts.values())
-
-    if total_genres:
-        # percentages berekenen
+    if user:
+        rows = (
+            db.session.query(Genres.name, func.count())
+            .join(ArtistGenres, ArtistGenres.genre_id == Genres.id)
+            .join(Artists, Artists.id == ArtistGenres.artist_id)
+            .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
+            .filter(SuggestionFeedback.user_id == user.id)
+            .group_by(Genres.name)
+            .all()
+        )
+        genre_counts = {g: c for g, c in rows}
+        total = sum(genre_counts.values()) or 1
         genre_percentages = {
-            genre: round((count / total_genres) * 100, 1)
-            for genre, count in genre_counts.items()
+            g: round(c * 100 / total, 1) for g, c in genre_counts.items()
         }
 
-        # genres sorteren op percentage (hoog → laag)
-        sorted_genres = sorted(
-            genre_counts.keys(),
-            key=lambda g: genre_percentages[g],
-            reverse=True,
+    # --- Jouw stemmen per editie ---
+    user_votes = []
+    if user:
+        user_votes = (
+            db.session.query(VotesFor, Polloption, Poll, FestivalEdition, Artists)
+            .join(Polloption, VotesFor.polloption_id == Polloption.id)
+            .join(Poll, Polloption.poll_id == Poll.id)
+            .join(FestivalEdition, Poll.festival_id == FestivalEdition.id)
+            .join(Artists, Polloption.artist_id == Artists.id)
+            .filter(VotesFor.user_id == user.id)
+            .order_by(FestivalEdition.Start_date.desc())
+            .all()
         )
-
-        # nieuwe (geordende) dicts opbouwen in die volgorde
-        genre_counts = {g: genre_counts[g] for g in sorted_genres}
-        genre_percentages = {g: genre_percentages[g] for g in sorted_genres}
-    else:
-        genre_percentages = {}
 
     return render_template(
         "results.html",
         genre_counts=genre_counts,
         genre_percentages=genre_percentages,
+        user_votes=user_votes,
     )
