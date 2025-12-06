@@ -8,15 +8,66 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title mb-3">Nieuwe artiest toevoegen</h5>
-            <form method="post" action="{{ url_for('admin.admin_add_artist') }}" class="row g-3 align-items-center">
-                <div class="col-md-8">
+
+            <form method="post" action="{{ url_for('admin.admin_add_artist') }}" class="admin-artist-form">
+
+                <!-- Naam van de artiest (links) -->
+                <div class="admin-form-col">
+                    <label class="form-label mb-1">Artiestnaam</label>
                     <input type="text" class="form-control" name="artist_name" placeholder="Naam van de artiest"
-                        required>
+                        value="{{ new_artist_name or '' }}" required>
                 </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary w-100">Toevoegen</button>
+
+                <!-- Genres (rechts) -->
+                <div class="admin-form-col admin-genre-select">
+                    <label class="form-label mb-1">Genres voor deze artiest</label>
+
+                    <div class="vv-dropdown-wrapper" id="genre-dropdown-wrapper">
+                        <input type="text" class="vv-dropdown-input" id="genre-search-input"
+                            placeholder="Typ om genres te zoeken...">
+
+                        <div class="vv-dropdown-list" id="genre-dropdown-list">
+                            {% for genre in genres %}
+                            <div class="vv-dropdown-item" data-id="{{ genre.id }}">
+                                {{ genre.name }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div id="selected-genres" class="mt-2"></div>
+                    <div id="genre-hidden-inputs"></div>
+
+                    <div class="form-text mt-1">
+                        Kies één of meerdere genres. Klik op een genre in de lijst om het toe te voegen.
+                    </div>
+                </div>
+
+                <!-- Toevoeg-knop -->
+                <div class="admin-form-col-btn">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Toevoegen
+                    </button>
+                </div>
+
+            </form>
+
+
+
+            <hr class="mt-4 mb-3">
+
+            <h6 class="mb-2">Nieuw genre toevoegen</h6>
+            <form method="post" action="{{ url_for('admin.admin_add_new_genre') }}" class="row g-2 align-items-center">
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="genre_name" placeholder="Naam van het nieuwe genre">
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-outline-secondary w-100">
+                        Genre toevoegen
+                    </button>
                 </div>
             </form>
+
         </div>
     </div>
 
@@ -43,11 +94,10 @@
                             <td class="text-end">
 
                                 <a href="{{ url_for('admin.admin_artist_detail', artist_id=a.id) }}"
-                                class="btn btn-sm btn-outline-secondary me-2">
+                                    class="btn btn-sm btn-outline-secondary me-2">
                                     Details
                                 </a>
-                                <form method="post"
-                                    action="{{ url_for('admin.admin_delete_artist', artist_id=a.id) }}"
+                                <form method="post" action="{{ url_for('admin.admin_delete_artist', artist_id=a.id) }}"
                                     class="d-inline">
                                     <button type="submit" class="btn btn-sm btn-outline-danger">
                                         Verwijder
@@ -65,4 +115,104 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const wrapper = document.getElementById("genre-dropdown-wrapper");
+        if (!wrapper) return;
+
+        const searchInput = document.getElementById("genre-search-input");
+        const list = document.getElementById("genre-dropdown-list");
+        const items = Array.from(list.querySelectorAll(".vv-dropdown-item"));
+        const selectedContainer = document.getElementById("selected-genres");
+        const hiddenInputsContainer = document.getElementById("genre-hidden-inputs");
+
+        function showList() {
+            list.style.display = "block";
+        }
+
+        function hideList() {
+            list.style.display = "none";
+        }
+
+        // Toon lijst bij focus
+        searchInput.addEventListener("focus", showList);
+
+        // Filteren op wat je typt ("fu" => alle genres met "fu")
+        searchInput.addEventListener("input", function () {
+            const q = this.value.toLowerCase();
+            items.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(q) ? "block" : "none";
+            });
+            showList();
+        });
+
+        // Klik op genre in dropdown => toevoegen als badge + hidden input
+        list.addEventListener("click", function (e) {
+            const item = e.target.closest(".vv-dropdown-item");
+            if (!item) return;
+
+            const id = item.dataset.id;
+            const name = item.textContent.trim();
+
+            // Al geselecteerd? Dan niets doen
+            if (hiddenInputsContainer.querySelector(`input[value="${id}"]`)) {
+                return;
+            }
+
+            // Markeer item in dropdown als geselecteerd
+            item.classList.add("selected");
+
+            // Maak badge
+            const badge = document.createElement("button");
+            badge.type = "button";
+            badge.className = "vv-selected-genre";
+            badge.dataset.id = id;
+            badge.innerHTML = `${name}<span>×</span>`;
+            selectedContainer.appendChild(badge);
+
+            // Hidden input voor POST
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = "genre_ids";
+            hidden.value = id;
+            hiddenInputsContainer.appendChild(hidden);
+
+            // Input leegmaken en lijst resetten
+            searchInput.value = "";
+            items.forEach(i => {
+                i.style.display = "block";
+            });
+            showList();
+        });
+
+        // Klik op badge => genre terug verwijderen
+        selectedContainer.addEventListener("click", function (e) {
+            const badge = e.target.closest(".vv-selected-genre");
+            if (!badge) return;
+
+            const id = badge.dataset.id;
+            badge.remove();
+
+            // Hidden input verwijderen
+            const hidden = hiddenInputsContainer.querySelector(`input[value="${id}"]`);
+            if (hidden) hidden.remove();
+
+            // Dropdown-item terug "unselecten"
+            const item = list.querySelector(`.vv-dropdown-item[data-id="${id}"]`);
+            if (item) item.classList.remove("selected");
+        });
+
+        // Klik buiten dropdown => lijst sluiten
+        document.addEventListener("click", function (e) {
+            if (!wrapper.contains(e.target)) {
+                hideList();
+            }
+        });
+    });
+</script>
+
+
+
 {% endblock %}

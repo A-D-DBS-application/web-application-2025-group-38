@@ -2,47 +2,58 @@
 
 {% block content %}
 <div class="container py-5">
-
     <h2 class="fw-bold mb-4">Artiest: {{ artist.Artist_name }}</h2>
 
-    <h5>Gekoppelde genres</h5>
-    <ul>
-        {% for g in linked_genres %}
-            <li>{{ g.name }}</li>
-        {% else %}
-            <li class="text-muted">Geen genres gekoppeld</li>
-        {% endfor %}
-    </ul>
+    <div class="row mb-4">
+        <!-- Linkerzijde: gekoppelde genres + verwijderknop -->
+        <div class="col-md-6">
+            <h5 class="mb-3">Gekoppelde genres</h5>
 
-    <hr>
+            {% if linked_genres %}
+            <ul class="list-group">
+                {% for g in linked_genres %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ g.name }}</span>
 
-    <h5>Genre toevoegen</h5>
-
-    <form method="post"
-          action="{{ url_for('admin.admin_add_genre', artist_id=artist.id) }}"
-          class="row g-3">
-
-        <div class="col-md-8">
-            <select name="genre_id" class="form-select">
-                {% for genre in genres %}
-                    <option value="{{ genre.id }}">{{ genre.name }}</option>
+                    <form method="post"
+                        action="{{ url_for('admin.admin_remove_genre', artist_id=artist.id, genre_id=g.id) }}"
+                        class="ms-3">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            Verwijder
+                        </button>
+                    </form>
+                </li>
                 {% endfor %}
-            </select>
+            </ul>
+            {% else %}
+            <p class="text-muted mb-0">Er zijn nog geen genres gekoppeld aan deze artiest.</p>
+            {% endif %}
         </div>
 
-        <div class="col-md-4">
-            <button class="btn btn-primary w-100">
-                Koppel genre
-            </button>
+        <!-- Rechterzijde: genre toevoegen -->
+        <div class="col-md-6">
+            <h5 class="mb-3">Genre toevoegen</h5>
+
+            <form method="post" action="{{ url_for('admin.admin_add_genre', artist_id=artist.id) }}"
+                class="row g-2 align-items-center">
+                <div class="col-md-7">
+                    <select name="genre_id" class="form-select">
+                        {% for g in genres %}
+                        <option value="{{ g.id }}">{{ g.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <button type="submit" class="btn btn-primary w-100">
+                        Koppel genre
+                    </button>
+                </div>
+            </form>
         </div>
+    </div>
 
-    </form>
+    <hr class="my-4">
 
-    <hr>
-
-    <a href="{{ url_for('admin.admin_artists') }}" class="btn btn-secondary mt-3">
-        Terug
-    </a>
-
+    <a href="{{ url_for('admin.admin_artists') }}" class="btn btn-secondary">Terug</a>
 </div>
 {% endblock %}

@@ -536,7 +536,7 @@ form button:hover {
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  max-height: 250px;
+  max-height: 360px;
   overflow-y: auto;
   display: none;
   z-index: 20;
@@ -604,7 +604,7 @@ form button:hover {
 
 
 /* =======================================================
-   🛠 ADMIN DROPDOWN IN NAVBAR
+   🛠 ADMIN DROPDOWN IN NAVBAR (FIXED HOVER)
    ======================================================= */
 
 .vv-nav {
@@ -628,8 +628,10 @@ form button:hover {
 /* Container van label + menu */
 .vv-nav-dropdown {
   position: relative;
-  display: inline-flex;
-  align-items: center;
+  display: inline-block;
+  /* mag ook inline-flex blijven, maar dit is genoeg */
+  padding-bottom: 0.4rem;
+  /* maakt de hover-zone onder de knop iets groter */
 }
 
 /* Het label (button) dat je ziet in de navbar */
@@ -644,10 +646,15 @@ form button:hover {
   cursor: pointer;
 }
 
+.vv-nav-admin-label:hover {
+  color: var(--vv-yellow);
+}
+
 /* Menu dat uitklapt */
 .vv-nav-dropdown-menu {
   position: absolute;
-  top: 130%;
+  top: 100%;
+  /* DIRECT onder de knop, geen grote sprong meer */
   right: 0;
   background: #fff;
   border-radius: 10px;
@@ -674,8 +681,108 @@ form button:hover {
 }
 
 /* Toon menu als je met de muis binnen de hele container zit
-   (dus zowel over het label als over het menu zelf) */
+   (label OF menu) */
 .vv-nav-dropdown:hover .vv-nav-dropdown-menu,
 .vv-nav-dropdown:focus-within .vv-nav-dropdown-menu {
   display: block;
+}
+
+.vv-nav-admin-label {
+  line-height: 1.2;
+  padding-bottom: 0;
+}
+
+.vv-nav-dropdown {
+  padding-bottom: 0;
+  margin-bottom: 0;
+  display: flex;
+  align-items: center;
+}
+
+.vv-nav-dropdown::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  background: transparent;
+}
+
+/* =======================================================
+   🎛 Admin: genre-select component
+   ======================================================= */
+
+.admin-genre-select .vv-dropdown-wrapper {
+  max-width: 100%;
+  margin: 0;
+}
+
+.admin-genre-select .vv-dropdown-input {
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.admin-genre-select .vv-dropdown-list {
+  max-height: 320px;
+}
+
+/* Geselecteerde genres (badges onder het veld) */
+#selected-genres {
+  min-height: 30px;
+}
+
+.vv-selected-genre {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--vv-yellow);
+  color: var(--vv-blue);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-right: 0.35rem;
+  margin-bottom: 0.35rem;
+  cursor: pointer;
+  border: none;
+}
+
+.vv-selected-genre span {
+  margin-left: 0.35rem;
+  font-weight: 700;
+}
+
+/* In dropdown: geselecteerde items ook highlighten */
+.vv-dropdown-item.selected {
+  background: var(--vv-yellow);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* =======================================================
+   🧩 Admin: formulier artiest + genres naast elkaar
+   ======================================================= */
+
+.admin-artist-form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  max-width: 900px;
+  /* totale breedte van de drie kolommen */
+  margin: 0.5rem auto 0;
+  /* auto -> mooi gecentreerd in de card */
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.admin-form-col {
+  flex: 1 1 0;
+  min-width: 260px;
+  max-width: 380px;
+}
+
+.admin-form-col-btn {
+  flex: 0 0 150px;
+  align-self: flex-end;
 }

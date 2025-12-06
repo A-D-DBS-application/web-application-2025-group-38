@@ -188,18 +188,43 @@ def remove_admin(user_id):
 @require_admin
 def admin_artists():
     artists = Artists.query.order_by(Artists.Artist_name).all()
-    return render_template("admin_artists.html", artists=artists)
+    genres = Genres.query.order_by(Genres.name).all()
+
+    return render_template(
+        "admin_artists.html",
+        artists=artists,
+        genres=genres,
+        new_artist_name="",  # default leeg
+    )
+
 
 
 @bp.post("/admin/artists/add")
 @require_admin
 def admin_add_artist():
     name = (request.form.get("artist_name") or "").strip()
+    genre_ids = request.form.getlist("genre_ids")  # meerdere genres mogelijk
 
+    # Validatie: naam verplicht
     if not name:
         flash("Geef een artiestnaam in.", "warning")
         return redirect(url_for("admin.admin_artists"))
 
+    # Validatie: minstens 1 genre verplicht
+    if not genre_ids:
+        flash("Duid minstens één genre aan.", "warning")
+
+        # Zelfde pagina opnieuw tonen, maar met ingevulde naam
+        artists = Artists.query.order_by(Artists.Artist_name).all()
+        genres = Genres.query.order_by(Genres.name).all()
+        return render_template(
+            "admin_artists.html",
+            artists=artists,
+            genres=genres,
+            new_artist_name=name,   # <- hier
+        )
+
+    # Bestaat artiest al?
     existing = (
         Artists.query
         .filter(func.lower(Artists.Artist_name) == name.lower())
@@ -209,11 +234,22 @@ def admin_add_artist():
         flash("Deze artiest bestaat al.", "info")
         return redirect(url_for("admin.admin_artists"))
 
+    # 1. Artiest aanmaken
     artist = Artists(Artist_name=name)
     db.session.add(artist)
+    db.session.flush()  # zodat artist.id direct beschikbaar is
+
+    # 2. Koppelingen naar genres opslaan
+    for gid in genre_ids:
+        link = ArtistGenres(
+            artist_id=artist.id,
+            genre_id=int(gid),
+        )
+        db.session.add(link)
+
     db.session.commit()
 
-    flash(f"Artiest '{name}' is toegevoegd.", "success")
+    flash(f"Artiest '{name}' is toegevoegd met genres.", "success")
     return redirect(url_for("admin.admin_artists"))
 
 
@@ -285,4 +321,45 @@ def admin_add_genre(artist_id):
 
     return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
 
+@bp.post("/admin/artists/<int:artist_id>/genres/<int:genre_id>/remove")
+@require_admin
+def admin_remove_genre(artist_id, genre_id):
+    # Zoek de koppeling tussen deze artiest en dit genre
+    link = ArtistGenres.query.filter_by(
+        artist_id=artist_id,
+        genre_id=genre_id,
+    ).first()
 
+    if not link:
+        flash("Dit genre is niet (meer) gekoppeld aan deze artiest.", "warning")
+    else:
+        db.session.delete(link)
+        db.session.commit()
+        flash("Genre verwijderd uit deze artiest.", "success")
+
+    return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
+
+
+@bp.post("/admin/genres/add")
+@require_admin
+def admin_add_new_genre():
+    name = (request.form.get("genre_name") or "").strip()
+
+    if not name:
+        flash("Geef een genrenaam in.", "warning")
+        return redirect(url_for("admin.admin_artists"))
+
+    existing = (
+        Genres.query
+        .filter(func.lower(Genres.name) == name.lower())
+        .first()
+    )
+    if existing:
+        flash("Dit genre bestaat al.", "info")
+        return redirect(url_for("admin.admin_artists"))
+
+    db.session.add(Genres(name=name))
+    db.session.commit()
+
+    flash(f"Genre '{name}' is toegevoegd.", "success")
+    return redirect(url_for("admin.admin_artists"))

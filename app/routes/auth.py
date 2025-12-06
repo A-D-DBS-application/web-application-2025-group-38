@@ -11,10 +11,12 @@ bp = Blueprint("auth", __name__)
 
 @bp.route("/register", methods=["GET", "POST"])
 def register():
-    if get_session_user():
+    # Als user al ingelogd is: direct terug naar home
+    current_user = get_session_user()
+    if current_user:
         session.pop("_flashes", None)
         flash("Je bent al ingelogd.", "info")
-        return render_template("register.html")
+        return redirect(url_for("core.home"))
 
     if request.method == "POST":
         email = (request.form.get("email") or "").strip()
@@ -30,14 +32,18 @@ def register():
                 user.is_admin = True
                 db.session.commit()
 
+        # Inloggen
         login_user(user)
 
         session.pop("_flashes", None)
         flash("Succesvol ingelogd!", "info")
 
-        return render_template("register.html")
+        # ⬇️ BELANGRIJK: na login terug naar home
+        return redirect(url_for("core.home"))
 
+    # GET: gewoon de login/registreer pagina tonen
     return render_template("register.html")
+
 
 
 @bp.get("/logout")
