@@ -1,0 +1,41 @@
+/* ================================================
+   ADMIN AREA
+   ================================================ */
+
+.admin-artist-form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  max-width: 900px;
+  margin: 0.5rem auto 0;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.admin-form-col {
+  flex: 1 1 0;
+  min-width: 260px;
+  max-width: 380px;
+}
+
+.admin-form-col-btn {
+  flex: 0 0 150px;
+}
+
+/* Genre selection */
+.vv-selected-genre {
+  display: inline-flex;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--vv-yellow);
+  color: var(--vv-blue);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-right: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.vv-dropdown-item.selected {
+  background: var(--vv-yellow);
+  color: #fff;
+}

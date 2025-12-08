@@ -1,0 +1,29 @@
+/* ================================================
+   BUTTONS / CTA
+   ================================================ */
+
+.cta,
+form button,
+.vv-login-btn,
+.vv-suggest-btn,
+.vv-poll-btn {
+  background-color: var(--vv-blue);
+  color: white;
+  border: none;
+  padding: 0.7rem 1.8rem;
+  border-radius: 25px;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.cta:hover,
+form button:hover,
+.vv-login-btn:hover,
+.vv-suggest-btn:hover,
+.vv-poll-btn:hover {
+  background-color: var(--vv-yellow);
+  color: var(--vv-blue);
+  transform: translateY(-3px);
+  text-decoration: none;
+}

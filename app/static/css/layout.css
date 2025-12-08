@@ -1,0 +1,101 @@
+/* ================================================
+   NAVIGATION + FOOTER
+   ================================================ */
+
+.vv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 2rem;
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.vv-logo {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.vv-brand {
+  display: flex;
+  align-items: center;
+}
+
+.vv-brand h1 {
+  font-size: 1.6rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin: 0;
+  color: var(--vv-blue);
+}
+
+.vv-brand h1 span {
+  font-family: 'Satisfy', cursive;
+  color: var(--vv-yellow);
+  margin-left: .35rem;
+}
+
+.vv-nav {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.vv-nav a, .vv-nav-admin-label {
+  text-decoration: none;
+  color: var(--vv-blue);
+  font-weight: 600;
+  transition: color .2s ease;
+}
+
+.vv-nav a:hover, .vv-nav-admin-label:hover {
+  color: var(--vv-yellow);
+}
+
+/* Dropdown */
+.vv-nav-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.vv-nav-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  padding: 0.5rem 0;
+  min-width: 180px;
+  display: none;
+  z-index: 1500;
+}
+
+.vv-nav-dropdown-menu a {
+  display: block;
+  padding: 0.4rem 1rem;
+}
+
+.vv-nav-dropdown-menu a:hover {
+  background: var(--vv-yellow);
+  color: #fff;
+}
+
+.vv-nav-dropdown:hover .vv-nav-dropdown-menu,
+.vv-nav-dropdown:focus-within .vv-nav-dropdown-menu {
+  display: block;
+}
+
+/* Footer */
+.vv-footer {
+  width: 100%;
+  text-align: center;
+  padding: 2rem 0;
+  color: #777;
+  font-size: 0.95rem;
+}

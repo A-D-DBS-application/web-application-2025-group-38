@@ -283,61 +283,6 @@ def admin_artists():
         new_artist_name="",  # default leeg
     )
 
-
-@bp.post("/admin/artists/add")
-@require_admin
-def admin_add_artist():
-    name = (request.form.get("artist_name") or "").strip()
-    genre_ids = request.form.getlist("genre_ids")  # meerdere genres mogelijk
-
-    # Validatie: naam verplicht
-    if not name:
-        flash("Geef een artiestnaam in.", "warning")
-        return redirect(url_for("admin.admin_artists"))
-
-    # Validatie: minstens 1 genre verplicht
-    if not genre_ids:
-        flash("Duid minstens één genre aan.", "warning")
-
-        # Zelfde pagina opnieuw tonen, maar met ingevulde naam
-        artists = Artists.query.order_by(Artists.Artist_name).all()
-        genres = Genres.query.order_by(Genres.name).all()
-        return render_template(
-            "admin_artists.html",
-            artists=artists,
-            genres=genres,
-            new_artist_name=name,   # <- ingevulde naam onthouden
-        )
-
-    # Bestaat artiest al?
-    existing = (
-        Artists.query
-        .filter(func.lower(Artists.Artist_name) == name.lower())
-        .first()
-    )
-    if existing:
-        flash("Deze artiest bestaat al.", "info")
-        return redirect(url_for("admin.admin_artists"))
-
-    # 1. Artiest aanmaken
-    artist = Artists(Artist_name=name)
-    db.session.add(artist)
-    db.session.flush()  # zodat artist.id direct beschikbaar is
-
-    # 2. Koppelingen naar genres opslaan
-    for gid in genre_ids:
-        link = ArtistGenres(
-            artist_id=artist.id,
-            genre_id=int(gid),
-        )
-        db.session.add(link)
-
-    db.session.commit()
-
-    flash(f"Artiest '{name}' is toegevoegd met genres.", "success")
-    return redirect(url_for("admin.admin_artists"))
-
-
 @bp.post("/admin/artists/<int:artist_id>/delete")
 @require_admin
 def admin_delete_artist(artist_id):
@@ -450,4 +395,83 @@ def admin_add_new_genre():
     db.session.commit()
 
     flash(f"Genre '{name}' is toegevoegd.", "success")
+    return redirect(url_for("admin.admin_artists"))
+
+from werkzeug.utils import secure_filename
+import os
+from flask import current_app
+
+@bp.post("/admin/artists/add")
+@require_admin
+def admin_add_artist():
+    name = (request.form.get("artist_name") or "").strip()
+    genre_ids = request.form.getlist("genre_ids")
+    upload = request.files.get("artist_image")
+
+    # Validatie naam
+    if not name:
+        flash("Geef een artiestnaam in.", "warning")
+        return redirect(url_for("admin.admin_artists"))
+
+    # Validatie genres
+    if not genre_ids:
+        flash("Duid minstens één genre aan.", "warning")
+        artists = Artists.query.order_by(Artists.Artist_name).all()
+        genres = Genres.query.order_by(Genres.name).all()
+        return render_template(
+            "admin_artists.html",
+            artists=artists,
+            genres=genres,
+            new_artist_name=name,
+        )
+
+    # Bestaat artiest al?
+    existing = Artists.query.filter(func.lower(Artists.Artist_name) == name.lower()).first()
+    if existing:
+        flash("Deze artiest bestaat al.", "info")
+        return redirect(url_for("admin.admin_artists"))
+
+    # ----------------------------------------
+    # FOTO OPSLAAN
+    # ----------------------------------------
+
+    image_path = None
+
+    if upload and upload.filename.strip():
+        # Map waar we opslaan (absoluut pad)
+        upload_folder = os.path.join(
+            current_app.root_path, "static", "images", "artist_images"
+        )
+        os.makedirs(upload_folder, exist_ok=True)
+
+        # Bestand uniek maken
+        ext = upload.filename.rsplit(".", 1)[-1].lower()
+        filename = secure_filename(name.lower().replace(" ", "_") + "." + ext)
+
+        # Volledig pad naar file
+        filepath = os.path.join(upload_folder, filename)
+
+        # File opslaan
+        upload.save(filepath)
+
+        # Pad voor de database (relatief aan /static/)
+        image_path = f"images/artist_images/{filename}"
+
+    # ----------------------------------------
+    # ARTIEST OPSLAAN
+    # ----------------------------------------
+    artist = Artists(
+        Artist_name=name,
+        image_url=image_path
+    )
+    db.session.add(artist)
+    db.session.flush()
+
+    # Genres koppelen
+    for gid in genre_ids:
+        db.session.add(ArtistGenres(artist_id=artist.id, genre_id=int(gid)))
+
+    db.session.commit()
+
+    flash(f"Artiest '{name}' succesvol toegevoegd!", "success")
     return redirect(url_for("admin.admin_artists"))

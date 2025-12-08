@@ -1,0 +1,107 @@
+/* ================================================
+   SUGGESTIEPAGINA – Vicaris Village Style
+   ================================================ */
+
+/* Achtergrondcentrering, wit vlak links */
+.vv-suggest-page-bg {
+    min-height: 90vh;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 60px 20px;
+}
+
+/* De witte kaart links */
+.vv-suggest-wrapper {
+    max-width: 550px;
+    background: #fff;
+    padding: 40px 50px;
+    border-radius: 22px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+}
+
+/* Titel */
+.vv-suggest-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--vv-blue);
+    margin-bottom: 1rem;
+}
+
+/* Subtitel */
+.vv-suggest-subtitle {
+    font-size: 1.1rem;
+    color: #444;
+    margin-bottom: 2rem;
+}
+
+/* Input styling */
+.vv-dropdown-input {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 2px solid var(--vv-blue);
+    text-align: left;
+    transition: all 0.25s ease;
+}
+
+/* Focus goud */
+.vv-dropdown-input:focus {
+    border-color: var(--vv-yellow);
+    box-shadow: 0 0 8px rgba(239,191,46,0.5);
+    outline: none;
+}
+
+/* Dropdown container */
+.vv-dropdown-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+}
+
+/* Dropdown lijst */
+.vv-dropdown-list {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    max-height: 350px;
+    overflow-y: auto;
+    display: none;
+    z-index: 20;
+}
+
+/* Individuele dropdown item */
+.vv-dropdown-item {
+    padding: 12px 15px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.2s;
+}
+
+.vv-dropdown-item:hover {
+    background: var(--vv-yellow);
+    color: white;
+}
+
+/* Submitknop */
+.vv-suggest-btn {
+    background: var(--vv-blue);
+    color: white;
+    font-weight: 600;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    border: none;
+    transition: all 0.25s ease;
+    width: 100%;
+}
+
+.vv-suggest-btn:hover {
+    background: var(--vv-yellow);
+    color: var(--vv-blue);
+    transform: translateY(-2px);
+}

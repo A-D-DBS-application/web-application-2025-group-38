@@ -1,0 +1,122 @@
+/* ================================================
+   BASE CSS — kleuren, fonts, helpers
+   ================================================ */
+
+:root {
+  --vv-blue: #132B4F;
+  --vv-yellow: #EFBF2E;
+  --vv-bg: #F9F8F6;
+  --vv-text: #132B4F;
+}
+
+html, body {
+  background: none;
+  color: var(--vv-text);
+  margin: 0;
+  padding: 0;
+  font-family: 'Playfair Display', serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.vv-text-highlight {
+  color: var(--vv-yellow);
+}
+
+/* Flash messages */
+.vv-flash-container {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  width: min(600px, 90vw);
+  pointer-events: none;
+}
+
+.vv-flash-alert {
+  pointer-events: auto;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+.vv-main {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+/* ================================================
+   LOGIN PAGINA — Vicaris Village stijl
+   ================================================ */
+
+/* Pagina layout */
+.vv-login-page-bg {
+    min-height: 90vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+}
+
+/* Witte kaart */
+.vv-login-wrapper {
+    max-width: 500px;
+    width: 100%;
+    background: #fff;
+    padding: 40px 50px;
+    border-radius: 22px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+    text-align: center;
+}
+
+/* Titel */
+.vv-login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--vv-blue);
+    margin-bottom: 1rem;
+}
+
+/* Subtitel */
+.vv-login-subtitle {
+    font-size: 1rem;
+    color: #444;
+    margin-bottom: 2rem;
+}
+
+/* Input veld */
+.vv-login-input {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 2px solid var(--vv-blue);
+    text-align: left;
+    transition: all 0.25s ease;
+    margin-bottom: 1.4rem;
+}
+
+.vv-login-input:focus {
+    border-color: var(--vv-yellow);
+    box-shadow: 0 0 8px rgba(239,191,46,0.5);
+    outline: none;
+}
+
+/* Knop */
+.vv-login-btn {
+    background: var(--vv-blue);
+    color: white;
+    font-weight: 600;
+    padding: 0.8rem 2rem;
+    border-radius: 50px;
+    border: none;
+    transition: all 0.25s ease;
+    width: 100%;
+}
+
+.vv-login-btn:hover {
+    background: var(--vv-yellow);
+    color: var(--vv-blue);
+    transform: translateY(-2px);
+}

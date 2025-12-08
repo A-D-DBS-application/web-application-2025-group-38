@@ -1,0 +1,89 @@
+/* ================================================
+   POLL PAGE (Vicaris Village)
+   ================================================ */
+.vv-poll-wrapper {
+  max-width: 1000px;
+  margin: 90px auto;
+  padding: 40px 50px;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+.vv-poll-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--vv-blue);
+}
+
+/* === Artist Grid === */
+
+.artist-grid {
+  display: flex;
+  flex-direction: column;   /* 👉 Onder elkaar */
+  gap: 40px;                /* Meer ruimte tussen artiesten */
+  align-items: center;      /* Gecentreerd zoals vroeger */
+}
+
+/* === Artist Card === */
+.artist-card {
+  width: 260px;               /* Ruimer zodat namen niet afbreken */
+  background: #fff;
+  padding: 22px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all .25s ease;
+}
+
+
+/* Hover effect */
+.artist-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+}
+
+/* Verberg radio */
+.artist-card input[type="radio"] {
+  display: none;
+}
+
+/* Foto */
+.artist-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: transform .25s ease;
+}
+
+/* Naam */
+.artist-name {
+  margin-top: 10px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--vv-blue);
+}
+
+/* ============================================================
+   GESELECTEERDE KAART — volledige kaart goudgeel
+   ============================================================ */
+
+/* Kaart achtergrond goudgeel */
+.artist-card:has(input:checked) {
+  background: var(--vv-yellow);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  transform: translateY(-4px);
+}
+
+/* Foto groter bij selectie */
+.artist-card:has(input:checked) .artist-photo {
+  transform: scale(1.12);
+}
+
+/* Tekst duidelijker bij selectie */
+.artist-card:has(input:checked) .artist-name {
+  color: var(--vv-blue);
+  font-weight: 700;
+}

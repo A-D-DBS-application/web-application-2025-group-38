@@ -3,22 +3,27 @@
 {% block title %}Log in · Vicaris Village{% endblock %}
 
 {% block content %}
-<div class="vv-login-wrapper">
+<div class="vv-login-page-bg">
 
-    <h2 class="vv-login-title">Meld je aan</h2>
+    <div class="vv-login-wrapper">
 
-    <p class="vv-login-subtitle">
-        E-mailadres is optioneel. Zo koppelen we meerdere sessies aan dezelfde user.
-    </p>
+        <h2 class="vv-login-title">Meld je aan</h2>
 
-    <form class="vv-login-form" method="POST">
-        <input 
-            type="email" 
-            name="email" 
-            placeholder="jij@example.com (optioneel)"
-        >
-        <button class="vv-login-btn">Aanmelden</button>
-    </form>
+        <p class="vv-login-subtitle">
+            E-mailadres is optioneel. Zo koppelen we meerdere sessies aan dezelfde user.
+        </p>
+
+        <form class="vv-login-form" method="POST">
+            <input 
+                type="email" 
+                name="email" 
+                class="vv-login-input"
+                placeholder="jij@example.com (optioneel)"
+            >
+            <button class="vv-login-btn">Aanmelden</button>
+        </form>
+
+    </div>
 
 </div>
 {% endblock %}

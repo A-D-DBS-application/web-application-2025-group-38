@@ -47,7 +47,7 @@ class Artists(db.Model):
     id = db.Column(db.BigInteger, primary_key=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     Artist_name = db.Column(db.String, nullable=False)
-    
+    image_url = db.Column(db.String(255), nullable=True)
 
 
     # Many-to-Many

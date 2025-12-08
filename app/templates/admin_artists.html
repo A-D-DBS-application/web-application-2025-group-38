@@ -9,14 +9,29 @@
         <div class="card-body">
             <h5 class="card-title mb-3">Nieuwe artiest toevoegen</h5>
 
-            <form method="post" action="{{ url_for('admin.admin_add_artist') }}" class="admin-artist-form">
+            <form method="post" 
+                action="{{ url_for('admin.admin_add_artist') }}" 
+                class="admin-artist-form"
+                enctype="multipart/form-data">
 
-                <!-- Naam van de artiest (links) -->
+                <!-- LINKERKOLOM: artiestnaam + afbeelding -->
                 <div class="admin-form-col">
+
                     <label class="form-label mb-1">Artiestnaam</label>
-                    <input type="text" class="form-control" name="artist_name" placeholder="Naam van de artiest"
-                        value="{{ new_artist_name or '' }}" required>
+                    <input type="text" class="form-control" 
+                        name="artist_name" 
+                        placeholder="Naam van de artiest" required>
+
+                    <label class="form-label mt-3 mb-1">Artiestafbeelding</label>
+                    <input type="file" class="form-control"
+                        name="artist_image"
+                        accept="image/*">
+                        
+                    <div class="form-text">
+                        Upload een foto (JPG/PNG). Vierkante foto's tonen het mooist.
+                    </div>
                 </div>
+              
 
                 <!-- Genres (rechts) -->
                 <div class="admin-form-col admin-genre-select">

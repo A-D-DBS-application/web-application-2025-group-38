@@ -11,27 +11,20 @@
         {% for o in options %}
         <label class="artist-card">
 
-            <!-- Radios -->
             <input type="radio" name="artist_id" value="{{ o.id }}" required>
 
-            <!-- FOTO -->
             <img src="{{ url_for('static', filename=o.image_url) }}"
                  class="artist-photo"
                  alt="{{ o.text }}">
 
-            <!-- NAAM -->
             <div class="artist-name">{{ o.text }}</div>
-
         </label>
         {% endfor %}
 
         <button class="vv-poll-btn" type="submit">Stem</button>
     </form>
 
-    {% else %}
-        <p>Er zijn nog geen artiesten beschikbaar om op te stemmen.</p>
     {% endif %}
-
 </div>
 
 {% endblock %}
