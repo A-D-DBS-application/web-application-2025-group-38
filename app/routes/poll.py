@@ -36,9 +36,11 @@ def poll_detail():
     profile = get_user_genre_profile(user.id)
     poll_artists = generate_poll_for_user(user.id, num_options=5)
 
-    # Oude opties wissen en nieuwe vullen
-    db.session.query(Polloption).delete()
+    # Verwijder alleen de opties van de huidige poll,
+    # niet van vroegere polls/edities
+    Polloption.query.filter_by(poll_id=poll.id).delete()
     db.session.commit()
+
 
     for artist in poll_artists:
         option = Polloption(
@@ -50,8 +52,12 @@ def poll_detail():
         db.session.add(option)
     db.session.commit()
 
-    options = Polloption.query.all()
+    # Toon enkel opties van de huidige poll,
+    # niet van oude polls / edities
+    options = Polloption.query.filter_by(poll_id=poll.id).all()
+
     return render_template("poll_detail.html", options=options, profile=profile)
+
 
 
 @bp.post("/vote")
@@ -67,16 +73,30 @@ def vote():
         flash("Kies eerst een artiest om te stemmen.", "warning")
         return redirect(url_for("poll.poll_detail"))
 
+    # Actieve poll (gekoppeld aan de actieve editie)
+    poll = get_or_create_active_poll()
+
+    # Controleer of de gekozen optie bestaat en bij deze poll hoort
     option = Polloption.query.get(polloption_id)
-    if not option:
-        flash("Ongeldige stemoptie.", "danger")
+    if not option or option.poll_id != poll.id:
+        flash("Ongeldige stemoptie voor deze editie.", "danger")
         return redirect(url_for("poll.poll_detail"))
 
-    existing_vote = VotesFor.query.filter_by(user_id=user.id).first()
+    # ✅ Check: heeft deze user al gestemd in DIT poll / deze editie?
+    existing_vote = (
+        db.session.query(VotesFor)
+        .join(Polloption, VotesFor.polloption_id == Polloption.id)
+        .filter(
+            VotesFor.user_id == user.id,
+            Polloption.poll_id == poll.id,
+        )
+        .first()
+    )
     if existing_vote:
-        flash("Je hebt al gestemd.", "info")
+        flash("Je hebt in deze editie al gestemd.", "info")
         return redirect(url_for("poll.results"))
 
+    # Nieuwe stem opslaan
     try:
         vote_record = VotesFor(polloption_id=polloption_id, user_id=user.id)
         db.session.add(vote_record)
@@ -89,11 +109,27 @@ def vote():
         return redirect(url_for("poll.poll_detail"))
 
 
+
+from sqlalchemy import func
+from models import (
+    db,
+    Poll,
+    Polloption,
+    VotesFor,
+    FestivalEdition,
+    Artists,
+    Genres,
+    ArtistGenres,
+    SuggestionFeedback,
+)
+from app.utils.session import get_session_user
+
+
 @bp.get("/results")
 def results():
     user = get_session_user()
 
-    # --- Muziekprofiel (genres) ---
+    # --- Muziekprofiel op basis van jouw suggesties (alle edities samen) ---
     genre_counts = {}
     genre_percentages = {}
 
@@ -113,7 +149,7 @@ def results():
             g: round(c * 100 / total, 1) for g, c in genre_counts.items()
         }
 
-    # --- Jouw stemmen per editie ---
+    # --- NIEUW: al jouw stemmen, over alle edities heen ---
     user_votes = []
     if user:
         user_votes = (

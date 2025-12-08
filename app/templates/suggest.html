@@ -4,118 +4,114 @@
 {% block content %}
 
 <div class="vv-suggest-page-bg">
+  <div class="vv-suggest-wrapper">
 
-    <div class="vv-suggest-wrapper">
+    <h2 class="vv-suggest-title">🎵 Stel een artiest voor</h2>
+    <p class="vv-suggest-subtitle">
+      Kies jouw favoriete artiest uit de lijst hieronder en dien je suggestie in
+      voor de huidige editie!
+    </p>
 
-        <h2 class="vv-suggest-title">🎵 Stel een artiest voor</h2>
-        <p class="vv-suggest-subtitle">
-            Kies jouw favoriete artiest uit de lijst hieronder en dien je suggestie in!
-        </p>
+    <!-- FORMULIER -->
+    <form method="POST" onsubmit="return validateArtistInput()">
 
-        <!-- FORMULIER -->
-        <form method="POST" onsubmit="return validateArtistInput()">
+      <label for="artistInput" class="form-label fw-semibold mb-2">Kies artiest:</label>
 
-            <label for="artistInput" class="form-label fw-semibold mb-2">Kies artiest:</label>
+      <!-- Custom dropdown -->
+      <div class="vv-dropdown-wrapper">
+        <input
+          type="text"
+          id="artistInput"
+          name="artist_name"
+          class="vv-dropdown-input"
+          placeholder="Typ of kies een artiest..."
+          autocomplete="off"
+          required
+        >
+        <div id="artistDropdown" class="vv-dropdown-list"></div>
+      </div>
 
-            <!-- Custom dropdown -->
-            <div class="vv-dropdown-wrapper">
-                <input type="text" id="artistInput" name="artist_name" class="vv-dropdown-input"
-                    placeholder="Typ of kies een artiest..." autocomplete="off" required>
-                <div id="artistDropdown" class="vv-dropdown-list"></div>
-            </div>
+      <button type="submit" class="vv-suggest-btn mt-4">
+        Verstuur suggestie
+      </button>
+    </form>
 
-            <button type="submit" class="vv-suggest-btn mt-4">Verstuur suggestie</button>
+    <!-- OVERZICHT VAN JE SUGGESTIES IN DEZE EDITIE -->
+    {% if suggestions %}
+      <h3 class="mt-5 h5">Jouw voorgestelde artiesten (deze editie):</h3>
+      <ul class="mt-2">
+        {% for name in suggestions %}
+          <li>{{ name }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
 
-        </form>
+    <p class="mt-3">
+      Nog <strong>{{ remaining }}</strong> suggestie(s) over voor deze editie.
+    </p>
 
-
-        {% if suggestions %}
-        <div class="vv-suggest-list mt-5">
-            <h3 class="fw-bold mb-3">Jouw voorgestelde artiesten:</h3>
-            <ul class="list-group">
-                {% for s in suggestions %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{{ s.Artist_name }}</span>
-
-                    <form method="post"
-                          action="{{ url_for('suggestions.hide_suggestion', artist_id=s.id) }}"
-                          style="display:inline;">
-                        <button type="submit" class="btn btn-link btn-sm text-muted">
-                            Verberg
-                        </button>
-                    </form>
-                </li>
-                {% endfor %}
-            </ul>
-
-            <p class="mt-3">Nog {{ remaining }} suggestie(s) over.</p>
-        </div>
-        {% endif %}
-
-
-    </div>
-
+  </div>
 </div>
 
 <!-- JS onderaan, zodat de HTML al bestaat -->
 <script>
-    // 🔹 Lijst met artiesten vanuit Flask → JSON
-    const ARTISTS = {{ artists | map(attribute='Artist_name') | list | tojson }};
+  // Lijst met artiesten vanuit Flask → JSON
+  const ARTISTS = {{ artists | map(attribute='Artist_name') | list | tojson }};
 
-    const input = document.getElementById("artistInput");
-    const dropdown = document.getElementById("artistDropdown");
+  const input = document.getElementById("artistInput");
+  const dropdown = document.getElementById("artistDropdown");
 
-    // Live search
-    input.addEventListener("input", () => {
-        const q = input.value.toLowerCase().trim();
-        dropdown.innerHTML = "";
+  // Live search
+  input.addEventListener("input", () => {
+    const q = input.value.toLowerCase().trim();
+    dropdown.innerHTML = "";
 
-        if (q.length === 0) {
-            dropdown.style.display = "none";
-            return;
-        }
-
-        // Filter artiesten obv wat je typt
-        const results = ARTISTS.filter(a => a.toLowerCase().includes(q));
-
-        if (results.length === 0) {
-            dropdown.style.display = "none";
-            return;
-        }
-
-        results.forEach(artist => {
-            const item = document.createElement("div");
-            item.classList.add("vv-dropdown-item");
-            item.textContent = artist;
-            item.onclick = () => {
-                input.value = artist;
-                dropdown.style.display = "none";
-            };
-            dropdown.appendChild(item);
-        });
-
-        dropdown.style.display = "block";
-    });
-
-    // Klik buiten dropdown → sluit
-    document.addEventListener("click", (e) => {
-        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.style.display = "none";
-        }
-    });
-
-    // Validatie vóór submit
-    function validateArtistInput() {
-        const inputValue = input.value.trim().toLowerCase();
-        const validValues = ARTISTS.map(a => a.toLowerCase());
-
-        if (!validValues.includes(inputValue)) {
-            alert("⚠️ Kies een artiest uit de lijst (je kan geen nieuwe artiest intypen).");
-            input.focus();
-            return false; // blokkeert het versturen
-        }
-        return true;
+    if (q.length === 0) {
+      dropdown.style.display = "none";
+      return;
     }
+
+    // Filter artiesten obv wat je typt
+    const results = ARTISTS.filter(a => a.toLowerCase().includes(q));
+
+    if (results.length === 0) {
+      dropdown.style.display = "none";
+      return;
+    }
+
+    results.forEach(artist => {
+      const item = document.createElement("div");
+      item.classList.add("vv-dropdown-item");
+      item.textContent = artist;
+      item.onclick = () => {
+        input.value = artist;
+        dropdown.style.display = "none";
+      };
+      dropdown.appendChild(item);
+    });
+
+    dropdown.style.display = "block";
+  });
+
+  // Klik buiten dropdown → sluit
+  document.addEventListener("click", (e) => {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.style.display = "none";
+    }
+  });
+
+  // Validatie vóór submit: enkel artiest uit de lijst
+  function validateArtistInput() {
+    const inputValue = input.value.trim().toLowerCase();
+    const validValues = ARTISTS.map(a => a.toLowerCase());
+
+    if (!validValues.includes(inputValue)) {
+      alert("⚠️ Kies een artiest uit de lijst (je kan geen nieuwe artiest intypen).");
+      input.focus();
+      return false; // blokkeert het versturen
+    }
+    return true;
+  }
 </script>
 
 {% endblock %}

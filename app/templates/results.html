@@ -1,102 +1,107 @@
 {% extends "base.html" %}
-{% block title %}Jouw Muziekprofiel - Vicaris Village{% endblock %}
+
+{% block title %}Results - Vicaris Village{% endblock %}
 
 {% block content %}
 <div class="container py-5">
 
-    <h2 class="fw-bold mb-4">Jouw Muziekprofiel</h2>
+  <h2 class="fw-bold mb-4">Jouw Muziekprofiel</h2>
 
-    {% if genre_counts %}
+  {% if genre_counts %}
     <div class="row g-4 align-items-start">
-        <div class="col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <canvas id="genreChart" aria-label="Verdeling van jouw muziekgenres" role="img"></canvas>
-                </div>
-            </div>
+      <div class="col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <canvas id="genreChart" aria-label="Verdeling van jouw muziekgenres" role="img"></canvas>
+          </div>
         </div>
-        <div class="col-lg-6">
-            <h3 class="h5">Tekstueel overzicht (toegankelijkheidsfallback)</h3>
-            <ul class="list-group mb-0">
-                {% for genre, count in genre_counts.items() %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{{ genre }}</span>
-                    <span class="fw-bold">{{ genre_percentages.get(genre, 0) }}% ({{ count }})</span>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+      </div>
+      <div class="col-lg-6">
+        <h3 class="h5">Tekstueel overzicht (toegankelijkheidsfallback)</h3>
+        <ul class="list-group mb-0">
+          {% for genre, count in genre_counts.items() %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <span>{{ genre }}</span>
+              <span class="fw-bold">
+                {{ genre_percentages.get(genre, 0) }}% ({{ count }})
+              </span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const genreLabels = {{ genre_percentages.keys()|list|tojson }};
-        const genreData = {{ genre_percentages.values()|list|tojson }};
+      const genreLabels = {{ genre_percentages.keys()|list|tojson }};
+      const genreData   = {{ genre_percentages.values()|list|tojson }};
+      const palette = genreLabels.map((_, idx) => `hsl(${(idx * 55) % 360} 70% 60%)`);
 
-        const palette = genreLabels.map((_, idx) => `hsl(${(idx * 55) % 360} 70% 60%)`);
-
-        const ctx = document.getElementById('genreChart');
-        if (ctx) {
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: genreLabels,
-                    datasets: [{
-                        data: genreData,
-                        backgroundColor: palette,
-                        borderColor: '#fff',
-                        borderWidth: 1,
-                    }]
-                },
-                options: {
-                    plugins: {
-                        legend: { position: 'bottom' },
-                        tooltip: {
-                            callbacks: {
-                                label: (context) => `${context.label}: ${context.formattedValue}%`
-                            }
-                        }
-                    }
+      const ctx = document.getElementById('genreChart');
+      if (ctx) {
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: genreLabels,
+            datasets: [{
+              data: genreData,
+              backgroundColor: palette,
+              borderColor: '#fff',
+              borderWidth: 1,
+            }]
+          },
+          options: {
+            plugins: {
+              legend: { position: 'bottom' },
+              tooltip: {
+                callbacks: {
+                  label: (context) => `${context.label}: ${context.formattedValue}%`
                 }
-            });
-        }
+              }
+            }
+          }
+        });
+      }
     </script>
-    {% else %}
-    <p>Je hebt nog geen stemmen uitgebracht. Je muziekprofiel is nog leeg.</p>
-    {% endif %}
+  {% else %}
+    <p>Je hebt nog geen suggesties gedaan. Je muziekprofiel is nog leeg.</p>
+  {% endif %}
 
-    {% if user_votes %}
+  {% if user_votes %}
     <hr class="my-5">
 
     <h2 class="mb-3">Jouw stemmen per editie</h2>
 
     <div class="table-responsive">
-        <table class="table align-middle">
-            <thead>
-                <tr>
-                    <th>Jaar</th>
-                    <th>Editie</th>
-                    <th>Artiest</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for vote, option, poll, edition, artist in user_votes %}
-                <tr>
-                    <td>
-                        {% if edition.Start_date %}
-                            {{ edition.Start_date.year }}
-                        {% else %}
-                            –
-                        {% endif %}
-                    </td>
-                    <td>{{ edition.Name }}</td>
-                    <td>{{ artist.Artist_name }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Jaar</th>
+            <th>Editie</th>
+            <th>Artiest</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vote, option, poll, edition, artist in user_votes %}
+            <tr>
+              <td>
+                {% if edition.Start_date %}
+                  {{ edition.Start_date.year }}
+                {% else %}
+                  –
+                {% endif %}
+              </td>
+              <td>{{ edition.Name }}</td>
+              <td>{{ artist.Artist_name }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    {% endif %}
+  {% else %}
+    <hr class="my-5">
+    <p>Je hebt nog geen stemmen uitgebracht.</p>
+  {% endif %}
 
 </div>
 {% endblock %}
