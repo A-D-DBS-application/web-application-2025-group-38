@@ -463,7 +463,20 @@ def admin_remove_genre(artist_id, genre_id):
 @require_admin
 def admin_add_new_genre():
     name = (request.form.get("genre_name") or "").strip()
+    related_genre_id = None
 
+    raw_related = request.form.get("related_genre_id")
+    if raw_related:
+        try:
+            related_genre_id = int(raw_related)
+        except ValueError:
+            flash("Ongeldig verwant genre gekozen.", "warning")
+            return redirect(url_for("admin.admin_artists"))
+
+        anchor_genre = db.session.get(Genres, related_genre_id)
+        if not anchor_genre:
+            flash("Het gekozen verwante genre bestaat niet.", "warning")
+            return redirect(url_for("admin.admin_artists"))
     if not name:
         flash("Geef een genrenaam in.", "warning")
         return redirect(url_for("admin.admin_artists"))
@@ -477,7 +490,7 @@ def admin_add_new_genre():
         flash("Dit genre bestaat al.", "info")
         return redirect(url_for("admin.admin_artists"))
 
-    db.session.add(Genres(name=name))
+    db.session.add(Genres(name=name, related_genre_id=related_genre_id))
     db.session.commit()
 
     flash(f"Genre '{name}' is toegevoegd.", "success")

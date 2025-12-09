@@ -18,11 +18,20 @@ class Genres(db.Model):
 
     id = db.Column(db.BigInteger, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
-
+    related_genre_id = db.Column(
+        db.BigInteger,
+        db.ForeignKey("Genres.id"),
+        nullable=True,
+    )
     artists = db.relationship(
         "Artists",
         secondary="ArtistGenres",
         back_populates="genres"
+    )
+    related_genre = db.relationship(
+        "Genres",
+        remote_side=[id],
+        backref="derived_genres",
     )
 
 

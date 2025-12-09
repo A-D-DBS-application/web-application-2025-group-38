@@ -77,12 +77,22 @@
                     <input type="text" class="form-control" name="genre_name" placeholder="Naam van het nieuwe genre">
                 </div>
                 <div class="col-md-3">
+                    <select class="form-select" name="related_genre_id">
+                        <option value="">(Optioneel) Lijkt op…</option>
+                        {% for genre in genres %}
+                        <option value="{{ genre.id }}">{{ genre.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
                     <button type="submit" class="btn btn-outline-secondary w-100">
                         Genre toevoegen
                     </button>
                 </div>
             </form>
-
+            <p class="form-text mt-1">
+                Kies een verwant genre zodat nieuwe genres meteen in de afstandsberekening worden meegenomen.
+            </p>
         </div>
     </div>
 

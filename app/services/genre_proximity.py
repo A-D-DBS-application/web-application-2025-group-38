@@ -8,7 +8,7 @@ from sqlalchemy.orm import aliased
 
 from models import db, Genres, ArtistGenres
 
-
+ANCHOR_DISTANCE = 0.5 #non-overpowering
 def build_genre_graph() -> MutableMapping[int, List[tuple[int, float]]]:
     """
     Build a weighted, undirected graph connecting genres that co-occur on the same artist.
@@ -17,7 +17,7 @@ def build_genre_graph() -> MutableMapping[int, List[tuple[int, float]]]:
     inverse of the co-occurrence count. The graph is sparse and only connects genres
     that have actually been observed together.
     """
-
+    
     graph: MutableMapping[int, List[tuple[int, float]]] = {}
     g1 = aliased(ArtistGenres)
     g2 = aliased(ArtistGenres)
@@ -34,7 +34,19 @@ def build_genre_graph() -> MutableMapping[int, List[tuple[int, float]]]:
         distance = 1 / (1 + float(weight))
         graph.setdefault(left, []).append((right, distance))
         graph.setdefault(right, []).append((left, distance))
+    
+    manual_links = (
+        db.session.query(Genres.id, Genres.related_genre_id)
+        .filter(Genres.related_genre_id.isnot(None))
+        .all()
+    )
 
+    for genre_id, related_id in manual_links:
+        if genre_id == related_id:
+            continue
+
+        graph.setdefault(genre_id, []).append((related_id, ANCHOR_DISTANCE))
+        graph.setdefault(related_id, []).append((genre_id, ANCHOR_DISTANCE))
     return graph
 
 
