@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="container text-center py-5">
+
+  <h2 class="fw-bold mb-4">Poll wordt geladen…</h2>
+  <p class="mb-4">We halen de artiesten en stemmen op. Even geduld 😊</p>
+
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+
+      <!-- Bootstrap progress bar -->
+      <div class="progress" style="height: 1.8rem;">
+        <div
+          id="poll-progress-bar"
+          class="progress-bar progress-bar-striped"
+          role="progressbar"
+          style="width: 0%;"
+          aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+          0%
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</section>
+
+<script>
+// URL van de echte pollpagina (HTML)
+const pollUrl = "{{ url_for('poll.poll_detail') }}";
+const bar = document.getElementById("poll-progress-bar");
+
+let progress = 0;
+
+// Balk langzaam tot 90% laten oplopen
+const interval = setInterval(() => {
+  if (progress < 90) {
+    progress += 2;
+    updateBar(progress);
+  }
+}, 80); // snelheid kun je nog tunen
+
+// Poll HTML op de achtergrond ophalen
+async function loadPoll() {
+  try {
+    const response = await fetch(pollUrl, { method: "GET" });
+    const html = await response.text();
+
+    // Zodra de poll klaar is: balk naar 100% en dan pagina vervangen
+    clearInterval(interval);
+    updateBar(100);
+
+    setTimeout(() => {
+      // Hele document vervangen door de pollpagina
+      document.open();
+      document.write(html);
+      document.close();
+    }, 200); // klein beetje tijd om 100% te tonen
+  } catch (err) {
+    console.error("Fout bij laden van poll:", err);
+    bar.classList.add("bg-danger");
+    bar.textContent = "Er ging iets mis bij het laden";
+  }
+}
+
+function updateBar(value) {
+  bar.style.width = value + "%";
+  bar.setAttribute("aria-valuenow", value);
+  bar.textContent = value + "%";
+}
+
+// Start meteen
+loadPoll();
+</script>
+
+{% endblock %}

@@ -36,7 +36,8 @@
       <a href="{{ url_for('suggestions.suggest') }}">Suggestion</a>
 
       {% if poll_visibility %}
-      <a href="{{ url_for('poll.poll_detail') }}">Polls</a>
+      <a href="{{ url_for('poll.poll_loading') }}">Polls</a>
+
       {% else %}
       <span class="text-muted">Polls (verborgen)</span>
       {% endif %}

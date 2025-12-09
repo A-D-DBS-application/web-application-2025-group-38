@@ -169,3 +169,6 @@ def results():
         genre_percentages=genre_percentages,
         user_votes=user_votes,
     )
+@bp.route("/poll/loading")
+def poll_loading():
+    return render_template("poll_loading.html")
