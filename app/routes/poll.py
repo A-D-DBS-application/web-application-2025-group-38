@@ -33,30 +33,56 @@ def poll_detail():
         flash("Je moet ingelogd zijn om een stem uit te brengen.", "warning")
         return redirect(url_for("auth.register"))
 
-    profile = get_user_genre_profile(user.id)
-    poll_artists = generate_poll_for_user(user.id, num_options=5)
-
-    # Verwijder alleen de opties van de huidige poll,
-    # niet van vroegere polls/edities
-    Polloption.query.filter_by(poll_id=poll.id).delete()
-    db.session.commit()
-
-
-    for artist in poll_artists:
-        option = Polloption(
-            text=artist.Artist_name,
-            artist_id=artist.id,
-            Count=0,
-            poll_id=poll.id,
+    # Controleer of de gebruiker al een stem heeft uitgebracht voor deze editie
+    existing_vote_option = (
+        db.session.query(Polloption)
+        .join(VotesFor, VotesFor.polloption_id == Polloption.id)
+        .filter(
+            VotesFor.user_id == user.id,
+            Polloption.poll_id == poll.id,
         )
-        db.session.add(option)
-    db.session.commit()
+        .first()
+    )
 
-    # Toon enkel opties van de huidige poll,
-    # niet van oude polls / edities
+
+    # Als er al een stem is, toon enkel de melding en opties niet meer
+    if existing_vote_option:
+        return render_template(
+            "poll_detail.html",
+            options=[],
+            profile=None,
+            already_voted=True,
+            voted_option=existing_vote_option,
+        )
+        # Haal bestaande opties op voor de huidige editie/poll
     options = Polloption.query.filter_by(poll_id=poll.id).all()
 
-    return render_template("poll_detail.html", options=options, profile=profile)
+    # Als er nog geen opties zijn, genereer ze eenmalig voor deze editie
+    if not options:
+        profile = get_user_genre_profile(user.id)
+        poll_artists = generate_poll_for_user(user.id, num_options=5)
+
+        for artist in poll_artists:
+            option = Polloption(
+                text=artist.Artist_name,
+                artist_id=artist.id,
+                Count=0,
+                poll_id=poll.id,
+            )
+            db.session.add(option)
+        db.session.commit()
+
+        options = Polloption.query.filter_by(poll_id=poll.id).all()
+    else:
+        profile = get_user_genre_profile(user.id)
+
+    return render_template(
+        "poll_detail.html",
+        options=options,
+        profile=profile,
+        already_voted=False,
+        voted_option=None,
+    )
 
 
 

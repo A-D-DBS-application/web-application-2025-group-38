@@ -5,7 +5,13 @@
 
     <h2 class="vv-poll-title">Stem op jouw favoriete artiest 🎶</h2>
 
-    {% if options %}
+    {% if already_voted %}
+    <div class="alert alert-info" role="alert">
+        Je hebt al gestemd{% if voted_option %} op <strong>{{ voted_option.text }}</strong>{% endif %}.
+    </div>
+    <a class="vv-poll-btn" href="{{ url_for('poll.results') }}">Bekijk resultaten</a>
+
+    {% elif options %}
     <form method="POST" action="{{ url_for('poll.vote') }}" class="artist-grid">
 
         {% for o in options %}
