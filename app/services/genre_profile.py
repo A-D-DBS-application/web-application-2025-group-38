@@ -39,22 +39,18 @@ def generate_poll_for_user(user_id: int, num_options: int = 5):
             Artists.id,
             Artists.Artist_name,
             Genres.name.label("genre"),
-            func.count(SuggestionFeedback.id).label("popularity"),
         )
         .join(ArtistGenres, ArtistGenres.artist_id == Artists.id)
         .join(Genres, Genres.id == ArtistGenres.genre_id)
-        .outerjoin(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
-        .group_by(Artists.id, Artists.Artist_name, Genres.name)
         .all()
     )
 
     artist_data = {}
-    for artist_id, artist_name, genre, popularity in rows:
+    for artist_id, artist_name, genre in rows:
         if artist_id not in artist_data:
             artist_data[artist_id] = {
                 "artist": artist_name,
                 "genres": [],
-                "popularity": popularity,
             }
         artist_data[artist_id]["genres"].append(genre)
 
@@ -79,12 +75,7 @@ def generate_poll_for_user(user_id: int, num_options: int = 5):
             is not None
         )
 
-        score = (
-            3 * int(self_suggested)
-            + 2 * genre_score
-            + data["popularity"]
-            + 5 * proximity
-        )
+        score = 3 * int(self_suggested) + 2 * genre_score + 5 * proximity
 
         scored.append((score, artist_id, data["artist"]))
 
