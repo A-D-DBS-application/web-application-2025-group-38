@@ -33,7 +33,11 @@
 
     <!-- Navigatie rechts -->
     <nav class="vv-nav">
+      {% if suggestions_visibility %}
       <a href="{{ url_for('suggestions.suggest') }}">Suggestion</a>
+      {% else %}
+      <span class="text-muted">Suggestion (verborgen)</span>
+      {% endif %}
 
       {% if poll_visibility %}
       <a href="{{ url_for('poll.poll_loading') }}">Polls</a>

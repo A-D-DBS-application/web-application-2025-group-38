@@ -95,6 +95,10 @@
                     </td>
                     <td>
                         <div class="d-flex gap-2">
+                            <a class="btn btn-sm btn-outline-secondary"
+                               href="{{ url_for('admin.admin_results', edition_id=e.id) }}">
+                                Results
+                            </a>
                             {% if not e.is_active %}
                             <form method="post"
                                   action="{{ url_for('admin.set_active_edition', edition_id=e.id) }}">

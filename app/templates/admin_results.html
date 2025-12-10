@@ -2,12 +2,23 @@
 
 {% block content %}
 <div class="container py-5">
-    <h2 class="fw-bold mb-4">Admin – Globale resultaten</h2>
+    <h2 class="fw-bold mb-2">Admin – Resultaten per editie</h2>
+    {% if edition %}
+    <p class="text-muted mb-4">
+        {{ edition.Name }}
+        {% if edition.Start_date %}
+            ({{ edition.Start_date.year }})
+        {% endif %}
+    </p>
+    {% endif %}
         
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">Poll-instellingen</h5>
             <form action="{{ url_for('admin.update_poll_settings') }}" method="post" class="row g-3 align-items-center">
+                {% if edition %}
+                <input type="hidden" name="edition_id" value="{{ edition.id }}">
+                {% endif %}
                 <div class="col-md-6">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="is_visible" name="is_visible" {% if poll and poll.is_visible %}checked{% endif %}>
@@ -30,7 +41,9 @@
       
 
     <!-- GLOBALE ARTIESTEN -->
-    <h3 class="fw-bold mt-3 mb-3">Meest gesuggereerde artiesten (globaal)</h3>
+    <h3 class="fw-bold mt-3 mb-3">Meest gesuggereerde artiesten (deze editie)</h3>
+
+    {% if global_suggestions %}
 
     <ul class="list-group mb-5">
         {% for row in global_suggestions %}
@@ -40,10 +53,14 @@
         </li>
         {% endfor %}
     </ul>
+    {% else %}
+    <p class="text-muted">Nog geen suggesties voor deze editie.</p>
+    {% endif %}
 
     <!-- GLOBALE GENRES 🎵 -->
-    <h3 class="fw-bold mt-4 mb-3">Meest gesuggereerde genres (globaal)</h3>
+    <h3 class="fw-bold mt-4 mb-3">Meest gesuggereerde genres (deze editie)</h3>
 
+    {% if global_genres %}
     <ul class="list-group">
         {% for row in global_genres %}
         <li class="list-group-item d-flex justify-content-between">
@@ -52,6 +69,9 @@
         </li>
         {% endfor %}
     </ul>
+     {% else %}
+    <p class="text-muted">Nog geen genres beschikbaar voor deze editie.</p>
+    {% endif %}
 
 </div>
 {% endblock %}

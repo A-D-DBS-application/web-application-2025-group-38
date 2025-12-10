@@ -6,6 +6,9 @@
 <div class="container py-5">
 
   <h2 class="fw-bold mb-4">Jouw Muziekprofiel</h2>
+  {% if current_edition %}
+    <p class="text-muted">Resultaten voor {{ current_edition.Name }}{% if current_edition.Start_date %} ({{ current_edition.Start_date.year }}){% endif %}</p>
+  {% endif %}
 
   {% if genre_counts %}
     <div class="row g-4 align-items-start">
@@ -64,7 +67,7 @@
       }
     </script>
   {% else %}
-    <p>Je hebt nog geen suggesties gedaan. Je muziekprofiel is nog leeg.</p>
+    <p>Je hebt nog geen suggesties gedaan voor deze editie. Je muziekprofiel is nog leeg.</p>
   {% endif %}
 
   {% if user_votes %}
@@ -100,7 +103,7 @@
     </div>
   {% else %}
     <hr class="my-5">
-    <p>Je hebt nog geen stemmen uitgebracht.</p>
+    <p>Je hebt nog geen stemmen uitgebracht voor deze editie.</p>
   {% endif %}
 
 </div>

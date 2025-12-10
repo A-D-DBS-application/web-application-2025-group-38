@@ -2,6 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, request, url_for
 from sqlalchemy import func
 
 from models import db, Artists, SuggestionFeedback, FestivalEdition
+from app.services.poll import get_or_create_poll_for_edition
 from app.utils.session import get_session_user
 
 bp = Blueprint("suggestions", __name__)
@@ -18,6 +19,7 @@ def get_current_edition():
 def suggest():
     user = get_session_user()
     edition = get_current_edition()
+    poll = get_or_create_poll_for_edition(edition)
 
     # geen user → gewoon lege pagina met waarschuwing
     if not user:
@@ -40,6 +42,11 @@ def suggest():
             remaining=0,
             artists=[],
         )
+    
+    # Poll is verborgen → ook suggesties blokkeren
+    if poll and not poll.is_visible:
+        flash("Suggesties zijn momenteel verborgen door de admin.", "info")
+        return redirect(url_for("core.home"))
 
     # Hoeveel suggesties heeft deze user al gedaan IN DEZE EDITIE?
     existing_count = (
@@ -58,7 +65,7 @@ def suggest():
             f"voor de editie '{edition.Name}'.",
             "info",
         )
-        return redirect(url_for("poll.poll_detail"))
+        return redirect(url_for("poll.poll_loading"))
 
     # -------------------  POST: nieuwe suggestie  -------------------
     if request.method == "POST":
@@ -118,7 +125,7 @@ def suggest():
                 f"voor de editie '{edition.Name}'.",
                 "success",
             )
-            return redirect(url_for("poll.poll_detail"))
+            return redirect(url_for("poll.poll_loading"))
 
         flash(
             f"Bedankt voor je suggestie! "

@@ -2,7 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 
 from config import Config
-from models import db, Poll
+from models import db
 from app.routes import register_blueprints
 from app.services.poll import get_or_create_active_poll
 from app.utils.session import get_session_user
@@ -35,8 +35,9 @@ def register_context_processors(app: Flask) -> None:
     @app.context_processor
     def inject_poll_visibility():
         # Bepaalt of de poll en resultaten getoond mogen worden
-        poll = Poll.query.order_by(Poll.id).first()
+        poll = get_or_create_active_poll()
         return {
             "poll_visibility": poll.is_visible if poll else True,
+            "suggestions_visibility": poll.is_visible if poll else True,
             "results_visibility": poll.show_results if poll else True,
         }

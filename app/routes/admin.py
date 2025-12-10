@@ -20,7 +20,10 @@ from models import (
     Polloption,
     Poll,
 )
-from app.services.poll import get_or_create_active_poll
+from app.services.poll import (
+    get_active_festival,
+    get_or_create_poll_for_edition,
+)
 from app.utils.session import get_session_user
 
 
@@ -160,12 +163,25 @@ def delete_edition(edition_id):
 @bp.get("/admin/results")
 @require_admin
 def admin_results():
-    poll = get_or_create_active_poll()
+    edition_id = request.args.get("edition_id", type=int)
+    edition = None
 
-    # Top 10 meest gesuggereerde artiesten
+    if edition_id:
+        edition = FestivalEdition.query.get_or_404(edition_id)
+    else:
+        edition = get_active_festival()
+
+    poll = get_or_create_poll_for_edition(edition)
+
+    if not edition:
+        flash("Er is nog geen editie om resultaten voor te tonen.", "warning")
+        return redirect(url_for("admin.editions"))
+
+    # Top 10 meest gesuggereerde artiesten in deze editie
     global_rows = (
         db.session.query(Artists.Artist_name, func.count())
         .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
+        .filter(SuggestionFeedback.festival_id == edition.id)
         .group_by(Artists.Artist_name)
         .order_by(func.count().desc())
         .limit(10)
@@ -175,12 +191,13 @@ def admin_results():
         {"artist": artist, "count": count} for artist, count in global_rows
     ]
 
-    # Genres van alle suggesties
+    # Genres van alle suggesties in deze editie
     global_genres_rows = (
         db.session.query(Genres.name, func.count())
         .join(ArtistGenres, ArtistGenres.genre_id == Genres.id)
         .join(Artists, Artists.id == ArtistGenres.artist_id)
         .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
+        .filter(SuggestionFeedback.festival_id == edition.id)
         .group_by(Genres.name)
         .order_by(func.count().desc())
         .all()
@@ -194,19 +211,31 @@ def admin_results():
         global_suggestions=global_suggestions,
         global_genres=global_genres,
         poll=poll,
+        edition=edition,
     )
 
 
 @bp.post("/admin/poll-settings")
 @require_admin
 def update_poll_settings():
-    poll = get_or_create_active_poll()
+    edition_id = request.form.get("edition_id", type=int)
+    edition = (
+        FestivalEdition.query.get_or_404(edition_id)
+        if edition_id
+        else get_active_festival()
+    )
+    poll = get_or_create_poll_for_edition(edition)
+
+    if not poll:
+        flash("Er is geen poll gevonden voor deze editie.", "danger")
+        return redirect(url_for("admin.editions"))
+    
     poll.is_visible = bool(request.form.get("is_visible"))
     poll.show_results = bool(request.form.get("show_results"))
     db.session.commit()
 
     flash("Poll-instellingen opgeslagen.", "success")
-    return redirect(url_for("admin.admin_results"))
+    return redirect(url_for("admin.admin_results", edition_id=edition.id))
 
 
 # -------------------------------------------------------------------

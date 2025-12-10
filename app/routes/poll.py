@@ -109,27 +109,12 @@ def vote():
         return redirect(url_for("poll.poll_detail"))
 
 
-
-from sqlalchemy import func
-from models import (
-    db,
-    Poll,
-    Polloption,
-    VotesFor,
-    FestivalEdition,
-    Artists,
-    Genres,
-    ArtistGenres,
-    SuggestionFeedback,
-)
-from app.utils.session import get_session_user
-
-
 @bp.get("/results")
 def results():
     user = get_session_user()
+    poll = get_or_create_active_poll()
 
-    # --- Muziekprofiel op basis van jouw suggesties (alle edities samen) ---
+    # --- Muziekprofiel op basis van jouw suggesties (actieve editie) ---
     genre_counts = {}
     genre_percentages = {}
 
@@ -140,6 +125,10 @@ def results():
             .join(Artists, Artists.id == ArtistGenres.artist_id)
             .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
             .filter(SuggestionFeedback.user_id == user.id)
+            .filter(
+                SuggestionFeedback.user_id == user.id,
+                SuggestionFeedback.festival_id == poll.festival_id,
+            )
             .group_by(Genres.name)
             .all()
         )
@@ -149,16 +138,19 @@ def results():
             g: round(c * 100 / total, 1) for g, c in genre_counts.items()
         }
 
-    # --- NIEUW: al jouw stemmen, over alle edities heen ---
+    # --- Jouw stemmen binnen de actieve editie ---
     user_votes = []
-    if user:
+    if user and poll:
         user_votes = (
             db.session.query(VotesFor, Polloption, Poll, FestivalEdition, Artists)
             .join(Polloption, VotesFor.polloption_id == Polloption.id)
             .join(Poll, Polloption.poll_id == Poll.id)
             .join(FestivalEdition, Poll.festival_id == FestivalEdition.id)
             .join(Artists, Polloption.artist_id == Artists.id)
-            .filter(VotesFor.user_id == user.id)
+            .filter(
+                VotesFor.user_id == user.id,
+                Poll.festival_id == poll.festival_id,
+            )
             .order_by(FestivalEdition.Start_date.desc())
             .all()
         )
@@ -168,6 +160,7 @@ def results():
         genre_counts=genre_counts,
         genre_percentages=genre_percentages,
         user_votes=user_votes,
+        current_edition=poll.festival if poll else None,
     )
 @bp.route("/poll/loading")
 def poll_loading():
