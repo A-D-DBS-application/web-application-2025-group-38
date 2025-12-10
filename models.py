@@ -109,7 +109,16 @@ class Polloption(db.Model):
 
     @property
     def image_url(self):
-        filename = self.text.lower().replace(" ", "_") + ".jpg"
+        # Geef eerst de foto van de gekoppelde artiest terug (indien aanwezig)
+        if self.artist and self.artist.image_url:
+            return self.artist.image_url
+
+        # Fallback: bouw het oorspronkelijke pad op basis van de tekst
+        if self.text:
+            filename = self.text.lower().replace(" ", "_") + ".jpg"
+        else:
+            filename = "placeholder.jpg"
+            
         return f"images/artist_images/{filename}"
 
 

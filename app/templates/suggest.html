@@ -29,6 +29,7 @@
           required
         >
         <div id="artistDropdown" class="vv-dropdown-list"></div>
+        <div id="artistError" class="alert alert-warning mt-3 d-none" role="alert"></div>
       </div>
 
       <button type="submit" class="vv-suggest-btn mt-4">
@@ -60,11 +61,14 @@
 
   const input = document.getElementById("artistInput");
   const dropdown = document.getElementById("artistDropdown");
+  const errorBox = document.getElementById("artistError");
 
   // Live search
   input.addEventListener("input", () => {
     const q = input.value.toLowerCase().trim();
     dropdown.innerHTML = "";
+    errorBox.classList.add("d-none");
+    errorBox.textContent = "";
 
     if (q.length === 0) {
       dropdown.style.display = "none";
@@ -82,11 +86,8 @@
     results.forEach(artist => {
       const item = document.createElement("div");
       item.classList.add("vv-dropdown-item");
+      item.dataset.value = artist;
       item.textContent = artist;
-      item.onclick = () => {
-        input.value = artist;
-        dropdown.style.display = "none";
-      };
       dropdown.appendChild(item);
     });
 
@@ -100,13 +101,24 @@
     }
   });
 
+  dropdown.addEventListener("mousedown", (e) => {
+    const item = e.target.closest(".vv-dropdown-item");
+    if (!item) return;
+
+    e.preventDefault();
+    errorBox.classList.add("d-none");
+    errorBox.textContent = "";
+    input.value = item.dataset.value ?? "";
+    dropdown.style.display = "none";
+  });
   // Validatie vóór submit: enkel artiest uit de lijst
   function validateArtistInput() {
     const inputValue = input.value.trim().toLowerCase();
     const validValues = ARTISTS.map(a => a.toLowerCase());
 
     if (!validValues.includes(inputValue)) {
-      alert("⚠️ Kies een artiest uit de lijst (je kan geen nieuwe artiest intypen).");
+      errorBox.textContent = "Kies een artiest uit de lijst (je kan geen nieuwe artiest intypen).";
+      errorBox.classList.remove("d-none");
       input.focus();
       return false; // blokkeert het versturen
     }
