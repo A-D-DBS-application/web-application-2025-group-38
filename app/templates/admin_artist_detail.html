@@ -3,6 +3,42 @@
 {% block content %}
 <div class="container py-5">
     <h2 class="fw-bold mb-4">Artiest: {{ artist.Artist_name }}</h2>
+    <!-- FOTO VAN ARTIEST -->
+    <div class="mb-4">
+
+        <h5 class="mb-3">Artiestfoto</h5>
+
+        <div class="mb-4">
+
+            {% if artist.image_url %}
+            <!-- Foto tonen -->
+            <img src="{{ url_for('static', filename=artist.image_url) }}" alt="{{ artist.Artist_name }}"
+                class="img-fluid rounded border mb-3" style="max-height: 250px; object-fit: cover;" />
+
+            <!-- Verwijder-knop -->
+            <form method="post" action="{{ url_for('admin.admin_delete_artist_image', artist_id=artist.id) }}">
+                <button type="submit" class="btn btn-outline-danger">Foto verwijderen</button>
+            </form>
+
+            {% else %}
+            <!-- Geen foto aanwezig -->
+            <p class="text-muted mb-2">Geen foto geüpload.</p>
+
+            <!-- Upload formulier -->
+            <form method="post" enctype="multipart/form-data"
+                action="{{ url_for('admin.admin_upload_artist_image', artist_id=artist.id) }}">
+                <input type="file" name="artist_image" class="form-control mb-2" accept="image/*" required>
+                <button type="submit" class="btn btn-primary">Foto uploaden</button>
+            </form>
+            {% endif %}
+
+        </div>
+
+
+
+    </div>
+
+    <hr class="my-4">
 
     <div class="row mb-4">
         <!-- Linkerzijde: gekoppelde genres + verwijderknop -->

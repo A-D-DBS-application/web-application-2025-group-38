@@ -418,8 +418,20 @@ def admin_delete_artist(artist_id):
         )
         return redirect(url_for("admin.admin_artists"))
 
+    # ----------- FOTO VERWIJDEREN (BELANGRIJK!) -----------
+    if artist.image_url:
+        file_path = os.path.join(current_app.root_path, "static", artist.image_url)
+
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                print("Fout bij verwijderen afbeelding:", e)
+
+    # ----------- ARTIEST VERWIJDEREN -----------
     db.session.delete(artist)
     db.session.commit()
+
     flash("Artiest verwijderd.", "success")
     return redirect(url_for("admin.admin_artists"))
 
@@ -524,3 +536,60 @@ def admin_add_new_genre():
 
     flash(f"Genre '{name}' is toegevoegd.", "success")
     return redirect(url_for("admin.admin_artists"))
+
+@bp.post("/admin/artists/<int:artist_id>/image/delete")
+@require_admin
+def admin_delete_artist_image(artist_id):
+    artist = Artists.query.get_or_404(artist_id)
+
+    # Staat er geen foto in de database?
+    if not artist.image_url:
+        flash("Deze artiest heeft geen opgeslagen foto.", "warning")
+        return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
+
+    # Volledig pad naar bestand
+    file_path = os.path.join(current_app.root_path, "static", artist.image_url)
+
+    # Verwijder bestand als het bestaat
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+    # Leeg de image_url
+    artist.image_url = None
+    db.session.commit()
+
+    flash("Foto succesvol verwijderd.", "success")
+    return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
+
+@bp.post("/admin/artists/<int:artist_id>/image/upload")
+@require_admin
+def admin_upload_artist_image(artist_id):
+    artist = Artists.query.get_or_404(artist_id)
+    upload = request.files.get("artist_image")
+
+    if not upload or not upload.filename.strip():
+        flash("Geen geldige afbeelding gekozen.", "warning")
+        return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
+
+    upload_folder = os.path.join(
+        current_app.root_path, "static", "images", "artist_images"
+    )
+    os.makedirs(upload_folder, exist_ok=True)
+
+    filename = secure_filename(artist.Artist_name.lower().replace(" ", "_") + ".jpg")
+    filepath = os.path.join(upload_folder, filename)
+
+    img = Image.open(upload)
+
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
+
+    img.save(filepath, format="JPEG", quality=90)
+
+    artist.image_url = f"images/artist_images/{filename}"
+    db.session.commit()
+
+    flash("Foto succesvol geüpload!", "success")
+    return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
+
+
