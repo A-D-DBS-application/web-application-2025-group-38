@@ -55,42 +55,42 @@
             <!-- Suggestion -->
             <li class="nav-item">
               {% if suggestions_visibility %}
-                <a class="nav-link" href="{{ url_for('suggestions.suggest') }}">Suggestion</a>
+                <a class="nav-link fw-bold text-dark" href="{{ url_for('suggestions.suggest') }}">Suggestion</a>
               {% else %}
-                <span class="nav-link disabled text-muted">Suggestion</span>
+                <span class="nav-link disabled fw-bold text-muted">Suggestion</span>
               {% endif %}
             </li>
 
             <!-- Polls -->
             <li class="nav-item">
               {% if poll_visibility %}
-                <a class="nav-link" href="{{ url_for('poll.poll_loading') }}">Polls</a>
+                <a class="nav-link fw-bold text-dark" href="{{ url_for('poll.poll_loading') }}">Polls</a>
               {% else %}
-                <span class="nav-link disabled text-muted">Polls</span>
+                <span class="nav-link disabled fw-bold text-muted">Polls</span>
               {% endif %}
             </li>
 
             <!-- Results -->
             <li class="nav-item">
               {% if results_visibility %}
-                <a class="nav-link" href="{{ url_for('poll.results') }}">Results</a>
+                <a class="nav-link fw-bold text-dark" href="{{ url_for('poll.results') }}">Results</a>
               {% else %}
-                <span class="nav-link disabled text-muted">Results</span>
+                <span class="nav-link disabled fw-bold text-muted">Results</span>
               {% endif %}
             </li>
 
             <!-- Admin (alleen voor admins) -->
             {% if current_user and current_user.is_admin %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+              <a class="nav-link dropdown-toggle fw-bold text-dark" href="#" id="adminDropdown" role="button"
                  data-bs-toggle="dropdown" aria-expanded="false">
                 Admin
               </a>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
-                <li><a class="dropdown-item" href="{{ url_for('admin.admin_results') }}">Admin results</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('admin.admin_artists') }}">Artists</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('admin.admin_users') }}">Users</a></li>
-                <li><a class="dropdown-item" href="{{ url_for('admin.editions') }}">Editions</a></li>
+                <li><a class="dropdown-item fw-bold text-dark" href="{{ url_for('admin.admin_results') }}">Admin results</a></li>
+                <li><a class="dropdown-item fw-bold text-dark" href="{{ url_for('admin.admin_artists') }}">Artists</a></li>
+                <li><a class="dropdown-item fw-bold text-dark" href="{{ url_for('admin.admin_users') }}">Users</a></li>
+                <li><a class="dropdown-item fw-bold text-dark" href="{{ url_for('admin.editions') }}">Editions</a></li>
               </ul>
             </li>
             {% endif %}
@@ -98,9 +98,9 @@
             <!-- Login / logout -->
             <li class="nav-item">
               {% if session.get('user_id') %}
-                <a class="nav-link" href="{{ url_for('auth.logout') }}">Log out</a>
+                <a class="nav-link fw-bold text-dark" href="{{ url_for('auth.logout') }}">Log out</a>
               {% else %}
-                <a class="nav-link" href="{{ url_for('auth.register') }}">Log in</a>
+                <a class="nav-link fw-bold text-dark" href="{{ url_for('auth.register') }}">Log in</a>
               {% endif %}
             </li>
 
@@ -140,3 +140,4 @@
 </body>
 
 </html>
+

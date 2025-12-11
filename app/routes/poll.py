@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for, session
 from sqlalchemy import func
 
 from models import (
@@ -137,20 +137,26 @@ def vote():
 
 @bp.get("/results")
 def results():
+    # 1. Check: moet ingelogd zijn
+    if not session.get("user_id"):
+        flash("Je moet ingelogd zijn om de resultaten te zien.", "warning")
+        return redirect(url_for("auth.register"))
+
+    # 2. Haal user + huidige poll op
     user = get_session_user()
     poll = get_or_create_active_poll()
 
     # --- Muziekprofiel op basis van jouw suggesties (actieve editie) ---
     genre_counts = {}
     genre_percentages = {}
+    sorted_genres = []   # heel belangrijk: altijd initialiseren
 
-    if user:
+    if user and poll:
         rows = (
             db.session.query(Genres.name, func.count())
             .join(ArtistGenres, ArtistGenres.genre_id == Genres.id)
             .join(Artists, Artists.id == ArtistGenres.artist_id)
             .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
-            .filter(SuggestionFeedback.user_id == user.id)
             .filter(
                 SuggestionFeedback.user_id == user.id,
                 SuggestionFeedback.festival_id == poll.festival_id,
@@ -158,6 +164,7 @@ def results():
             .group_by(Genres.name)
             .all()
         )
+
         genre_counts = {g: c for g, c in rows}
         total = sum(genre_counts.values()) or 1
 
@@ -170,7 +177,7 @@ def results():
         sorted_genres = sorted(
             genre_percentages.items(),
             key=lambda x: x[1],
-            reverse=True
+            reverse=True,
         )
 
     # --- Jouw stemmen binnen de actieve editie ---
@@ -190,13 +197,15 @@ def results():
             .all()
         )
 
+    # 3. Render de pagina met alle data
     return render_template(
-        "results.html",
+        "results.html",                     # of "poll_results.html" als je template zo heet
         genre_counts=genre_counts,
-        genre_percentages=sorted_genres,
+        genre_percentages=sorted_genres,   # lijst van (genre, %) tuples
         user_votes=user_votes,
         current_edition=poll.festival if poll else None,
     )
+
 @bp.route("/poll/loading")
 def poll_loading():
     return render_template("poll_loading.html")

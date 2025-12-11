@@ -807,23 +807,69 @@ def admin_confirm_delete_edition(edition_id):
         blocked=blocked,
     )
 
+from models import (
+    db,
+    Artists,
+    SuggestionFeedback,
+    Genres,
+    ArtistGenres,
+    FestivalEdition,
+    User,
+    Polloption,
+    Poll,
+    ArtistEdition,
+)
+
+
 @bp.post("/admin/editions/<int:edition_id>/delete/force")
 @require_admin
 def admin_force_delete_edition(edition_id):
+    """Editie verwijderen, maar alle gekoppelde data verhuizen naar ARCHIVE."""
     edition = FestivalEdition.query.get_or_404(edition_id)
 
-    # 1. Alle polls verwijderen
-    polls = Poll.query.filter_by(festival_id=edition.id).all()
-    for poll in polls:
-        Polloption.query.filter_by(poll_id=poll.id).delete()
-        db.session.delete(poll)
+    # ❗ Vul hier het ID in van jouw ARCHIVE-editie
+    ARCHIVE_ID = 1   # bv. 1 of 5, wat het bij jou is
 
-    # 2. Artiest-koppelingen verwijderen
-    ArtistEdition.query.filter_by(edition_id=edition.id).delete()
+    if edition.id == ARCHIVE_ID:
+        flash("De ARCHIVE-editie kan niet verwijderd worden.", "danger")
+        return redirect(url_for("admin.editions"))
 
-    # 3. Editie verwijderen
+    # 1. Verhuis alle polls van deze editie naar ARCHIVE
+    Poll.query.filter_by(festival_id=edition.id).update(
+        {"festival_id": ARCHIVE_ID}
+    )
+
+    # 2. Verhuis alle artiest-koppelingen naar ARCHIVE
+    ArtistEdition.query.filter_by(edition_id=edition.id).update(
+        {"edition_id": ARCHIVE_ID}
+    )
+
+    # 3. Verhuis alle suggestion feedback naar ARCHIVE,
+    #    maar vermijd dubbele (user, artist, festival)-combinaties
+    feedbacks = SuggestionFeedback.query.filter_by(festival_id=edition.id).all()
+
+    for fb in feedbacks:
+        # Bestaat er al feedback voor deze user + artist in ARCHIVE?
+        existing = SuggestionFeedback.query.filter_by(
+            user_id=fb.user_id,
+            artist_id=fb.artist_id,
+            festival_id=ARCHIVE_ID,
+        ).first()
+
+        if existing:
+            # Er is al zo'n record in ARCHIVE -> deze oude rij kunnen we veilig verwijderen
+            db.session.delete(fb)
+        else:
+            # Nog geen record in ARCHIVE -> we verhuizen deze
+            fb.festival_id = ARCHIVE_ID
+
+    # 4. Nu kan de editie zelf veilig weg
     db.session.delete(edition)
     db.session.commit()
 
-    flash("De editie en alle gekoppelde polls zijn definitief verwijderd.", "success")
-    return redirect(url_for('admin.editions'))
+    flash(
+        "De editie is verwijderd. Polls, stemmen, artiesten en feedback zijn bewaard in de ARCHIVE-editie.",
+        "success",
+    )
+    return redirect(url_for("admin.editions"))
+
