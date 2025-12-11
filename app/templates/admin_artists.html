@@ -9,29 +9,23 @@
         <div class="card-body">
             <h5 class="card-title mb-3">Nieuwe artiest toevoegen</h5>
 
-            <form method="post" 
-                action="{{ url_for('admin.admin_add_artist') }}" 
-                class="admin-artist-form"
+            <form method="post" action="{{ url_for('admin.admin_add_artist') }}" class="admin-artist-form"
                 enctype="multipart/form-data">
 
                 <!-- LINKERKOLOM: artiestnaam + afbeelding -->
                 <div class="admin-form-col">
 
                     <label class="form-label mb-1">Artiestnaam</label>
-                    <input type="text" class="form-control" 
-                        name="artist_name" 
-                        placeholder="Naam van de artiest" required>
+                    <input type="text" class="form-control" name="artist_name" placeholder="Naam van de artiest"
+                        required>
 
                     <label class="form-label mt-3 mb-1">Artiestafbeelding</label>
-                    <input type="file" class="form-control"
-                        name="artist_image"
-                        accept="image/*">
-                        
+                    <input type="file" class="form-control" name="artist_image" accept="image/*">
+
                     <div class="form-text">
                         Upload een foto (JPG/PNG). Vierkante foto's tonen het mooist.
                     </div>
                 </div>
-              
 
                 <!-- Genres (rechts) -->
                 <div class="admin-form-col admin-genre-select">
@@ -67,10 +61,9 @@
 
             </form>
 
-
-
             <hr class="mt-4 mb-3">
 
+            <!-- Nieuw genre toevoegen -->
             <h6 class="mb-2">Nieuw genre toevoegen</h6>
             <form method="post" action="{{ url_for('admin.admin_add_new_genre') }}" class="row g-2 align-items-center">
                 <div class="col-md-6">
@@ -93,10 +86,64 @@
             <p class="form-text mt-1">
                 Kies een verwant genre zodat nieuwe genres meteen in de afstandsberekening worden meegenomen.
             </p>
+
+            <hr class="mt-4 mb-2">
+
+            <!-- Artiesten importeren uit andere editie -->
+            <h6 class="mb-2">Artiesten importeren uit andere editie</h6>
+
+            <!-- Stap 1: kies editie -->
+            <form method="get" action="{{ url_for('admin.admin_artists') }}" class="row g-2 mb-3">
+                <div class="col-md-6">
+                    <select class="form-select" name="import_from" onchange="this.form.submit()">
+                        <option value="">Kies een editie…</option>
+                        {% for ed in editions %}
+                        <option value="{{ ed.id }}" {% if selected_edition_id==ed.id %}selected{% endif %}>
+                            {{ ed.Name }} ({{ ed.Start_date }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </form>
+
+            <!-- Stap 2: als er een editie gekozen is, toon selecteerbare artiesten -->
+            {% if import_artists %}
+            <form method="post" action="{{ url_for('admin.admin_import_artists') }}">
+                <input type="hidden" name="from_edition" value="{{ selected_edition_id }}">
+
+                <div class="table-responsive mt-2">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col">Selecteer</th>
+                                <th scope="col">ID</th>
+                                <th scope="col">Naam</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for a in import_artists %}
+                            <tr>
+                                <td>
+                                    <!-- name = artist_ids  (zonder []) -> getlist(...) in Python -->
+                                    <input type="checkbox" name="artist_ids" value="{{ a.id }}">
+                                </td>
+                                <td>{{ a.id }}</td>
+                                <td>{{ a.Artist_name }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <button type="submit" class="btn btn-outline-primary mt-2">
+                    Geselecteerde artiesten importeren naar actieve editie
+                </button>
+            </form>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Lijst van artiesten -->
+    <!-- Lijst van artiesten (actieve editie) -->
     <div class="card">
         <div class="card-body">
             <h5 class="card-title mb-3">Alle artiesten</h5>
@@ -117,17 +164,15 @@
                             <td>{{ a.id }}</td>
                             <td>{{ a.Artist_name }}</td>
                             <td class="text-end">
-
                                 <a href="{{ url_for('admin.admin_artist_detail', artist_id=a.id) }}"
                                     class="btn btn-sm btn-outline-secondary me-2">
                                     Details
                                 </a>
-                                <form method="post" action="{{ url_for('admin.admin_delete_artist', artist_id=a.id) }}"
-                                    class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        Verwijder
-                                    </button>
-                                </form>
+
+                                <a href="{{ url_for('admin.admin_confirm_delete_artist', artist_id=a.id) }}"
+                                    class="btn btn-sm btn-outline-danger">
+                                    Verwijder
+                                </a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -160,10 +205,8 @@
             list.style.display = "none";
         }
 
-        // Toon lijst bij focus
         searchInput.addEventListener("focus", showList);
 
-        // Filteren op wat je typt ("fu" => alle genres met "fu")
         searchInput.addEventListener("input", function () {
             const q = this.value.toLowerCase();
             items.forEach(item => {
@@ -173,7 +216,6 @@
             showList();
         });
 
-        // Klik op genre in dropdown => toevoegen als badge + hidden input
         list.addEventListener("click", function (e) {
             const item = e.target.closest(".vv-dropdown-item");
             if (!item) return;
@@ -181,15 +223,12 @@
             const id = item.dataset.id;
             const name = item.textContent.trim();
 
-            // Al geselecteerd? Dan niets doen
             if (hiddenInputsContainer.querySelector(`input[value="${id}"]`)) {
                 return;
             }
 
-            // Markeer item in dropdown als geselecteerd
             item.classList.add("selected");
 
-            // Maak badge
             const badge = document.createElement("button");
             badge.type = "button";
             badge.className = "vv-selected-genre";
@@ -197,14 +236,12 @@
             badge.innerHTML = `${name}<span>×</span>`;
             selectedContainer.appendChild(badge);
 
-            // Hidden input voor POST
             const hidden = document.createElement("input");
             hidden.type = "hidden";
             hidden.name = "genre_ids";
             hidden.value = id;
             hiddenInputsContainer.appendChild(hidden);
 
-            // Input leegmaken en lijst resetten
             searchInput.value = "";
             items.forEach(i => {
                 i.style.display = "block";
@@ -212,7 +249,6 @@
             showList();
         });
 
-        // Klik op badge => genre terug verwijderen
         selectedContainer.addEventListener("click", function (e) {
             const badge = e.target.closest(".vv-selected-genre");
             if (!badge) return;
@@ -220,16 +256,13 @@
             const id = badge.dataset.id;
             badge.remove();
 
-            // Hidden input verwijderen
             const hidden = hiddenInputsContainer.querySelector(`input[value="${id}"]`);
             if (hidden) hidden.remove();
 
-            // Dropdown-item terug "unselecten"
             const item = list.querySelector(`.vv-dropdown-item[data-id="${id}"]`);
             if (item) item.classList.remove("selected");
         });
 
-        // Klik buiten dropdown => lijst sluiten
         document.addEventListener("click", function (e) {
             if (!wrapper.contains(e.target)) {
                 hideList();
@@ -237,7 +270,4 @@
         });
     });
 </script>
-
-
-
 {% endblock %}

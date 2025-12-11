@@ -9,7 +9,8 @@
   --vv-text: #132B4F;
 }
 
-html, body {
+html,
+body {
   background: none;
   color: var(--vv-text);
   margin: 0;
@@ -39,84 +40,142 @@ html, body {
 
 .vv-flash-alert {
   pointer-events: auto;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
+
 .vv-main {
   display: flex;
   justify-content: center;
   width: 100%;
 }
+
 /* ================================================
    LOGIN PAGINA — Vicaris Village stijl
    ================================================ */
 
 /* Pagina layout */
 .vv-login-page-bg {
-    min-height: 90vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 60px 20px;
+  min-height: 90vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
 }
 
 /* Witte kaart */
 .vv-login-wrapper {
-    max-width: 500px;
-    width: 100%;
-    background: #fff;
-    padding: 40px 50px;
-    border-radius: 22px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.12);
-    text-align: center;
+  max-width: 500px;
+  width: 100%;
+  background: #fff;
+  padding: 40px 50px;
+  border-radius: 22px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+  text-align: center;
 }
 
 /* Titel */
 .vv-login-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--vv-blue);
-    margin-bottom: 1rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--vv-blue);
+  margin-bottom: 1rem;
 }
 
 /* Subtitel */
 .vv-login-subtitle {
-    font-size: 1rem;
-    color: #444;
-    margin-bottom: 2rem;
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 2rem;
 }
 
 /* Input veld */
 .vv-login-input {
-    width: 100%;
-    padding: 0.9rem 1rem;
-    font-size: 1rem;
-    border-radius: 12px;
-    border: 2px solid var(--vv-blue);
-    text-align: left;
-    transition: all 0.25s ease;
-    margin-bottom: 1.4rem;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  border-radius: 12px;
+  border: 2px solid var(--vv-blue);
+  text-align: left;
+  transition: all 0.25s ease;
+  margin-bottom: 1.4rem;
 }
 
 .vv-login-input:focus {
-    border-color: var(--vv-yellow);
-    box-shadow: 0 0 8px rgba(239,191,46,0.5);
-    outline: none;
+  border-color: var(--vv-yellow);
+  box-shadow: 0 0 8px rgba(239, 191, 46, 0.5);
+  outline: none;
 }
 
 /* Knop */
 .vv-login-btn {
-    background: var(--vv-blue);
-    color: white;
-    font-weight: 600;
-    padding: 0.8rem 2rem;
-    border-radius: 50px;
-    border: none;
-    transition: all 0.25s ease;
-    width: 100%;
+  background: var(--vv-blue);
+  color: white;
+  font-weight: 600;
+  padding: 0.8rem 2rem;
+  border-radius: 50px;
+  border: none;
+  transition: all 0.25s ease;
+  width: 100%;
 }
 
 .vv-login-btn:hover {
-    background: var(--vv-yellow);
-    color: var(--vv-blue);
-    transform: translateY(-2px);
+  background: var(--vv-yellow);
+  color: var(--vv-blue);
+  transform: translateY(-2px);
+}
+
+/* ===== MOBILE FIXES ===== */
+
+/* Zorg dat content altijd binnen het scherm past */
+.vv-main {
+  padding: 0 16px !important;
+}
+
+/* Cards mooi schalen op mobiel */
+.card {
+  width: 100%;
+}
+
+/* Tekst en knoppen breken beter */
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+button,
+a {
+  word-break: break-word;
+}
+
+/* Tabel responsief */
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Genre dropdown */
+.vv-dropdown-wrapper {
+  width: 100%;
+}
+
+.vv-selected-genre {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Buttons op mobiel niet te breed */
+.btn {
+  white-space: nowrap;
+}
+
+/* Fix cards op forms */
+.admin-artist-form {
+  flex-direction: column !important;
+}
+
+.admin-form-col,
+.admin-form-col-btn {
+  width: 100% !important;
 }

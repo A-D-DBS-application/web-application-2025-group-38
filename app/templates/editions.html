@@ -20,7 +20,7 @@
                 <div class="col-md-4">
                     <label for="name" class="form-label">Naam *</label>
                     <input type="text" id="name" name="name" class="form-control" required
-                           placeholder="Vicaris Village 2025">
+                        placeholder="Vicaris Village 2025">
                 </div>
 
                 <div class="col-md-3">
@@ -36,7 +36,7 @@
                 <div class="col-md-4">
                     <label for="location" class="form-label">Locatie</label>
                     <input type="text" id="location" name="location" class="form-control"
-                           placeholder="Vicaris Village / Zaal X">
+                        placeholder="Vicaris Village / Zaal X">
                 </div>
 
                 <div class="col-md-4 d-flex align-items-end">
@@ -75,50 +75,42 @@
             <tbody>
                 {% for e in editions %}
                 <tr>
-                    <td>
-                        {% if e.Start_date %}
-                            {{ e.Start_date.year }}
-                        {% else %}
-                            –
-                        {% endif %}
-                    </td>
+                    <td>{{ e.Start_date.year if e.Start_date else '-' }}</td>
                     <td>{{ e.Name }}</td>
-                    <td>{{ e.Location }}</td>
-                    <td>{{ e.Start_date or "–" }}</td>
-                    <td>{{ e.End_date or "–" }}</td>
+                    <td>{{ e.Location or '-' }}</td>
+                    <td>{{ e.Start_date or '-' }}</td>
+                    <td>{{ e.End_date or '-' }}</td>
                     <td>
                         {% if e.is_active %}
-                            <span class="badge bg-success">Actief</span>
+                        <span class="badge bg-success">Actief</span>
                         {% else %}
-                            <span class="badge bg-secondary">Inactief</span>
+                        <span class="badge bg-secondary">Inactief</span>
                         {% endif %}
                     </td>
                     <td>
-                        <div class="d-flex gap-2">
-                            <a class="btn btn-sm btn-outline-secondary"
-                               href="{{ url_for('admin.admin_results', edition_id=e.id) }}">
-                                Results
-                            </a>
-                            {% if not e.is_active %}
-                            <form method="post"
-                                  action="{{ url_for('admin.set_active_edition', edition_id=e.id) }}">
-                                <button type="submit" class="btn btn-sm btn-outline-primary">
-                                    Maak actief
-                                </button>
-                            </form>
-                            {% else %}
-                                <span class="text-muted me-2">Huidige editie</span>
-                            {% endif %}
+                        <!-- Results-knop -->
+                        <a href="{{ url_for('admin.admin_results', edition_id=e.id) }}"
+                            class="btn btn-sm btn-outline-secondary me-2">
+                            Results
+                        </a>
 
-                            <!-- Verwijder-knop -->
-                            <form method="post"
-                                  action="{{ url_for('admin.delete_edition', edition_id=e.id) }}"
-                                  onsubmit="return confirm('Ben je zeker dat je deze editie wilt verwijderen?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    Verwijder
-                                </button>
-                            </form>
-                        </div>
+                        <!-- Maak actief (blauwe knop) of tekst 'Huidige editie' -->
+                        {% if not e.is_active %}
+                        <form method="post" action="{{ url_for('admin.set_active_edition', edition_id=e.id) }}"
+                            class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-primary me-2">
+                                Maak actief
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted me-2">Huidige editie</span>
+                        {% endif %}
+
+                        <!-- Rode verwijder-knop die naar bevestigingspagina gaat -->
+                        <a href="{{ url_for('admin.admin_confirm_delete_edition', edition_id=e.id) }}"
+                            class="btn btn-sm btn-outline-danger">
+                            Verwijder
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}

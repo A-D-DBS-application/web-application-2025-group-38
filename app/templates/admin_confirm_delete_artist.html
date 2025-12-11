@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+
+    <h2 class="fw-bold mb-4">Artiest verwijderen</h2>
+
+    <div class="card p-4">
+
+        <h4 class="mb-3">Weet je zeker dat je '{{ artist.Artist_name }}' wilt verwijderen?</h4>
+
+        {% if blocked %}
+        <div class="alert alert-warning">
+            ⚠️ Deze artiest wordt nog gebruikt in polls of suggesties.<br>
+            Je kan hem NIET normaal verwijderen.<br><br>
+            Maar je kan hem wél <b>definitief verwijderen</b>.
+            Hierbij worden ALLE koppelingen in polls, suggesties en genres automatisch gewist.
+        </div>
+
+        <form method="post" action="{{ url_for('admin.admin_force_delete_artist', artist_id=artist.id) }}">
+            <button type="submit" class="btn btn-danger">
+                ❌ Forceer definitieve verwijdering
+            </button>
+            <a href="{{ url_for('admin.admin_artists') }}" class="btn btn-secondary">
+                Terug
+            </a>
+        </form>
+
+        {% else %}
+
+        <p class="text-muted">Deze actie kan niet ongedaan worden gemaakt.</p>
+
+        <form method="post" action="{{ url_for('admin.admin_delete_artist_confirmed', artist_id=artist.id) }}">
+            <button type="submit" class="btn btn-danger">Ja, verwijder deze artiest</button>
+            <a href="{{ url_for('admin.admin_artists') }}" class="btn btn-secondary">Nee, ga terug</a>
+        </form>
+        {% endif %}
+
+    </div>
+
+</div>
+{% endblock %}

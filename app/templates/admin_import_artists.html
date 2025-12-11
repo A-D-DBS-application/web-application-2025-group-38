@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+
+    <h2 class="fw-bold mb-4">Artiesten importeren</h2>
+
+    <form method="get" action="{{ url_for('admin.admin_show_import') }}">
+        <label class="form-label">Kies editie om artiesten uit te importeren:</label>
+        <select name="from_edition" class="form-select" onchange="this.form.submit()">
+            <option value="">Selecteer editie…</option>
+            {% for e in editions %}
+            <option value="{{ e.id }}" {% if selected_edition==e.id %}selected{% endif %}>
+                {{ e.Name }} ({{ e.Start_date }})
+            </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    {% if artists %}
+    <hr class="my-4">
+
+    <h5>Artiesten in deze editie (selecteer welke je wil importeren)</h5>
+
+    <form method="post" action="{{ url_for('admin.admin_import_artists') }}">
+        <input type="hidden" name="from_edition" value="{{ selected_edition }}">
+
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Selecteer</th>
+                    <th>ID</th>
+                    <th>Naam</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in artists %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="artist_ids" value="{{ a.id }}">
+                    </td>
+                    <td>{{ a.id }}</td>
+                    <td>{{ a.Artist_name }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-primary mt-3">
+            Geselecteerde artiesten importeren naar editie {{ active_edition.Name }}
+        </button>
+    </form>
+
+    {% elif selected_edition %}
+    <p class="mt-4 text-muted">Geen artiesten gevonden in deze editie.</p>
+    {% endif %}
+</div>
+{% endblock %}

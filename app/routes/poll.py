@@ -160,9 +160,18 @@ def results():
         )
         genre_counts = {g: c for g, c in rows}
         total = sum(genre_counts.values()) or 1
+
         genre_percentages = {
-            g: round(c * 100 / total, 1) for g, c in genre_counts.items()
+            g: round(c * 100 / total, 1)
+            for g, c in genre_counts.items()
         }
+
+        # 🔥 Sorteer percentages aflopend
+        sorted_genres = sorted(
+            genre_percentages.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )
 
     # --- Jouw stemmen binnen de actieve editie ---
     user_votes = []
@@ -184,7 +193,7 @@ def results():
     return render_template(
         "results.html",
         genre_counts=genre_counts,
-        genre_percentages=genre_percentages,
+        genre_percentages=sorted_genres,
         user_votes=user_votes,
         current_edition=poll.festival if poll else None,
     )

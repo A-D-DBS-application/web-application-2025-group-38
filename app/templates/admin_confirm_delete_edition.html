@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="fw-bold mb-4">Editie verwijderen</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">
+                {{ edition.Name }}
+                {% if edition.Start_date or edition.End_date %}
+                ({{ edition.Start_date }} – {{ edition.End_date }})
+                {% endif %}
+            </h5>
+
+            <p class="text-muted mb-3">
+                Locatie: {{ edition.Location or '–' }}
+            </p>
+
+            {% if blocked %}
+            <div class="alert alert-warning">
+                Je kunt deze editie niet veilig verwijderen omdat er nog
+                <strong>{{ poll_count }}</strong> poll(s) aan gekoppeld zijn.
+                <br>Je kunt wel kiezen voor een definitieve verwijdering hieronder.
+            </div>
+            {% else %}
+            <p class="mb-3">
+                Ben je zeker dat je deze editie wilt verwijderen?
+                <br><strong>Dit kan niet ongedaan gemaakt worden.</strong>
+            </p>
+            {% endif %}
+
+            <!-- FORCE DELETE KNOP -->
+            <form method="post" action="{{ url_for('admin.admin_force_delete_edition', edition_id=edition.id) }}"
+                class="d-inline">
+                <button type="submit" class="btn btn-danger">
+                    Verwijder definitief
+                </button>
+            </form>
+
+            <!-- TERUG KNOP -->
+            <a href="{{ url_for('admin.editions') }}" class="btn btn-outline-secondary ms-2">
+                Terug
+            </a>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
