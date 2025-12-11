@@ -32,6 +32,21 @@ def poll_detail():
     if not user:
         flash("Je moet ingelogd zijn om een stem uit te brengen.", "warning")
         return redirect(url_for("auth.register"))
+    
+        # Gebruikers zonder suggesties moeten eerst suggesties indienen
+    suggestion_count = (
+        db.session.query(func.count(SuggestionFeedback.id))
+        .filter(
+            SuggestionFeedback.user_id == user.id,
+            SuggestionFeedback.festival_id == poll.festival_id,
+        )
+        .scalar()
+    )
+
+    if suggestion_count == 0:
+        flash("Dien eerst één of meer suggesties in voordat je kunt stemmen.", "warning")
+        return redirect(url_for("suggestions.suggest"))
+
 
     # Controleer of de gebruiker al een stem heeft uitgebracht voor deze editie
     existing_vote_option = (
