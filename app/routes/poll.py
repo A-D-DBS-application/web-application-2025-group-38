@@ -76,14 +76,23 @@ def poll_detail():
             voted_option=existing_vote_option,
         )
         # Haal bestaande opties op voor de huidige editie/poll
-    options = Polloption.query.filter_by(poll_id=poll.id).all()
+    profile = get_user_genre_profile(user.id, festival_id=poll.festival_id)
+    poll_artists = generate_poll_for_user(
+        user.id,
+        poll.festival_id,
+        num_options=5,
+    )
+
+    options: list[Polloption] = []
+    created_options = False
 
     # Als er nog geen opties zijn, genereer ze eenmalig voor deze editie
-    if not options:
-        profile = get_user_genre_profile(user.id)
-        poll_artists = generate_poll_for_user(user.id, num_options=5)
+    for artist in poll_artists:
+        option = Polloption.query.filter_by(
+            poll_id=poll.id, artist_id=artist.id
+        ).first()
 
-        for artist in poll_artists:
+        if not option:
             option = Polloption(
                 text=artist.Artist_name,
                 artist_id=artist.id,
@@ -91,11 +100,12 @@ def poll_detail():
                 poll_id=poll.id,
             )
             db.session.add(option)
-        db.session.commit()
+            created_options = True
 
-        options = Polloption.query.filter_by(poll_id=poll.id).all()
-    else:
-        profile = get_user_genre_profile(user.id)
+        options.append(option)
+
+    if created_options:
+        db.session.commit()
 
     return render_template(
         "poll_detail.html",

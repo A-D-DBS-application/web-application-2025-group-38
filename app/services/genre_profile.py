@@ -11,22 +11,25 @@ from app.services.genre_proximity import genre_proximity_scores
 # -----------------------------
 # STEP 2: User Genre Profile
 # -----------------------------
-def get_user_genre_profile(user_id: int) -> Dict[str, int]:
+def get_user_genre_profile(user_id: int, *, festival_id: int | None = None) -> Dict[str, int]:
     """Return the genre distribution for a user's suggestions."""
-    rows = (
+    query = (
         db.session.query(Genres.name, func.count())
         .join(ArtistGenres, ArtistGenres.genre_id == Genres.id)
         .join(Artists, Artists.id == ArtistGenres.artist_id)
         .join(SuggestionFeedback, SuggestionFeedback.artist_id == Artists.id)
         .filter(SuggestionFeedback.user_id == user_id)
-        .group_by(Genres.name)
-        .all()
     )
+    
+    if festival_id:
+        query = query.filter(SuggestionFeedback.festival_id == festival_id)
+
+    rows = query.group_by(Genres.name).all()
 
     return {genre: count for genre, count in rows}
 
 
-def generate_poll_for_user(user_id: int, num_options: int = 5):
+def generate_poll_for_user(user_id: int, festival_id: int, num_options: int = 5):
     """Generate a personalized set of poll options for a user."""
     profile = get_user_genre_profile(user_id)
     proximity_scores = genre_proximity_scores(profile.keys())
@@ -70,7 +73,11 @@ def generate_poll_for_user(user_id: int, num_options: int = 5):
         # Did user suggest it?
         self_suggested = (
             SuggestionFeedback.query
-            .filter_by(user_id=user_id, artist_id=artist_id)
+            .filter_by(
+                user_id=user_id,
+                artist_id=artist_id,
+                festival_id=festival_id,
+            )
             .first()
             is not None
         )
