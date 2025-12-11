@@ -2,6 +2,11 @@
 <html lang="nl">
 
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Vicaris Village Poll{% endblock %}</title>
+
+  <!-- Eigen CSS -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/hero.css') }}">
@@ -10,92 +15,115 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/polls.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{% block title %}Vicaris Village Poll{% endblock %}</title>
-
-  <!-- Google Fonts (Vicaris-look) -->
+  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Satisfy&display=swap"
-    rel="stylesheet">
+        rel="stylesheet">
 
-  <!-- Bootstrap (basis layout) -->
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
 
-  <!-- NAVBAR / HEADER -->
-  <header class="vv-header d-flex justify-content-between align-items-center px-4 py-2">
+  <!-- NAVBAR -->
+  <header>
+    <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm px-3 vv-header" data-bs-theme="light">
+      <div class="container-fluid">
 
-    <!-- Logo links (klikbaar) -->
-    <a href="{{ url_for('core.home') }}" class="d-flex align-items-center gap-2 text-decoration-none vv-brand">
-      <img src="{{ url_for('static', filename='vicaris_logo.png') }}" alt="Vicaris logo" class="vv-logo">
-    </a>
+        <!-- Logo -->
+        <a href="{{ url_for('core.home') }}"
+           class="navbar-brand d-flex align-items-center gap-2 vv-brand text-decoration-none">
+          <img src="{{ url_for('static', filename='vicaris_logo.png') }}"
+               alt="Vicaris logo"
+               class="vv-logo">
+        </a>
 
-    <!-- Navigatie rechts -->
-    <nav class="vv-nav">
-      {% if suggestions_visibility %}
-      <a href="{{ url_for('suggestions.suggest') }}">Suggestion</a>
-      {% else %}
-      <span class="text-muted">Suggestion (verborgen)</span>
-      {% endif %}
+        <!-- Hamburger -->
+        <button class="navbar-toggler border-0 shadow-sm" type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#vvNavbar"
+                aria-controls="vvNavbar"
+                aria-expanded="false"
+                aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-      {% if poll_visibility %}
-      <a href="{{ url_for('poll.poll_loading') }}">Polls</a>
+        <!-- Uitklapbaar menu -->
+        <div class="collapse navbar-collapse justify-content-end" id="vvNavbar">
+          <ul class="navbar-nav ms-auto mb-2 mb-md-0 align-items-md-center gap-md-2">
 
-      {% else %}
-      <span class="text-muted">Polls (verborgen)</span>
-      {% endif %}
+            <!-- Suggestion -->
+            <li class="nav-item">
+              {% if suggestions_visibility %}
+                <a class="nav-link" href="{{ url_for('suggestions.suggest') }}">Suggestion</a>
+              {% else %}
+                <span class="nav-link disabled text-muted">Suggestion</span>
+              {% endif %}
+            </li>
 
-      {% if results_visibility %}
-      <a href="{{ url_for('poll.results') }}">Results</a>
-      {% else %}
-      <span class="text-muted">Results (verborgen)</span>
-      {% endif %}
-      {% if current_user and current_user.is_admin %}
-    <div class="vv-nav-dropdown">
-      <button class="vv-nav-admin-label" type="button">
-        Admin ▾
-      </button>
-      <div class="vv-nav-dropdown-menu">
-        <a href="{{ url_for('admin.admin_results') }}">Admin results</a>
-        <a href="{{ url_for('admin.admin_artists') }}">Artists</a>
-        <a href="{{ url_for('admin.admin_users') }}">Users</a>
-        <!-- ➕ Nieuw menu-item voor edities -->
-        <a href="{{ url_for('admin.editions') }}">Editions</a>
+            <!-- Polls -->
+            <li class="nav-item">
+              {% if poll_visibility %}
+                <a class="nav-link" href="{{ url_for('poll.poll_loading') }}">Polls</a>
+              {% else %}
+                <span class="nav-link disabled text-muted">Polls</span>
+              {% endif %}
+            </li>
+
+            <!-- Results -->
+            <li class="nav-item">
+              {% if results_visibility %}
+                <a class="nav-link" href="{{ url_for('poll.results') }}">Results</a>
+              {% else %}
+                <span class="nav-link disabled text-muted">Results</span>
+              {% endif %}
+            </li>
+
+            <!-- Admin (alleen voor admins) -->
+            {% if current_user and current_user.is_admin %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+                 data-bs-toggle="dropdown" aria-expanded="false">
+                Admin
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                <li><a class="dropdown-item" href="{{ url_for('admin.admin_results') }}">Admin results</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.admin_artists') }}">Artists</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.admin_users') }}">Users</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.editions') }}">Editions</a></li>
+              </ul>
+            </li>
+            {% endif %}
+
+            <!-- Login / logout -->
+            <li class="nav-item">
+              {% if session.get('user_id') %}
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">Log out</a>
+              {% else %}
+                <a class="nav-link" href="{{ url_for('auth.register') }}">Log in</a>
+              {% endif %}
+            </li>
+
+          </ul>
+        </div>
+
       </div>
-    </div>
-    {% endif %}
-
-
-
-
-
-      {% if session.get('user_id') %}
-      <a href="{{ url_for('auth.logout') }}">Log out</a>
-      {% else %}
-      <a href="{{ url_for('auth.register') }}">Log in</a>
-      {% endif %}
     </nav>
-
-
-
-
   </header>
 
   <!-- FLASH-MELDINGEN ALS OVERLAY -->
   <div class="vv-flash-container">
     {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for cat, msg in messages %}
-    <div class="alert alert-{{ cat }} alert-dismissible fade show vv-flash-alert" role="alert">
-      {{ msg }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-    {% endfor %}
-    {% endif %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="alert alert-{{ cat }} alert-dismissible fade show vv-flash-alert" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
     {% endwith %}
   </div>
-
 
   <!-- PAGINA-INHOUD -->
   <main class="vv-main">
@@ -107,7 +135,7 @@
     © 2025 Maspoe Events · Vicaris Village
   </footer>
 
-  <!-- Bootstrap JS -->
+  <!-- Bootstrap JS (moet NA de HTML komen) -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

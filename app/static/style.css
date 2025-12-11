@@ -786,3 +786,21 @@ form button:hover {
   flex: 0 0 150px;
   align-self: flex-end;
 }
+
+/* Zorg dat de header het uitklapmenu niet afknijpt */
+.vv-header {
+  overflow: visible;
+  z-index: 1020;
+}
+
+/* Reset voor Bootstrap hamburger-knop */
+.navbar-toggler {
+  background: transparent;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Als het icoon niet zichtbaar is */
+.navbar-toggler-icon {
+  background-image: var(--bs-navbar-toggler-icon-bg);
+}
