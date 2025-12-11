@@ -45,6 +45,11 @@ const interval = setInterval(() => {
 async function loadPoll() {
   try {
     const response = await fetch(pollUrl, { method: "GET" });
+     if (response.redirected) {
+      // Volg de redirect zodat formulieren op de juiste URL posten
+      window.location.href = response.url;
+      return;
+    }
     const html = await response.text();
 
     // Zodra de poll klaar is: balk naar 100% en dan pagina vervangen

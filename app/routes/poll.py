@@ -18,7 +18,8 @@ from app.utils.session import get_session_user
 
 
 bp = Blueprint("poll", __name__)
-
+# Minimum number of suggestions required before a user can vote in the poll
+MIN_SUGGESTIONS_REQUIRED = 5
 
 @bp.get("/poll_detail")
 def poll_detail():
@@ -43,8 +44,13 @@ def poll_detail():
         .scalar()
     )
 
-    if suggestion_count == 0:
-        flash("Dien eerst één of meer suggesties in voordat je kunt stemmen.", "warning")
+    if suggestion_count < MIN_SUGGESTIONS_REQUIRED:
+        remaining = MIN_SUGGESTIONS_REQUIRED - suggestion_count
+        flash(
+            "Dien eerst je vijf artiestensuggesties in voordat je kunt stemmen. "
+            f"Je moet nog {remaining} suggestie(s) doen.",
+            "warning",
+        )
         return redirect(url_for("suggestions.suggest"))
 
 
