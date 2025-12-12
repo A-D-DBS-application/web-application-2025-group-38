@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, session, url_for
 
 from models import db, User
-
+from models import User
 from app.utils.session import get_session_user, login_user, logout_user
 
 ADMIN_EMAILS = {"louis@ugent.be", "judith@ugent.be"}

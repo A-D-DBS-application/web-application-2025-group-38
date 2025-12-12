@@ -12,6 +12,8 @@ def get_session_user():
 
 def login_user(user: User):
     session["user_id"] = user.id
+    session.permanent = False   # 👈 HIER
+
 
 
 def logout_user():
