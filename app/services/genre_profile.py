@@ -45,6 +45,7 @@ def generate_poll_for_user(user_id: int, festival_id: int, num_options: int = 5)
         )
         .join(ArtistGenres, ArtistGenres.artist_id == Artists.id)
         .join(Genres, Genres.id == ArtistGenres.genre_id)
+        .filter(Artists.edition_id == festival_id)
         .all()
     )
 

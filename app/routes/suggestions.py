@@ -136,7 +136,13 @@ def suggest():
 
     # -------------------  GET: pagina tonen  -------------------
     # Alle artiesten voor de dropdown
-    artists = Artists.query.order_by(Artists.Artist_name).all()
+    artists = (
+        Artists.query
+        .filter_by(edition_id=edition.id)
+        .order_by(Artists.Artist_name)
+        .all()
+    )
+
 
     # Jouw eigen suggesties in deze editie, met artiestnamen
     user_suggestions = (

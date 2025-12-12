@@ -18,9 +18,7 @@ from models import (
     FestivalEdition,
     User,
     Polloption,
-    Poll,
-    ArtistEdition,
-)
+    Poll,)
 from app.services.poll import (
     get_active_festival,
     get_or_create_poll_for_edition,
@@ -322,11 +320,15 @@ def admin_add_artist():
     if not genre_ids:
         flash("Duid minstens één genre aan.", "warning")
         active = FestivalEdition.query.filter_by(is_active=True).first()
+        edition = FestivalEdition.query.filter_by(is_active=True).first()
+        if not edition:
+            flash("Geen actieve editie ingesteld.", "warning")
+            return redirect(url_for("admin.admin_artists"))
 
         artists = (
-            db.session.query(Artists)
-            .join(ArtistEdition, ArtistEdition.artist_id == Artists.id)
-            .filter(ArtistEdition.edition_id == active.id)
+         db.session.query(Artists) \
+            .filter(Artists.edition_id == active.id)
+
         )
 
         genres = Genres.query.order_by(Genres.name).all()
@@ -374,18 +376,18 @@ def admin_add_artist():
     # ----------------------------------------
     # ARTIEST OPSLAAN
     # ----------------------------------------
+    active = FestivalEdition.query.filter_by(is_active=True).first()
+    if not active:
+        flash("Geen actieve editie ingesteld.", "danger")
+        return redirect(url_for("admin.admin_artists"))
+
     artist = Artists(
         Artist_name=name,
-        image_url=image_path
+        image_url=image_path,
+        edition_id=active.id
     )
     db.session.add(artist)
     db.session.flush()
-    active = FestivalEdition.query.filter_by(is_active=True).first()
-
-    db.session.add(ArtistEdition(
-        artist_id=artist.id,
-        edition_id=active.id
-    ))
 
     # Genres koppelen
     for gid in genre_ids:
@@ -612,7 +614,6 @@ def admin_confirm_delete_artist(artist_id):
 @bp.post("/admin/artists/<int:artist_id>/delete/confirm")
 @require_admin
 def admin_delete_artist_confirmed(artist_id):
-    ArtistEdition.query.filter_by(artist_id=artist.id).delete()
 
     artist = Artists.query.get_or_404(artist_id)
 
@@ -621,7 +622,10 @@ def admin_delete_artist_confirmed(artist_id):
 
     # Artiest gebruikt → blokkeren
     if in_poll or in_suggestions:
-        flash("Je kan deze artiest niet verwijderen: hij wordt nog gebruikt in polls of suggesties.", "warning")
+        flash(
+            "Je kan deze artiest niet verwijderen: hij wordt nog gebruikt in polls of suggesties.",
+            "warning"
+        )
         return redirect(url_for("admin.admin_confirm_delete_artist", artist_id=artist.id))
 
     db.session.delete(artist)
@@ -633,7 +637,6 @@ def admin_delete_artist_confirmed(artist_id):
 @bp.post("/admin/artists/<int:artist_id>/delete/force")
 @require_admin
 def admin_force_delete_artist(artist_id):
-    ArtistEdition.query.filter_by(artist_id=artist.id).delete()
 
     artist = Artists.query.get_or_404(artist_id)
 
@@ -646,7 +649,7 @@ def admin_force_delete_artist(artist_id):
     # 3. Verwijder genres-koppelingen
     ArtistGenres.query.filter_by(artist_id=artist.id).delete()
 
-    # 4. Pas NA het verwijderen van alle referenties → artiest verwijderen
+    # 4. Verwijder artiest zelf
     db.session.delete(artist)
     db.session.commit()
 
@@ -661,6 +664,7 @@ def admin_force_delete_artist(artist_id):
 def admin_new_edition():
     editions = FestivalEdition.query.order_by(FestivalEdition.Start_date.desc()).all()
     return render_template("admin_new_edition.html", editions=editions)
+from models import Poll, Polloption, Artists, ArtistGenres
 
 @bp.post("/admin/editions/create")
 @require_admin
@@ -681,19 +685,33 @@ def admin_create_edition():
     db.session.add(edition)
     db.session.commit()
 
-    # Als import gekozen is → kopieer artiesten
+    # Importeren = artiesten kopiëren
     if import_from:
-        old_links = ArtistEdition.query.filter_by(edition_id=int(import_from)).all()
-        for link in old_links:
-            db.session.add(ArtistEdition(
-                edition_id=edition.id,
-                artist_id=link.artist_id
-            ))
-        db.session.commit()
+        old_poll = Poll.query.filter_by(festival_id=int(import_from)).first()
+
+        if old_poll:
+            old_options = Polloption.query.filter_by(poll_id=old_poll.id).all()
+
+            for opt in old_options:
+                old_artist = opt.artist
+
+                new_artist = Artists(
+                    Artist_name=old_artist.Artist_name,
+                    image_url=old_artist.image_url
+                )
+                db.session.add(new_artist)
+                db.session.flush()
+
+                for genre in old_artist.genres:
+                    db.session.add(ArtistGenres(
+                        artist_id=new_artist.id,
+                        genre_id=genre.id
+                    ))
+
+            db.session.commit()
 
     flash("Nieuwe editie succesvol aangemaakt!", "success")
     return redirect(url_for("admin.editions"))
-
 
 @bp.get("/admin/artists")
 @require_admin
@@ -704,22 +722,23 @@ def admin_artists():
     # Artiesten van actieve editie
     artists = (
         db.session.query(Artists)
-        .join(ArtistEdition, ArtistEdition.artist_id == Artists.id)
-        .filter(ArtistEdition.edition_id == active.id)
+        .filter(Artists.edition_id == active.id)
         .order_by(Artists.Artist_name)
         .all()
     )
 
     # Voor dropdown
     editions = FestivalEdition.query.order_by(FestivalEdition.Start_date.desc()).all()
+    edition = FestivalEdition.query.filter_by(is_active=True).first()
+    artists = Artists.query.filter_by(edition_id=edition.id).order_by(Artists.Artist_name).all()
+
 
     # Indien gebruiker een editie gekozen heeft → laad artiesten daarvan
     import_artists = None
     if import_from:
         import_artists = (
             db.session.query(Artists)
-            .join(ArtistEdition, ArtistEdition.artist_id == Artists.id)
-            .filter(ArtistEdition.edition_id == import_from)
+            .filter(Artists.edition_id == active.id)
             .order_by(Artists.Artist_name)
             .all()
         )
@@ -746,8 +765,7 @@ def admin_show_import():
     if from_id:
         import_artists = (
             db.session.query(Artists)
-            .join(ArtistEdition, ArtistEdition.artist_id == Artists.id)
-            .filter(ArtistEdition.edition_id == from_id)
+            .filter(Artists.edition_id == active.id)
             .order_by(Artists.Artist_name)
             .all()
         )
@@ -763,27 +781,28 @@ def admin_show_import():
 @bp.post("/admin/artists/import")
 @require_admin
 def admin_import_artists():
-    artist_ids = request.form.getlist("artist_ids")
+    artist_ids = request.form.getlist("artist_ids", type=int)
     from_edition = request.form.get("from_edition", type=int)
 
     active = FestivalEdition.query.filter_by(is_active=True).first()
 
-    if not artist_ids:
-        flash("Geen artiesten geselecteerd.", "warning")
+    if not artist_ids or not from_edition or not active:
+        flash("Ongeldige import.", "warning")
         return redirect(url_for("admin.admin_show_import", from_edition=from_edition))
 
-    # Importeer: link artiesten aan actieve editie
-    for aid in artist_ids:
-        exists = ArtistEdition.query.filter_by(
-            artist_id=int(aid),
-            edition_id=active.id
-        ).first()
+    for old_artist in Artists.query.filter(Artists.id.in_(artist_ids)).all():
 
-        if not exists:
-            db.session.add(ArtistEdition(
-                artist_id=int(aid),
-                edition_id=active.id
-            ))
+        # artiest KOPIËREN
+        new_artist = Artists(
+            Artist_name=old_artist.Artist_name,
+            image_url=old_artist.image_url
+        )
+        db.session.add(new_artist)
+        db.session.flush()
+
+        # genres kopiëren
+        for genre in old_artist.genres:
+            new_artist.genres.append(genre)
 
     db.session.commit()
 
@@ -817,7 +836,6 @@ from models import (
     User,
     Polloption,
     Poll,
-    ArtistEdition,
 )
 
 
@@ -840,9 +858,8 @@ def admin_force_delete_edition(edition_id):
     )
 
     # 2. Verhuis alle artiest-koppelingen naar ARCHIVE
-    ArtistEdition.query.filter_by(edition_id=edition.id).update(
-        {"edition_id": ARCHIVE_ID}
-    )
+    Artists.query.filter_by(edition_id=edition.id).delete()
+
 
     # 3. Verhuis alle suggestion feedback naar ARCHIVE,
     #    maar vermijd dubbele (user, artist, festival)-combinaties

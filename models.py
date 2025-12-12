@@ -58,14 +58,19 @@ class Artists(db.Model):
     Artist_name = db.Column(db.String, nullable=False)
     image_url = db.Column(db.String(255), nullable=True)
 
+    edition_id = db.Column(
+        db.Integer,
+        db.ForeignKey("FestivalEdition.id", ondelete="CASCADE"),
+        nullable=False,
+    )
 
-    # Many-to-Many
+    edition = db.relationship("FestivalEdition", backref="artists")
+
     genres = db.relationship(
         "Genres",
         secondary="ArtistGenres",
         back_populates="artists"
     )
-
 
 
 class FestivalEdition(db.Model):
@@ -146,18 +151,3 @@ class SuggestionFeedback(db.Model):
     # handige relatie om later eventueel edition info op te vragen
     festival = db.relationship("FestivalEdition")
 
-class ArtistEdition(db.Model):
-    __tablename__ = "ArtistEdition"
-
-    id = db.Column(db.Integer, primary_key=True)
-    edition_id = db.Column(db.Integer, db.ForeignKey("FestivalEdition.id"), nullable=False)
-    artist_id = db.Column(db.Integer, db.ForeignKey("Artists.id"), nullable=False)
-
-    # relaties
-    edition = db.relationship("FestivalEdition", backref="artist_links", lazy=True)
-    artist = db.relationship("Artists", backref="edition_links", lazy=True)
-
-    # indien nodig: unieke combinatie (één artiest mag maar 1x per editie voorkomen)
-    __table_args__ = (
-        db.UniqueConstraint("edition_id", "artist_id", name="uniq_artist_per_edition"),
-    )
