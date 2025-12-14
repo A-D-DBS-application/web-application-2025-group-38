@@ -73,5 +73,21 @@
     <p class="text-muted">Nog geen genres beschikbaar voor deze editie.</p>
     {% endif %}
 
+    <!-- STEMMEN ZONDER SUGGESTIE -->
+    <h3 class="fw-bold mt-4 mb-3">Waar mensen op stemden zonder te suggereren</h3>
+
+    {% if voted_without_suggesting %}
+    <ul class="list-group mb-4">
+        {% for row in voted_without_suggesting %}
+        <li class="list-group-item d-flex justify-content-between">
+            <span>{{ row.artist }}</span>
+            <span class="fw-bold">{{ row.count }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">Nog geen stemmen op artiesten buiten eigen suggesties.</p>
+    {% endif %}
+
 </div>
 {% endblock %}

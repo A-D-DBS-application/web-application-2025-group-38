@@ -2,7 +2,7 @@ from datetime import date
 from functools import wraps
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
-from sqlalchemy import func
+from sqlalchemy import func, exists
 from PIL import Image
 import os
 from flask import current_app
@@ -18,7 +18,9 @@ from models import (
     FestivalEdition,
     User,
     Polloption,
-    Poll,)
+    Poll,
+    VotesFor,
+)
 from app.services.poll import (
     get_active_festival,
     get_or_create_poll_for_edition,
@@ -205,10 +207,34 @@ def admin_results():
         {"genre": genre, "count": count} for genre, count in global_genres_rows
     ]
 
+    voted_without_suggesting_rows = (
+        db.session.query(Artists.Artist_name, func.count())
+        .join(Polloption, Polloption.artist_id == Artists.id)
+        .join(Poll, Polloption.poll_id == Poll.id)
+        .join(VotesFor, VotesFor.polloption_id == Polloption.id)
+        .filter(Poll.festival_id == edition.id)
+        .filter(
+            ~exists().where(
+                SuggestionFeedback.artist_id == Polloption.artist_id,
+                SuggestionFeedback.user_id == VotesFor.user_id,
+                SuggestionFeedback.festival_id == edition.id,
+            )
+        )
+        .group_by(Artists.Artist_name)
+        .order_by(func.count().desc())
+        .all()
+    )
+
+    voted_without_suggesting = [
+        {"artist": artist, "count": count}
+        for artist, count in voted_without_suggesting_rows
+    ]
+
     return render_template(
         "admin_results.html",
         global_suggestions=global_suggestions,
         global_genres=global_genres,
+        voted_without_suggesting=voted_without_suggesting,
         poll=poll,
         edition=edition,
     )
