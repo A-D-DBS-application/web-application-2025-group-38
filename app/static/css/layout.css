@@ -86,6 +86,16 @@
   color: #fff;
 }
 
+/* Active/focus state for admin dropdown items */
+.dropdown-menu .dropdown-item:focus,
+.dropdown-menu .dropdown-item:active,
+.dropdown-menu .dropdown-item.active {
+  background: var(--vv-yellow) !important;
+  color: var(--vv-blue) !important;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--vv-yellow) inset;
+}
+
 .vv-nav-dropdown:hover .vv-nav-dropdown-menu,
 .vv-nav-dropdown:focus-within .vv-nav-dropdown-menu {
   display: block;
