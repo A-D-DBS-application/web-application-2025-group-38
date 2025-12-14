@@ -207,6 +207,23 @@ def admin_results():
         {"genre": genre, "count": count} for genre, count in global_genres_rows
     ]
 
+    voted_genres_rows = (
+        db.session.query(Genres.name, func.count())
+        .join(ArtistGenres, ArtistGenres.genre_id == Genres.id)
+        .join(Artists, Artists.id == ArtistGenres.artist_id)
+        .join(Polloption, Polloption.artist_id == Artists.id)
+        .join(Poll, Poll.id == Polloption.poll_id)
+        .join(VotesFor, VotesFor.polloption_id == Polloption.id)
+        .filter(Poll.festival_id == edition.id)
+        .group_by(Genres.name)
+        .order_by(func.count().desc())
+        .all()
+    )
+
+    voted_genres = [
+        {"genre": genre, "count": count} for genre, count in voted_genres_rows
+    ]
+
     voted_without_suggesting_rows = (
         db.session.query(Artists.Artist_name, func.count())
         .join(Polloption, Polloption.artist_id == Artists.id)
@@ -234,6 +251,7 @@ def admin_results():
         "admin_results.html",
         global_suggestions=global_suggestions,
         global_genres=global_genres,
+        voted_genres=voted_genres,
         voted_without_suggesting=voted_without_suggesting,
         poll=poll,
         edition=edition,

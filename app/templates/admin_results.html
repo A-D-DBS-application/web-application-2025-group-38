@@ -73,8 +73,24 @@
     <p class="text-muted">Nog geen genres beschikbaar voor deze editie.</p>
     {% endif %}
 
+        <!-- GESTEMDE GENRES 🎵 -->
+    <h3 class="fw-bold mt-4 mb-3">Meest gestemde genres (deze editie)</h3>
+
+    {% if voted_genres %}
+    <ul class="list-group">
+        {% for row in voted_genres %}
+        <li class="list-group-item d-flex justify-content-between">
+            <span>{{ row.genre }}</span>
+            <span class="fw-bold">{{ row.count }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-muted">Nog geen gestemde genres beschikbaar voor deze editie.</p>
+    {% endif %}
+
     <!-- STEMMEN ZONDER SUGGESTIE -->
-    <h3 class="fw-bold mt-4 mb-3">Waar mensen op stemden zonder te suggereren</h3>
+    <h3 class="fw-bold mt-4 mb-3">Waar mensen op stemden zonder te suggereren (deze editie)</h3>
 
     {% if voted_without_suggesting %}
     <ul class="list-group mb-4">
