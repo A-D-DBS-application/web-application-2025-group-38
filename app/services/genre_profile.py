@@ -30,13 +30,19 @@ def get_user_genre_profile(user_id: int, *, festival_id: int | None = None) -> D
 
 
 def generate_poll_for_user(user_id: int, festival_id: int, num_options: int = 5):
-    """Generate a personalized set of poll options for a user."""
-    profile = get_user_genre_profile(user_id)
+    profile = get_user_genre_profile(user_id, festival_id=festival_id)
     proximity_scores = genre_proximity_scores(profile.keys())
     genre_id_lookup = {
         name: gid for gid, name in Genres.query.with_entities(Genres.id, Genres.name).all()
     }
 
+    suggested_ids = {
+            row.artist_id
+            for row in SuggestionFeedback.query.filter_by(
+                user_id=user_id, festival_id=festival_id
+            ).all()
+        }
+    
     rows = (
         db.session.query(
             Artists.id,
@@ -71,21 +77,10 @@ def generate_poll_for_user(user_id: int, festival_id: int, num_options: int = 5)
             default=0.0,
         )
 
-        # Did user suggest it?
-        self_suggested = (
-            SuggestionFeedback.query
-            .filter_by(
-                user_id=user_id,
-                artist_id=artist_id,
-                festival_id=festival_id,
-            )
-            .first()
-            is not None
-        )
+        # Score purely on genre presence and proximity to avoid overfitting to suggestions
+        score = 2 * genre_score + 5 * proximity
 
-        score = 3 * int(self_suggested) + 2 * genre_score + 5 * proximity
-
-        scored.append((score, artist_id, data["artist"]))
+        scored.append((score, artist_id, data["artist"], artist_id in suggested_ids))
 
     scored.sort(reverse=True)
 
@@ -96,5 +91,35 @@ def generate_poll_for_user(user_id: int, festival_id: int, num_options: int = 5)
     explore_count = num_options - top_n
     explore = random.sample(remaining, min(explore_count, len(remaining))) if remaining else []
 
-    final_ids = [aid for _, aid, _ in top + explore]
+    # Limit the number of suggested artists to two while preserving ranking order.
+    # If the cap prevents reaching the desired count, backfill with remaining
+    # candidates (even suggested ones) to guarantee the poll size.
+    final_ids = []
+    selected = set()
+    suggested_used = 0
+
+    ordered_candidates = top + explore + [row for row in remaining if row not in explore]
+
+    for _, artist_id, _, is_suggested in ordered_candidates:
+        if artist_id in selected:
+            continue
+        if is_suggested and suggested_used >= 2:
+            continue
+
+        final_ids.append(artist_id)
+        selected.add(artist_id)
+        suggested_used += int(is_suggested)
+
+        if len(final_ids) >= num_options:
+            break
+
+    if len(final_ids) < num_options:
+        for _, artist_id, _, _ in ordered_candidates:
+            if artist_id in selected:
+                continue
+            final_ids.append(artist_id)
+            selected.add(artist_id)
+            if len(final_ids) >= num_options:
+                break
+
     return Artists.query.filter(Artists.id.in_(final_ids)).all()
