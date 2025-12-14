@@ -197,6 +197,25 @@ def results():
         )
 
         genre_counts = {g: c for g, c in rows}
+               # Tel de genres van de stem van de gebruiker ook mee
+        vote_rows = (
+            db.session.query(Genres.name, func.count())
+            .join(ArtistGenres, ArtistGenres.genre_id == Genres.id)
+            .join(Artists, Artists.id == ArtistGenres.artist_id)
+            .join(Polloption, Polloption.artist_id == Artists.id)
+            .join(VotesFor, VotesFor.polloption_id == Polloption.id)
+            .join(Poll, Polloption.poll_id == Poll.id)
+            .filter(
+                VotesFor.user_id == user.id,
+                Poll.festival_id == poll.festival_id,
+            )
+            .group_by(Genres.name)
+            .all()
+        )
+
+        for genre, count in vote_rows:
+            genre_counts[genre] = genre_counts.get(genre, 0) + count
+
         total = sum(genre_counts.values()) or 1
 
         genre_percentages = {
