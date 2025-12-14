@@ -1,0 +1,4 @@
+id,created_at,Start_date,End_date,Name,Location,is_active
+1,2025-12-12 21:35:53.77238+00,2025-06-01,2025-06-02,Vicaris Village 2025,Vicaris Village,false
+2,2025-12-12 22:01:15.134382+00,2026-06-01,2026-06-10,Vicaris Village 2026,Dendermonde,true
+4,2025-12-14 09:05:24.946664+00,2022-05-29,2022-05-30,Vicaris Village 2022,Dendermonde,false

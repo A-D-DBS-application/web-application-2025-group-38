@@ -1,0 +1,17 @@
+id,name,related_genre_id
+1,Electronic,
+2,House,1
+3,Pop,
+4,Rap,
+5,Hip Hop,
+6,90s,
+7,Disco,3
+8,Rock,
+9,Techno,2
+10,Indie,3
+11,Alternative,10
+12,R&B,5
+13,Reggaeton,12
+14,Bluesrock,8
+15,Metal,8
+16,Belpop,
