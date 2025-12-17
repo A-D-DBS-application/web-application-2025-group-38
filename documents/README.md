@@ -64,14 +64,14 @@ source .venv/bin/activate        # macOS / Linux
 .venv\Scripts\activate           # Windows
 ```
 
-2. **Install dependencies**
+### 2. **Install dependencies**
  ```bash
  pip install --upgrade pip
  pip install -r requirements.txt
   ```
 
 
-Configure environment variables
+### 3. Configure environment variables
 Create a .env file in the project root and set the following variables:
 ```env
 FLASK_ENV=development
@@ -82,13 +82,13 @@ DATABASE_URL=postgresql://user:password@host:port/database
 ```
 
 
-Apply database migrations
+### 4. Apply database migrations
 ```bash
 flask db upgrade
 ```
 
 
-Run the application
+### 5. Run the application
 ```bash
 python -m flask run
 ```
