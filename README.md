@@ -1,20 +1,4 @@
-# Team_38_Maspoe
-hello world
-
-
-from flask import Flask
-
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return "Hello, World!"
-
-if __name__ == '__main__':
-    app.run(debug=True) 
-
-python -m flask --app app run --debug
-
+documents/README.md
 
 
 
