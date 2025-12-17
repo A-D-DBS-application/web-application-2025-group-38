@@ -26,7 +26,8 @@ class Genres(db.Model):
     artists = db.relationship(
         "Artists",
         secondary="ArtistGenres",
-        back_populates="genres"
+        back_populates="genres",
+        passive_deletes=True
     )
     related_genre = db.relationship(
         "Genres",
@@ -74,7 +75,8 @@ class Artists(db.Model):
     genres = db.relationship(
         "Genres",
         secondary="ArtistGenres",
-        back_populates="artists"
+        back_populates="artists",
+        passive_deletes=True
     )
 
 
