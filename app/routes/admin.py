@@ -687,8 +687,12 @@ def admin_force_delete_artist(artist_id):
     # 1. Verwijder suggesties
     SuggestionFeedback.query.filter_by(artist_id=artist.id).delete()
 
-    # 2. Verwijder poll opties
-    Polloption.query.filter_by(artist_id=artist.id).delete()
+    # 2. Verwijder pollopties én stemmen daarop
+    poll_options = Polloption.query.filter_by(artist_id=artist.id).all()
+
+    for option in poll_options:
+        VotesFor.query.filter_by(polloption_id=option.id).delete()
+
 
     # 3. Verwijder genres-koppelingen
     ArtistGenres.query.filter_by(artist_id=artist.id).delete()
@@ -741,7 +745,8 @@ def admin_create_edition():
 
                 new_artist = Artists(
                     Artist_name=old_artist.Artist_name,
-                    image_url=old_artist.image_url
+                    image_url=old_artist.image_url,
+                    edition_id=edition.id
                 )
                 db.session.add(new_artist)
                 db.session.flush()
@@ -839,7 +844,8 @@ def admin_import_artists():
         # artiest KOPIËREN
         new_artist = Artists(
             Artist_name=old_artist.Artist_name,
-            image_url=old_artist.image_url
+            image_url=old_artist.image_url,
+            edition_id=active.id
         )
         db.session.add(new_artist)
         db.session.flush()
@@ -902,8 +908,9 @@ def admin_force_delete_edition(edition_id):
     )
 
     # 2. Verhuis alle artiest-koppelingen naar ARCHIVE
-    Artists.query.filter_by(edition_id=edition.id).delete()
-
+    Artists.query.filter_by(edition_id=edition.id).update(
+        {"edition_id": ARCHIVE_ID}
+    )
 
     # 3. Verhuis alle suggestion feedback naar ARCHIVE,
     #    maar vermijd dubbele (user, artist, festival)-combinaties
