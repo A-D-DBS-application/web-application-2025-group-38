@@ -10,6 +10,12 @@ https://web-application-2025-group-38.onrender.com/
 
 ---
 
+## Kanban board
+We are unable to edit this anymore, this was our board at a certain moment of time:
+https://miro.com/app/board/uXjVJt5dw5k=/
+
+---
+
 ## Project Description
 The Festival Poll Application is a web-based platform developed as part of the courses  
 **Algorithms & Data Structures** and **Database Systems** at Ghent University.
