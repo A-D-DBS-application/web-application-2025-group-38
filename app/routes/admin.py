@@ -46,6 +46,70 @@ def require_admin(view_func):
     return wrapper
 
 
+def _merge_artist_records(source: Artists, target: Artists) -> None:
+    """Combineer alle verwijzingen van source-artist in target en verwijder de dubbele.
+
+    - Pollopties en stemmen worden samengevoegd.
+    - Suggesties die dubbel zouden worden, worden verwijderd.
+    - Genre-koppelingen worden samengevoegd zonder dubbele rijen aan te maken.
+    """
+
+    poll_options = Polloption.query.filter_by(artist_id=source.id).all()
+
+    for option in poll_options:
+        existing_option = Polloption.query.filter_by(
+            poll_id=option.poll_id, artist_id=target.id
+        ).first()
+
+        if existing_option:
+            user_ids = [
+                vote.user_id
+                for vote in VotesFor.query.filter_by(polloption_id=option.id).all()
+            ]
+
+            if user_ids:
+                VotesFor.query.filter(
+                    VotesFor.polloption_id == existing_option.id,
+                    VotesFor.user_id.in_(user_ids),
+                ).delete(synchronize_session=False)
+
+            VotesFor.query.filter_by(polloption_id=option.id).update(
+                {"polloption_id": existing_option.id}, synchronize_session=False
+            )
+            existing_option.Count = (existing_option.Count or 0) + (
+                option.Count or 0
+            )
+            db.session.delete(option)
+        else:
+            option.artist_id = target.id
+
+    for feedback in SuggestionFeedback.query.filter_by(artist_id=source.id).all():
+        duplicate_feedback = SuggestionFeedback.query.filter_by(
+            user_id=feedback.user_id,
+            artist_id=target.id,
+            festival_id=feedback.festival_id,
+        ).first()
+
+        if duplicate_feedback:
+            db.session.delete(feedback)
+        else:
+            feedback.artist_id = target.id
+
+    for link in ArtistGenres.query.filter_by(artist_id=source.id).all():
+        existing_link = ArtistGenres.query.filter_by(
+            artist_id=target.id, genre_id=link.genre_id
+        ).first()
+
+        if existing_link:
+            db.session.delete(link)
+        else:
+            link.artist_id = target.id
+
+    db.session.delete(source)
+
+
+
+
 # -------------------------------------------------------------------
 # Festival edities
 # -------------------------------------------------------------------
@@ -424,6 +488,19 @@ def admin_add_artist():
     if not active:
         flash("Geen actieve editie ingesteld.", "danger")
         return redirect(url_for("admin.admin_artists"))
+    
+    existing_artist = (
+        Artists.query
+        .filter(
+            Artists.edition_id == active.id,
+            func.lower(Artists.Artist_name) == name.lower(),
+        )
+        .first()
+    )
+
+    if existing_artist:
+        flash("Deze artiest bestaat al in de actieve editie.", "warning")
+        return redirect(url_for("admin.admin_artists"))
 
     artist = Artists(
         Artist_name=name,
@@ -497,12 +574,50 @@ def admin_artist_detail(artist_id):
         .all()
     )
 
+    duplicates = (
+        Artists.query
+        .filter(
+            Artists.edition_id == artist.edition_id,
+            func.lower(Artists.Artist_name) == func.lower(artist.Artist_name),
+            Artists.id != artist.id,
+        )
+        .order_by(Artists.created_at.asc())
+        .all()
+    )
+
     return render_template(
         "admin_artist_detail.html",
         artist=artist,
         genres=genres,
         linked_genres=linked_genres,
+        duplicates=duplicates,
     )
+@bp.post("/admin/artists/<int:artist_id>/merge")
+@require_admin
+def admin_merge_artist(artist_id):
+    target = Artists.query.get_or_404(artist_id)
+    duplicate_id = request.form.get("duplicate_id", type=int)
+
+    if not duplicate_id:
+        flash("Kies eerst een dubbele artiest om samen te voegen.", "warning")
+        return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
+
+    duplicate = Artists.query.get_or_404(duplicate_id)
+
+    if duplicate.edition_id != target.edition_id:
+        flash("Je kan enkel artiesten binnen dezelfde editie samenvoegen.", "warning")
+        return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
+
+    if duplicate.Artist_name.lower() != target.Artist_name.lower():
+        flash("Kies een artiest met dezelfde naam om dubbels te vermijden.", "warning")
+        return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
+
+    _merge_artist_records(duplicate, target)
+    db.session.commit()
+
+    flash("De dubbele artiest is samengevoegd met deze artiest.", "success")
+    return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
+
 
 
 @bp.post("/admin/artists/<int:artist_id>/genres/add")
@@ -692,6 +807,7 @@ def admin_force_delete_artist(artist_id):
 
     for option in poll_options:
         VotesFor.query.filter_by(polloption_id=option.id).delete()
+        db.session.delete(option)
 
 
     # 3. Verwijder genres-koppelingen
@@ -739,9 +855,13 @@ def admin_create_edition():
 
         if old_poll:
             old_options = Polloption.query.filter_by(poll_id=old_poll.id).all()
+            existing_names = set()
 
             for opt in old_options:
                 old_artist = opt.artist
+
+                if old_artist.Artist_name.lower() in existing_names:
+                    continue
 
                 new_artist = Artists(
                     Artist_name=old_artist.Artist_name,
@@ -750,6 +870,8 @@ def admin_create_edition():
                 )
                 db.session.add(new_artist)
                 db.session.flush()
+
+                existing_names.add(old_artist.Artist_name.lower())
 
                 for genre in old_artist.genres:
                     db.session.add(ArtistGenres(
@@ -787,7 +909,7 @@ def admin_artists():
     if import_from:
         import_artists = (
             db.session.query(Artists)
-            .filter(Artists.edition_id == active.id)
+            .filter(Artists.edition_id == import_from)
             .order_by(Artists.Artist_name)
             .all()
         )
@@ -814,7 +936,7 @@ def admin_show_import():
     if from_id:
         import_artists = (
             db.session.query(Artists)
-            .filter(Artists.edition_id == active.id)
+            .filter(Artists.edition_id == from_id)
             .order_by(Artists.Artist_name)
             .all()
         )
@@ -839,9 +961,21 @@ def admin_import_artists():
         flash("Ongeldige import.", "warning")
         return redirect(url_for("admin.admin_show_import", from_edition=from_edition))
 
-    for old_artist in Artists.query.filter(Artists.id.in_(artist_ids)).all():
+    existing_names = {
+        name.lower()
+        for (name,) in db.session.query(Artists.Artist_name)
+        .filter(Artists.edition_id == active.id)
+        .all()
+    }
 
-        # artiest KOPIËREN
+    imported_count = 0
+    skipped_count = 0
+
+    for old_artist in Artists.query.filter(Artists.id.in_(artist_ids)).all():
+        if old_artist.Artist_name.lower() in existing_names:
+            skipped_count += 1
+            continue
+
         new_artist = Artists(
             Artist_name=old_artist.Artist_name,
             image_url=old_artist.image_url,
@@ -850,13 +984,19 @@ def admin_import_artists():
         db.session.add(new_artist)
         db.session.flush()
 
-        # genres kopiëren
+        imported_count += 1
+        existing_names.add(old_artist.Artist_name.lower()) 
+
         for genre in old_artist.genres:
             new_artist.genres.append(genre)
 
     db.session.commit()
 
-    flash(f"{len(artist_ids)} artiest(en) geïmporteerd naar editie {active.Name}.", "success")
+    flash(
+        f"{imported_count} artiest(en) geïmporteerd naar editie {active.Name}."
+        + (f" {skipped_count} overgeslagen wegens duplicaat." if skipped_count else ""),
+        "success",
+    )
     return redirect(url_for("admin.admin_artists"))
 
 @bp.get("/admin/editions/<int:edition_id>/delete/confirm")

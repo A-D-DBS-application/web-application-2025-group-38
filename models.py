@@ -1,6 +1,6 @@
 # models.py
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import func
+from sqlalchemy import UniqueConstraint, func
 from datetime import datetime
 
 db = SQLAlchemy()
@@ -52,6 +52,11 @@ class ArtistGenres(db.Model):
 
 class Artists(db.Model):
     __tablename__ = "Artists"
+    __table_args__ = (
+        UniqueConstraint(
+            "Artist_name", "edition_id", name="uq_artists_name_edition"
+        ),
+    )
 
     id = db.Column(db.BigInteger, primary_key=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

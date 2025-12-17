@@ -89,6 +89,31 @@
     </div>
 
     <hr class="my-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="mb-3">Dubbele artiesten samenvoegen</h5>
+            {% if duplicates %}
+            <p class="text-muted">Kies een dubbele artiest met dezelfde naam om alle polls, stemmen, genres en suggesties samen te voegen in deze artiest.</p>
+            <form method="post" action="{{ url_for('admin.admin_merge_artist', artist_id=artist.id) }}" class="row g-2 align-items-end">
+                <div class="col-md-8">
+                    <select name="duplicate_id" class="form-select" required>
+                        <option value="">Selecteer dubbele artiest</option>
+                        {% for dup in duplicates %}
+                        <option value="{{ dup.id }}">#{{ dup.id }} – {{ dup.Artist_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-warning w-100">Samenvoegen</button>
+                </div>
+            </form>
+            {% else %}
+            <p class="text-muted mb-0">Geen dubbele artiesten met dezelfde naam in deze editie.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <hr class="my-4">
 
     <a href="{{ url_for('admin.admin_artists') }}" class="btn btn-secondary">Terug</a>
 </div>
