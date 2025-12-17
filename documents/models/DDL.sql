@@ -1,96 +1,85 @@
-
-
-CREATE TABLE public.ArtistEdition (
-  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-  edition_id bigint NOT NULL,
-  artist_id bigint,
-  CONSTRAINT ArtistEdition_pkey PRIMARY KEY (id),
-  CONSTRAINT artistedition_artist_id_fkey FOREIGN KEY (artist_id) REFERENCES public.Artists(id),
-  CONSTRAINT artistedition_edition_id_fkey FOREIGN KEY (edition_id) REFERENCES public.FestivalEdition(id)
-);
 CREATE TABLE public.ArtistGenres (
   artist_id bigint NOT NULL,
   genre_id bigint NOT NULL,
   CONSTRAINT ArtistGenres_pkey PRIMARY KEY (artist_id, genre_id),
-  CONSTRAINT fk_artist FOREIGN KEY (artist_id) REFERENCES public.Artists(id),
-  CONSTRAINT fk_genre FOREIGN KEY (genre_id) REFERENCES public.Genres(id)
+  CONSTRAINT ArtistGenres_artist_id_fkey FOREIGN KEY (artist_id) REFERENCES public.Artists(id),
+  CONSTRAINT ArtistGenres_genre_id_fkey FOREIGN KEY (genre_id) REFERENCES public.Genres(id)
 );
 CREATE TABLE public.Artists (
-  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-  created_at timestamp with time zone NOT NULL DEFAULT now(),
-  Artist_name text UNIQUE,
-  image_url text,
-  CONSTRAINT Artists_pkey PRIMARY KEY (id)
+  id bigint NOT NULL DEFAULT nextval('"Artists_id_seq"'::regclass),
+  created_at timestamp without time zone NOT NULL,
+  Artist_name character varying NOT NULL,
+  image_url character varying,
+  edition_id integer NOT NULL,
+  CONSTRAINT Artists_pkey PRIMARY KEY (id),
+  CONSTRAINT Artists_edition_id_fkey FOREIGN KEY (edition_id) REFERENCES public.FestivalEdition(id)
 );
 CREATE TABLE public.FestivalEdition (
-  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  id integer NOT NULL DEFAULT nextval('"FestivalEdition_id_seq"'::regclass),
+  created_at timestamp with time zone DEFAULT now(),
   Start_date date,
   End_date date,
   Name text,
   Location text,
-  is_active boolean DEFAULT false,
+  is_active boolean NOT NULL DEFAULT true,
   CONSTRAINT FestivalEdition_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.Genres (
-  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-  name text NOT NULL UNIQUE,
+  id bigint NOT NULL DEFAULT nextval('"Genres_id_seq"'::regclass),
+  name character varying NOT NULL UNIQUE,
   related_genre_id bigint,
   CONSTRAINT Genres_pkey PRIMARY KEY (id),
-  CONSTRAINT fk_Genres_related_genre_id_Genres FOREIGN KEY (related_genre_id) REFERENCES public.Genres(id)
+  CONSTRAINT Genres_related_genre_id_fkey FOREIGN KEY (related_genre_id) REFERENCES public.Genres(id)
 );
 CREATE TABLE public.Polloption (
-  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  id integer NOT NULL DEFAULT nextval('"Polloption_id_seq"'::regclass),
+  created_at timestamp with time zone DEFAULT now(),
   text text,
-  Count bigint DEFAULT '0'::bigint,
-  artist_id bigint,
-  poll_id bigint,
+  Count integer,
+  artist_id integer,
+  poll_id integer,
   CONSTRAINT Polloption_pkey PRIMARY KEY (id),
   CONSTRAINT Polloption_artist_id_fkey FOREIGN KEY (artist_id) REFERENCES public.Artists(id),
   CONSTRAINT Polloption_poll_id_fkey FOREIGN KEY (poll_id) REFERENCES public.poll(id)
 );
 CREATE TABLE public.Suggestion_feedback (
-  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-  created_at timestamp with time zone NOT NULL DEFAULT now(),
-  artist_id bigint,
+  id integer NOT NULL DEFAULT nextval('"Suggestion_feedback_id_seq"'::regclass),
+  artist_id integer,
   user_id integer,
-  email text,
-  artist_name text,
-  is_hidden boolean DEFAULT false,
-  festival_id bigint,
+  festival_id integer,
+  created_at timestamp with time zone DEFAULT now(),
+  is_hidden boolean NOT NULL DEFAULT false,
   CONSTRAINT Suggestion_feedback_pkey PRIMARY KEY (id),
   CONSTRAINT Suggestion_feedback_artist_id_fkey FOREIGN KEY (artist_id) REFERENCES public.Artists(id),
-  CONSTRAINT Suggestion_feedback_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.User(id),
-  CONSTRAINT Suggestion_feedback_festival_id_fkey FOREIGN KEY (festival_id) REFERENCES public.FestivalEdition(id)
+  CONSTRAINT Suggestion_feedback_festival_id_fkey FOREIGN KEY (festival_id) REFERENCES public.FestivalEdition(id),
+  CONSTRAINT Suggestion_feedback_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.User(id)
 );
 CREATE TABLE public.User (
-  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  id integer NOT NULL DEFAULT nextval('"User_id_seq"'::regclass),
+  created_at timestamp with time zone DEFAULT now(),
   email text,
-  is_admin boolean,
+  is_admin boolean NOT NULL DEFAULT false,
   CONSTRAINT User_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.Votes_for (
-  created_at timestamp with time zone NOT NULL DEFAULT now(),
-  user_id bigint NOT NULL,
-  polloption_id bigint NOT NULL,
-  polloption_name text,
+  created_at timestamp with time zone DEFAULT now(),
+  user_id integer NOT NULL,
+  polloption_id integer NOT NULL,
   CONSTRAINT Votes_for_pkey PRIMARY KEY (user_id, polloption_id),
-  CONSTRAINT fk_votes_for_user FOREIGN KEY (user_id) REFERENCES public.User(id),
-  CONSTRAINT fk_votes_for_polloption FOREIGN KEY (polloption_id) REFERENCES public.Polloption(id)
+  CONSTRAINT Votes_for_polloption_id_fkey FOREIGN KEY (polloption_id) REFERENCES public.Polloption(id),
+  CONSTRAINT Votes_for_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.User(id)
 );
 CREATE TABLE public.alembic_version (
   version_num character varying NOT NULL,
   CONSTRAINT alembic_version_pkey PRIMARY KEY (version_num)
 );
 CREATE TABLE public.poll (
-  id bigint GENERATED ALWAYS AS IDENTITY NOT NULL,
-  created_at timestamp with time zone NOT NULL DEFAULT now(),
-  festival_id bigint,
-  is_visible boolean DEFAULT true,
-  show_results boolean DEFAULT true,
+  id integer NOT NULL DEFAULT nextval('poll_id_seq'::regclass),
+  created_at timestamp with time zone DEFAULT now(),
   Question text,
+  festival_id integer,
+  is_visible boolean NOT NULL DEFAULT true,
+  show_results boolean NOT NULL DEFAULT true,
   CONSTRAINT poll_pkey PRIMARY KEY (id),
   CONSTRAINT poll_festival_id_fkey FOREIGN KEY (festival_id) REFERENCES public.FestivalEdition(id)
 );
