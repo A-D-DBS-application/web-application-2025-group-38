@@ -6,8 +6,7 @@ Deadline: 19 December 2025
 ---
 
 ## Render
-Live application (Render):  
-(to be added)
+Live application (Render):  https://l.messenger.com/l.php?u=https%3A%2F%2Fweb-application-2025-group-38.onrender.com%2F&h=AT3e3ZhH20CHVgDHSRl6ZXiUHUyVKqxE-xh6gpcsl8dSrvFK4cTMyrTlYEpqNI93Ym9ZIHyCds-yjkmei5qvQyz8TEORjR_-BuaKwDdEnIyP9AHAU5u3SL352fu4UMSYxUmh1CVZUj1TK8mENA1EcA
 
 ---
 
@@ -40,6 +39,8 @@ The project focuses on database design, data-driven decision making, and algorit
 ---
 
 ## Installation Notes
+For detailed dependency information, see the `requirements.txt` file included in the repository.
+
 The application requires a PostgreSQL database (Supabase).
 
 Before running the application, the following environment variables must be configured:
