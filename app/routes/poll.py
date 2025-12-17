@@ -232,7 +232,7 @@ def results():
 
     # --- Jouw stemmen binnen de actieve editie ---
     user_votes = []
-    if user and poll:
+    if user:
         user_votes = (
             db.session.query(VotesFor, Polloption, Poll, FestivalEdition, Artists)
             .join(Polloption, VotesFor.polloption_id == Polloption.id)
@@ -241,7 +241,7 @@ def results():
             .join(Artists, Polloption.artist_id == Artists.id)
             .filter(
                 VotesFor.user_id == user.id,
-                Poll.festival_id == poll.festival_id,
+                FestivalEdition.Name != "ARCHIVE",
             )
             .order_by(FestivalEdition.Start_date.desc())
             .all()
