@@ -1047,10 +1047,26 @@ def admin_force_delete_edition(edition_id):
         {"festival_id": ARCHIVE_ID}
     )
 
-    # 2. Verhuis alle artiest-koppelingen naar ARCHIVE
-    Artists.query.filter_by(edition_id=edition.id).update(
-        {"edition_id": ARCHIVE_ID}
-    )
+    # 2. Verhuis artiesten naar ARCHIVE, maar voorkom duplicates (zelfde naam in ARCHIVE)
+    artists_to_move = Artists.query.filter_by(edition_id=edition.id).all()
+
+    for artist in artists_to_move:
+        archive_artist = (
+            Artists.query
+            .filter(
+                Artists.edition_id == ARCHIVE_ID,
+                func.lower(Artists.Artist_name) == func.lower(artist.Artist_name),
+            )
+            .first()
+        )
+
+        if archive_artist:
+            # Bestaat al in ARCHIVE -> merge records en verwijder de dubbele
+            _merge_artist_records(artist, archive_artist)
+        else:
+            # Bestaat nog niet -> gewoon verhuizen
+            artist.edition_id = ARCHIVE_ID
+
 
     # 3. Verhuis alle suggestion feedback naar ARCHIVE,
     #    maar vermijd dubbele (user, artist, festival)-combinaties
