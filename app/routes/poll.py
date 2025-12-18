@@ -58,8 +58,10 @@ def poll_detail():
     existing_vote_option = (
         db.session.query(Polloption)
         .join(VotesFor, VotesFor.polloption_id == Polloption.id)
+        .join(Poll, Polloption.poll_id == Poll.id)
         .filter(
             VotesFor.user_id == user.id,
+            Poll.festival_id == poll.festival_id,
             Polloption.poll_id == poll.id,
         )
         .first()
@@ -143,9 +145,10 @@ def vote():
     existing_vote = (
         db.session.query(VotesFor)
         .join(Polloption, VotesFor.polloption_id == Polloption.id)
+        .join(Poll, Polloption.poll_id == Poll.id)
         .filter(
             VotesFor.user_id == user.id,
-            Polloption.poll_id == poll.id,
+            Poll.festival_id == poll.festival_id,
         )
         .first()
     )
