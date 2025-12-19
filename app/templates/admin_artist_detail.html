@@ -3,66 +3,73 @@
 {% block content %}
 <div class="container py-5">
     <h2 class="fw-bold mb-4">Artiest: {{ artist.Artist_name }}</h2>
+
     <!-- FOTO VAN ARTIEST -->
     <div class="mb-4">
-
         <h5 class="mb-3">Artiestfoto</h5>
 
-        <div class="mb-4">
+        {% if artist.image_url %}
+            <img
+                src="{{ artist.image_url }}"
+                alt="{{ artist.Artist_name }}"
+                class="img-fluid rounded border mb-3"
+                style="max-height: 250px; object-fit: cover;"
+            />
+        {% else %}
+            <p class="text-muted mb-0">Geen foto geüpload.</p>
+        {% endif %}
 
-            {% if artist.image_url %}
-            <!-- Foto tonen -->
-            <img src="{{ url_for('static', filename=artist.image_url) }}" alt="{{ artist.Artist_name }}"
-                class="img-fluid rounded border mb-3" style="max-height: 250px; object-fit: cover;" />
+        <!-- FOTO UPLOAD / VERVANGEN -->
+<form
+    method="post"
+    enctype="multipart/form-data"
+    action="{{ url_for('admin.admin_upload_artist_image', artist_id=artist.id) }}"
+    class="mb-4"
+>
+    <div class="mb-2">
+        <input
+            type="file"
+            name="artist_image"
+            class="form-control"
+            accept="image/*"
+            required
+        >
+    </div>
 
-            <!-- Verwijder-knop -->
-            <form method="post" action="{{ url_for('admin.admin_delete_artist_image', artist_id=artist.id) }}">
-                <button type="submit" class="btn btn-outline-danger">Foto verwijderen</button>
-            </form>
-
-            {% else %}
-            <!-- Geen foto aanwezig -->
-            <p class="text-muted mb-2">Geen foto geüpload.</p>
-
-            <!-- Upload formulier -->
-            <form method="post" enctype="multipart/form-data"
-                action="{{ url_for('admin.admin_upload_artist_image', artist_id=artist.id) }}">
-                <input type="file" name="artist_image" class="form-control mb-2" accept="image/*" required>
-                <button type="submit" class="btn btn-primary">Foto uploaden</button>
-            </form>
-            {% endif %}
-
-        </div>
-
-
+    <button type="submit" class="btn btn-primary">
+        {% if artist.image_url %}
+            Foto vervangen
+        {% else %}
+            Foto uploaden
+        {% endif %}
+    </button>
+</form>
 
     </div>
 
     <hr class="my-4">
 
     <div class="row mb-4">
-        <!-- Linkerzijde: gekoppelde genres + verwijderknop -->
+        <!-- Linkerzijde: gekoppelde genres -->
         <div class="col-md-6">
             <h5 class="mb-3">Gekoppelde genres</h5>
 
             {% if linked_genres %}
-            <ul class="list-group">
-                {% for g in linked_genres %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{{ g.name }}</span>
-
-                    <form method="post"
-                        action="{{ url_for('admin.admin_remove_genre', artist_id=artist.id, genre_id=g.id) }}"
-                        class="ms-3">
-                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                            Verwijder
-                        </button>
-                    </form>
-                </li>
-                {% endfor %}
-            </ul>
+                <ul class="list-group">
+                    {% for g in linked_genres %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ g.name }}</span>
+                            <form method="post"
+                                  action="{{ url_for('admin.admin_remove_genre', artist_id=artist.id, genre_id=g.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    Verwijder
+                                </button>
+                            </form>
+                        </li>
+                    {% endfor %}
+                </ul>
             {% else %}
-            <p class="text-muted mb-0">Er zijn nog geen genres gekoppeld aan deze artiest.</p>
+                <p class="text-muted mb-0">Er zijn nog geen genres gekoppeld aan deze artiest.</p>
             {% endif %}
         </div>
 
@@ -70,12 +77,13 @@
         <div class="col-md-6">
             <h5 class="mb-3">Genre toevoegen</h5>
 
-            <form method="post" action="{{ url_for('admin.admin_add_genre', artist_id=artist.id) }}"
-                class="row g-2 align-items-center">
+            <form method="post"
+                  action="{{ url_for('admin.admin_add_genre', artist_id=artist.id) }}"
+                  class="row g-2 align-items-center">
                 <div class="col-md-7">
                     <select name="genre_id" class="form-select">
                         {% for g in genres %}
-                        <option value="{{ g.id }}">{{ g.name }}</option>
+                            <option value="{{ g.id }}">{{ g.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -89,32 +97,48 @@
     </div>
 
     <hr class="my-4">
+
+    <!-- DUBBELE ARTIESTEN SAMENVOEGEN -->
     <div class="row mb-4">
         <div class="col-12">
             <h5 class="mb-3">Dubbele artiesten samenvoegen</h5>
+
             {% if duplicates %}
-            <p class="text-muted">Kies een dubbele artiest met dezelfde naam om alle polls, stemmen, genres en suggesties samen te voegen in deze artiest.</p>
-            <form method="post" action="{{ url_for('admin.admin_merge_artist', artist_id=artist.id) }}" class="row g-2 align-items-end">
-                <div class="col-md-8">
-                    <select name="duplicate_id" class="form-select" required>
-                        <option value="">Selecteer dubbele artiest</option>
-                        {% for dup in duplicates %}
-                        <option value="{{ dup.id }}">#{{ dup.id }} – {{ dup.Artist_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-warning w-100">Samenvoegen</button>
-                </div>
-            </form>
+                <p class="text-muted">
+                    Kies een dubbele artiest met dezelfde naam om alle polls, stemmen, genres en suggesties samen te voegen.
+                </p>
+
+                <form method="post"
+                      action="{{ url_for('admin.admin_merge_artist', artist_id=artist.id) }}"
+                      class="row g-2 align-items-end">
+                    <div class="col-md-8">
+                        <select name="duplicate_id" class="form-select" required>
+                            <option value="">Selecteer dubbele artiest</option>
+                            {% for dup in duplicates %}
+                                <option value="{{ dup.id }}">
+                                    #{{ dup.id }} – {{ dup.Artist_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-warning w-100">
+                            Samenvoegen
+                        </button>
+                    </div>
+                </form>
             {% else %}
-            <p class="text-muted mb-0">Geen dubbele artiesten met dezelfde naam in deze editie.</p>
+                <p class="text-muted mb-0">
+                    Geen dubbele artiesten met dezelfde naam in deze editie.
+                </p>
             {% endif %}
         </div>
     </div>
 
     <hr class="my-4">
 
-    <a href="{{ url_for('admin.admin_artists') }}" class="btn btn-secondary">Terug</a>
+    <a href="{{ url_for('admin.admin_artists') }}" class="btn btn-secondary">
+        Terug
+    </a>
 </div>
 {% endblock %}

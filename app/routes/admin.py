@@ -3,10 +3,10 @@ from functools import wraps
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from sqlalchemy import func, exists
-from PIL import Image
-import os
-from flask import current_app
-from werkzeug.utils import secure_filename
+from app.services.image_upload import upload_artist_image
+from sqlalchemy.exc import IntegrityError
+
+
 
 
 from models import (
@@ -427,99 +427,57 @@ def admin_add_artist():
     # Validatie: minstens 1 genre verplicht
     if not genre_ids:
         flash("Duid minstens één genre aan.", "warning")
-        active = FestivalEdition.query.filter_by(is_active=True).first()
-        edition = FestivalEdition.query.filter_by(is_active=True).first()
-        if not edition:
-            flash("Geen actieve editie ingesteld.", "warning")
-            return redirect(url_for("admin.admin_artists"))
-
-        artists = (
-         db.session.query(Artists) \
-            .filter(Artists.edition_id == active.id)
-
-        )
-
-        genres = Genres.query.order_by(Genres.name).all()
-        return render_template(
-            "admin_artists.html",
-            artists=artists,
-            genres=genres,
-            new_artist_name=name,
-        )
-
-    # Bestaat artiest al?
-    existing = Artists.query.filter(
-        func.lower(Artists.Artist_name) == name.lower()
-    ).first()
-    if existing:
-        flash("Deze artiest bestaat al.", "info")
         return redirect(url_for("admin.admin_artists"))
 
-    # ----------------------------------------
-    # FOTO OPSLAAN (forceer altijd JPG)
-    # ----------------------------------------
-    image_path = None
-
-    if upload and upload.filename.strip():
-        upload_folder = os.path.join(
-            current_app.root_path, "static", "images", "artist_images"
-        )
-        os.makedirs(upload_folder, exist_ok=True)
-
-        # Forceer .jpg
-        filename = secure_filename(name.lower().replace(" ", "_") + ".jpg")
-        filepath = os.path.join(upload_folder, filename)
-
-        img = Image.open(upload)
-
-        # PNG → JPG conversie
-        if img.mode in ("RGBA", "P"):
-            img = img.convert("RGB")
-
-        img.save(filepath, format="JPEG", quality=90)
-
-        # Correct pad opslaan (JUIST!)
-        image_path = f"images/artist_images/{filename}"
-
-    # ----------------------------------------
-    # ARTIEST OPSLAAN
-    # ----------------------------------------
+    # Actieve editie ophalen
     active = FestivalEdition.query.filter_by(is_active=True).first()
     if not active:
         flash("Geen actieve editie ingesteld.", "danger")
         return redirect(url_for("admin.admin_artists"))
-    
-    existing_artist = (
-        Artists.query
-        .filter(
-            Artists.edition_id == active.id,
-            func.lower(Artists.Artist_name) == name.lower(),
-        )
-        .first()
-    )
 
-    if existing_artist:
-        flash("Deze artiest bestaat al in de actieve editie.", "warning")
-        return redirect(url_for("admin.admin_artists"))
+    # ----------------------------------------
+    # FOTO UPLOAD (Supabase)
+    # ----------------------------------------
+    image_url = None
+    if upload and upload.filename:
+        image_url = upload_artist_image(upload)
 
+    # ----------------------------------------
+    # ARTIEST AANMAKEN
+    # ----------------------------------------
     artist = Artists(
         Artist_name=name,
-        image_url=image_path,
-        edition_id=active.id
+        image_url=image_url,
+        edition_id=active.id,
     )
+
     db.session.add(artist)
-    db.session.flush()
+
+    # ❗ Database constraint netjes afvangen
+    try:
+        db.session.flush()
+    except IntegrityError:
+        db.session.rollback()
+        flash(
+            "Deze artiest bestaat al in de actieve editie.",
+            "warning",
+        )
+        return redirect(url_for("admin.admin_artists"))
 
     # Genres koppelen
     for gid in genre_ids:
         db.session.add(
-            ArtistGenres(artist_id=artist.id, genre_id=int(gid))
+            ArtistGenres(
+                artist_id=artist.id,
+                genre_id=int(gid),
+            )
         )
 
     db.session.commit()
 
     flash(f"Artiest '{name}' is toegevoegd!", "success")
     return redirect(url_for("admin.admin_artists"))
+
 
 
 @bp.post("/admin/artists/<int:artist_id>/delete")
@@ -542,22 +500,29 @@ def admin_delete_artist(artist_id):
         )
         return redirect(url_for("admin.admin_artists"))
 
-    # ----------- FOTO VERWIJDEREN (BELANGRIJK!) -----------
-    if artist.image_url:
-        file_path = os.path.join(current_app.root_path, "static", artist.image_url)
-
-        if os.path.exists(file_path) and os.path.isfile(file_path):
-            try:
-                os.remove(file_path)
-            except Exception as e:
-                print("Fout bij verwijderen afbeelding:", e)
-
     # ----------- ARTIEST VERWIJDEREN -----------
     db.session.delete(artist)
     db.session.commit()
 
     flash("Artiest verwijderd.", "success")
     return redirect(url_for("admin.admin_artists"))
+
+@bp.post("/admin/artists/<int:artist_id>/image")
+@require_admin
+def admin_upload_artist_image(artist_id):
+    artist = Artists.query.get_or_404(artist_id)
+
+    upload = request.files.get("artist_image")
+    if not upload or not upload.filename:
+        flash("Geen afbeelding geselecteerd.", "warning")
+        return redirect(url_for("admin.admin_artist_detail", artist_id=artist.id))
+
+    # Upload naar Supabase (vervangt gewoon de URL)
+    artist.image_url = upload_artist_image(upload)
+    db.session.commit()
+
+    flash("Artiestfoto bijgewerkt.", "success")
+    return redirect(url_for("admin.admin_artist_detail", artist_id=artist.id))
 
 
 @bp.get("/admin/artists/<int:artist_id>")
@@ -699,60 +664,8 @@ def admin_add_new_genre():
     flash(f"Genre '{name}' is toegevoegd.", "success")
     return redirect(url_for("admin.admin_artists"))
 
-@bp.post("/admin/artists/<int:artist_id>/image/delete")
-@require_admin
-def admin_delete_artist_image(artist_id):
-    artist = Artists.query.get_or_404(artist_id)
 
-    # Staat er geen foto in de database?
-    if not artist.image_url:
-        flash("Deze artiest heeft geen opgeslagen foto.", "warning")
-        return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
 
-    # Volledig pad naar bestand
-    file_path = os.path.join(current_app.root_path, "static", artist.image_url)
-
-    # Verwijder bestand als het bestaat
-    if os.path.exists(file_path):
-        os.remove(file_path)
-
-    # Leeg de image_url
-    artist.image_url = None
-    db.session.commit()
-
-    flash("Foto succesvol verwijderd.", "success")
-    return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
-
-@bp.post("/admin/artists/<int:artist_id>/image/upload")
-@require_admin
-def admin_upload_artist_image(artist_id):
-    artist = Artists.query.get_or_404(artist_id)
-    upload = request.files.get("artist_image")
-
-    if not upload or not upload.filename.strip():
-        flash("Geen geldige afbeelding gekozen.", "warning")
-        return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
-
-    upload_folder = os.path.join(
-        current_app.root_path, "static", "images", "artist_images"
-    )
-    os.makedirs(upload_folder, exist_ok=True)
-
-    filename = secure_filename(artist.Artist_name.lower().replace(" ", "_") + ".jpg")
-    filepath = os.path.join(upload_folder, filename)
-
-    img = Image.open(upload)
-
-    if img.mode in ("RGBA", "P"):
-        img = img.convert("RGB")
-
-    img.save(filepath, format="JPEG", quality=90)
-
-    artist.image_url = f"images/artist_images/{filename}"
-    db.session.commit()
-
-    flash("Foto succesvol geüpload!", "success")
-    return redirect(url_for("admin.admin_artist_detail", artist_id=artist_id))
 
 @bp.get("/admin/artists/<int:artist_id>/delete/confirm")
 @require_admin
@@ -1015,18 +928,6 @@ def admin_confirm_delete_edition(edition_id):
         poll_count=poll_count,
         blocked=blocked,
     )
-
-from models import (
-    db,
-    Artists,
-    SuggestionFeedback,
-    Genres,
-    ArtistGenres,
-    FestivalEdition,
-    User,
-    Polloption,
-    Poll,
-)
 
 
 @bp.post("/admin/editions/<int:edition_id>/delete/force")
