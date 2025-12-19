@@ -1,0 +1,51 @@
+id,created_at,Artist_name,image_url,edition_id
+1,2025-12-12 21:51:56.893919,Avicii,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/331dd493-1b42-4169-8ad2-776134229bd1.jpg,1
+2,2025-12-12 21:53:11.987581,Dua Lipa,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/5e4b3b21-a033-4b8e-af46-7f3d84cd707e.jpg,1
+4,2025-12-12 21:54:42.882067,Eminem,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/14ae30f3-c1bc-4694-90a6-241b51478810.avif,1
+5,2025-12-12 21:57:29.972959,Bastille,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/96629237-e20f-4ea0-b01a-a27fbf01a7f4.jpg,1
+6,2025-12-12 21:58:00.47139,Billie Eilish,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/49561952-5c90-41c3-8443-d6a83a3d75c8.jpg,1
+7,2025-12-12 21:58:43.76787,Kings Of Leon,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/3fba4f84-19ac-44f5-a817-a4e7c67999dc.jpg,1
+8,2025-12-12 21:59:07.772629,Foo Fighters,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/3d84c8d2-0baf-4d6f-b525-dce5763ffdc3.jpg,1
+11,2025-12-12 22:02:45.936024,David Guetta,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/35fd37bb-f32e-44d9-a94c-31bf74c75136.webp,2
+12,2025-12-12 22:03:12.025794,Imagine Dragons,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/bb264b19-15f5-4580-955c-82d676d4e352.webp,2
+13,2025-12-12 22:03:39.578655,Kanye West,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/956db934-d763-4595-8bb5-2743ac4c1ba4.webp,2
+14,2025-12-12 22:48:05.295001,Meau,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/bac3f9a6-198b-4d1b-9717-801526600563.jpg,2
+15,2025-12-12 22:48:56.972866,Bazart,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/d3702003-f5f2-4b7a-b909-339d3720694f.jpg,2
+16,2025-12-13 21:50:21.339438,dEUS,images/artist_images/deus.jpg,2
+17,2025-12-13 21:51:23.023208,Pommelien Thijs,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/9ab78668-67e4-44ef-9a93-672163e5d0fe.avif,2
+18,2025-12-13 21:52:05.319486,The Cure,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/e2fbc7bc-964b-48ff-a86d-680dedd612d9.webp,2
+19,2025-12-13 21:53:32.079844,Florence + The Machine,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/f3ed4a8f-2f42-4129-8707-1deec2545415.jpg,2
+20,2025-12-13 21:56:37.57045,Red Hot Chili Peppers,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/48983816-c476-4e19-952d-b4afc6dabd55.jpg,2
+21,2025-12-13 21:59:17.671441,Angèle,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/9f72579c-7e02-4bc4-ac51-9846d4b89637.webp,2
+22,2025-12-13 22:01:58.080281,Black Box Revelation,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/134042fa-861a-4b85-aca1-db5e120a3a54.jpg,2
+23,2025-12-13 22:03:30.552529,Queens of the Stone Age,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/5600a382-fcfc-470a-bd27-51ea76e4834e.jpg,2
+26,2025-12-13 22:35:35.159516,Greta Van Fleet,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/5b9dc482-04cb-44cc-ba76-9138b563183f.jpg,2
+27,2025-12-13 22:36:54.657706,Metallica,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/284aee5d-ea25-403a-a30d-4f19fb9a8be1.avif,2
+28,2025-12-16 13:12:15.836921,Stromae,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/47f2f4f3-a762-405b-aca2-ddbb04c72a99.webp,2
+37,2025-12-17 09:46:04.819237,David Guetta,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/3db61623-0f7c-4bda-a469-b5e7bca817b9.webp,1
+38,2025-12-17 09:46:04.933545,Kanye West,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/9c08a4d8-dacc-4894-a467-c772d35ec6cf.webp,1
+40,2025-12-17 09:46:05.243763,dEUS,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/b94a9672-8de9-46c9-a6a5-e94bbaeffd62.jpg,1
+42,2025-12-17 09:46:05.549495,Florence + The Machine,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/4669e11c-b81a-4415-801e-09ed79d13746.jpg,1
+44,2025-12-17 09:46:05.856809,Black Box Revelation,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/e5182a82-5c4f-4244-b918-eb6451c66274.jpg,1
+51,2025-12-17 10:21:39.444084,Warhaus,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/9bf56428-a620-486c-a944-1ca00791f448.webp,2
+72,2025-12-17 11:18:15.356077,Metallica,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/4ebbc10e-e9e8-422a-8548-ae026eba5857.avif,1
+74,2025-12-17 11:18:15.64588,Queens of the Stone Age,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/a544e9ad-b702-4722-a47f-ee9421f06ecf.jpg,1
+77,2025-12-17 12:39:56.765158,J. Bernardt,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/34d87c84-38a3-44a4-ab7e-b6e9216bae6f.webp,1
+78,2025-12-17 12:41:35.631359,Meau,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/0c98ff3b-605a-476d-a806-61254992e775.jpg,1
+79,2025-12-17 12:41:35.74494,Pommelien Thijs,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/e88f5d2d-f968-46cc-ba6c-564c5499eb8a.avif,1
+80,2025-12-17 12:41:35.894686,Stromae,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/b34b30e0-8286-4e6e-8759-5656fdc4b7a9.webp,1
+82,2025-12-17 13:21:11.685408,The Cure,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/ffb71335-ed82-4981-a176-d93a5b2de313.webp,1
+83,2025-12-17 13:29:45.355153,Red Hot Chili Peppers,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/ce86a522-f4a9-474b-b0b7-333413ba7784.jpg,1
+84,2025-12-17 13:29:45.454408,Warhaus,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/12c0bdfb-e9cf-4b25-a75e-a7a25fa18774.webp,1
+85,2025-12-17 13:33:52.169545,Bazart,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/4bd87ead-6d59-4120-9e46-d9519e8c154e.jpg,1
+88,2025-12-17 13:38:34.749151,Imagine Dragons,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/591a2a8a-40fa-4695-8879-b2bafe85bd27.webp,1
+93,2025-12-17 13:38:35.585563,Greta Van Fleet,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/dd899772-fad8-4f3f-bffc-2338bb8ce949.jpg,1
+96,2025-12-17 13:50:18.018253,Dua Lipa,images/artist_images/dua_lipa.jpg,2
+97,2025-12-17 13:52:58.268412,Bart Peters,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/0fc0574f-692f-493d-9a66-9da15b003ab2.jpg,1
+105,2025-12-18 21:10:37.502035,Willy Sommers,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/82eb0c6c-598a-4239-8174-ebf3a43c1a82.jpg,1
+106,2025-12-18 21:23:15.125784,Coely,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/456682aa-4b5d-4ae0-b5a4-d1ec0e460f02.jpg,1
+108,2025-12-19 12:30:04.640216,Novastar,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/ce39fc17-c555-4db2-9c84-56d8795c341c.jpeg,1
+109,2025-12-19 13:29:18.78293,Berre,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/4355750a-d10c-4aa0-8af0-14b2a3af2d61.jpg,1
+110,2025-12-19 13:49:24.007242,Angèle,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/6b776370-683b-4876-8dd1-91c9f2ff5278.webp,1
+111,2025-12-19 14:23:04.156472,J. Bernardt,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/63064680-f0a7-4a29-b70b-a77bffd9c3bb.webp,2
+114,2025-12-19 14:31:51.275068,Willy Sommers,https://pwvyxvgwntypsbyuhkwa.supabase.co/storage/v1/object/public/artist-images/artists/3d38c780-c8ce-49de-a3de-9416b36400f2.webp,2
