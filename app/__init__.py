@@ -6,6 +6,8 @@ from models import db
 from app.routes import register_blueprints
 from app.services.poll import get_or_create_active_poll
 from app.utils.session import get_session_user
+from dotenv import load_dotenv
+load_dotenv()
 
 
 def create_app():
