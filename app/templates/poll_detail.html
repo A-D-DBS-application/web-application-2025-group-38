@@ -19,9 +19,9 @@
 
             <input type="radio" name="artist_id" value="{{ o.id }}" required>
 
-            <img src="{{ url_for('static', filename=o.image_url) }}"
-                 class="artist-photo"
-                 alt="{{ o.text }}">
+            <img src="{{ o.image_url }}"
+                class="artist-photo"
+                alt="{{ o.text }}">
 
             <div class="artist-name">{{ o.text }}</div>
         </label>
