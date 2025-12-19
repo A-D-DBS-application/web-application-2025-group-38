@@ -40,11 +40,14 @@ recommendation logic.
 ---
 
 ## Technical Stack
-- **Backend:** Flask (Python)
+- **Backend:** Flask (Python 3.12.x)
 - **Database:** PostgreSQL (Supabase)
 - **ORM:** SQLAlchemy
-- **Database migrations:** Flask-Migrate
-- **Recommendation logic:** Genre proximity graphs (Dijkstra algorithm)
+- **Authentication:** Flask-Login
+- **Storage:** Supabase Storage
+- **Environment management:** python-dotenv
+- **Deployment:** Render
+
 
 ---
 
