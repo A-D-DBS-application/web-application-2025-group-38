@@ -10,8 +10,8 @@ https://web-application-2025-group-38.onrender.com/
 
 ---
 
-## Kanban board
-We are unable to edit this anymore, this was our board at a certain moment of time:
+## Kanban Board
+We are unable to edit this board anymore; this represents the state of our planning at a specific moment in time:  
 https://miro.com/app/board/uXjVJt5dw5k=/
 
 ---
@@ -58,6 +58,30 @@ Before running the application, the following environment variables must be conf
 For detailed dependency information, see the `requirements.txt` file included in the repository.
 
 ---
+
+## Environment Variables
+
+This project uses environment variables to store sensitive configuration such as database
+credentials and secret keys.
+
+For security reasons, these values are **not included in the repository**.
+Each developer must create their own `.env` file locally.
+
+The `.env` file is listed in `.gitignore` and must never be committed.
+
+### Required environment variables
+- `SECRET_KEY`
+- `DATABASE_URL`
+
+### Example `.env` file
+```env
+FLASK_ENV=development
+FLASK_DEBUG=1
+FLASK_APP=app
+SECRET_KEY=your-secret-key
+DATABASE_URL=postgresql://user:password@host:port/database
+```
+
 
 ## How to run the app (development)
 
